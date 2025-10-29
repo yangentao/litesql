@@ -1,5 +1,8 @@
+// ignore_for_file: unused_local_variable
+
 import 'package:entao_dutil/entao_dutil.dart';
 import 'package:litesql/litesql.dart';
+import 'package:println/println.dart';
 import 'package:sqlite3/common.dart';
 
 void main() {
@@ -23,11 +26,33 @@ void main() {
   // SELECT id, name FROM Person WHERE id = 2
   // id: 2, name: entao2
 
-  var r = e.query(columns: [Person.id.MAX()]);
-  r.dump();
+  ResultSet r = e.query(columns: [Person.id.MAX()]);
+  println("max(id): ", r.oneValue);
+  PersonModel? p = e.one(PersonModel.new, where: Person.name.EQ("entao2"));
+  println(p);
 
   // e.dump();
   lite.dispose();
+}
+
+class PersonModel extends ModelSQL {
+  PersonModel(super.mapSQL);
+
+  int get id => get("id");
+
+  set id(int value) => set("id", value);
+
+  String? get name => get(Person.name);
+
+  set name(String? value) => set(Person.name, value);
+
+  String? get addr => get(Person.addr);
+
+  set addr(String? value) => set(Person.addr, value);
+
+  int? get age => get("age");
+
+  set age(int? value) => set("age", value);
 }
 
 enum Person with ETable<Person> {

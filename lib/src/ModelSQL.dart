@@ -7,13 +7,15 @@ class ModelSQL {
 
   ModelSQL.empty() : this({});
 
-  T? get<T>(String key) {
-    var v = mapSQL[key];
+  T? get<T>(Object key) {
+    String k = key is ETable ? key.name : key.toString();
+    var v = mapSQL[k];
     return _checkNum(v);
   }
 
-  void set<T>(String key, T? value) {
-    mapSQL[key] = value;
+  void set<T>(Object key, T? value) {
+    String k = key is ETable ? key.name : key.toString();
+    mapSQL[k] = value;
   }
 
   @override

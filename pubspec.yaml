@@ -12,7 +12,6 @@ dependencies:
   sqlite3: ^2.9.3
   sqlite3_flutter_libs: ^0.5.40
   println: ^1.0.0
-  any_call: ^1.0.0
   entao_dutil: ^1.2.6
   entao_log: ^1.2.5
   entao_lint: ^1.0.1
