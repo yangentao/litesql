@@ -18,7 +18,7 @@ part 'sqlite3_ext.dart';
 part 'TableSQL.dart';
 part 'wheres.dart';
 part 'ETable.dart';
-part 'LiteSQLExtends.dart';
+part 'EnumTable.dart';
 part 'MigrateETable.dart';
 part 'Migrate.dart';
 part 'WhereExtends.dart';
