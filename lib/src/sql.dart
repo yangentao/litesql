@@ -9,13 +9,18 @@ import 'package:println/println.dart';
 import 'package:sqlite3/sqlite3.dart';
 
 part 'configs.dart';
-part 'fields.dart';
-part 'litesql.dart';
-part 'model.dart';
+part 'EColumn.dart';
+part 'FieldSQL.dart';
+part 'LiteSQL.dart';
+part 'ModelSQL.dart';
 part 'sql_utils.dart';
 part 'sqlite3_ext.dart';
-part 'table.dart';
+part 'TableSQL.dart';
 part 'wheres.dart';
+part 'ETable.dart';
+part 'TableProto.dart';
+part 'MigrateETable.dart';
+part 'Migrate.dart';
 
 typedef MapSQL = Map<String, dynamic>;
 typedef BlobSQL = Uint8List;

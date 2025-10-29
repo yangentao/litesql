@@ -1,45 +1,33 @@
+import 'package:entao_dutil/entao_dutil.dart';
+import 'package:litesql/litesql.dart';
 import 'package:println/println.dart';
 
 void main() {
-  createTable<Stu>(Stu.values);
+  LiteSQL lite = LiteSQL.openMemory();
+
+  lite.migrateETable(Person.values);
+
+  int rowid1 = lite.insertRow("Person", ["name" >> "entao1", "age" >> 41, "address" >> "Jinan1"]);
+  int rowid2 = lite.insertRow("Person", ["name" >> "entao2", "age" >> 42, "address" >> "Jinan2"]);
+  int rowid3 = lite.insertRow("Person", ["name" >> "entao3", "age" >> 43, "address" >> "Jinan3"]);
+
+  println(rowid1, rowid2, rowid3);
+
+  lite.dumpTable("Person");
+  lite.dispose();
 }
 
-void createTable<T extends XTableField>(List<T> fields) {
-  dynamic v = T ;
-  println("values: ", v.values);
+enum Person with ETable<Person> {
+  id(EColumn.integer(primaryKey: true)),
+  name(EColumn()),
+  addr(EColumn(name: "address")),
+  age(EColumn());
 
-  T first = fields.first;
-  println(first.tableName, first.index, first.name);
-  for (var e in fields.first.all) {}
-  for (T a in fields) {
-    println(a.index, a.name, a.info.type);
-  }
-}
-
-enum Stu with XTableField<Stu> {
-  a(FieldInfo(name: 'a')),
-  b(FieldInfo(name: "b "));
-
-  const Stu(this.info);
+  const Person(this.column);
 
   @override
-  final FieldInfo info;
+  final EColumn column;
 
   @override
-  List<Stu> get all => Stu.values;
-}
-
-mixin XTableField<T extends Enum> on Enum  {
-  String get tableName => "$T";
-
-  FieldInfo get info;
-
-  List<XTableField> get all;
-}
-
-class FieldInfo {
-  final String name;
-  final String type;
-
-  const FieldInfo({required this.name, this.type = "TEXT"});
+  List<Person> get columns => Person.values;
 }

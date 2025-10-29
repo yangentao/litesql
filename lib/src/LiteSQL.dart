@@ -186,36 +186,16 @@ class LiteSQL {
     }
   }
 
+  void migrateETable<T extends ETable<T>>(List<T> fields) {
+    MigrateETable(this, fields);
+  }
+
   void migrate(TableSQL table) {
-    migrateTable(table.name, table.fields);
+    MigrateTable(this, table.name, table.fields);
   }
 
   void migrateTable(String tableName, List<FieldSQL> fields) {
-    if (!existTable(tableName)) {
-      createTable(tableName, fields);
-      return;
-    }
-
-    List<TableInfoItem> cols = tableInfo(tableName);
-    Set<String> colSet = cols.map((e) => e.name).toSet();
-    for (FieldSQL f in fields) {
-      if (!colSet.contains(f.name)) {
-        addColumn(tableName, f);
-      }
-    }
-    Set<String> idxSet = {};
-    for (var a in listIndex()) {
-      var ls = indexInfo(a.index);
-      if (ls.length == 1) {
-        idxSet.add(ls.first);
-      }
-    }
-    for (FieldSQL f in fields) {
-      if (f.primaryKey || f.unique || notBlank(f.uniqueName)) continue;
-      if (f.index && !idxSet.contains(f.name)) {
-        createIndex(tableName, [f.name]);
-      }
-    }
+    MigrateTable(this, tableName, fields);
   }
 
   List<TableInfoItem> tableInfo(String tableName) {

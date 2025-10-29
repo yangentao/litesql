@@ -1,6 +1,21 @@
 import 'package:litesql/litesql.dart';
 import 'package:println/println.dart';
 
+void main() {
+  LiteSQL lite = LiteSQL.openMemory();
+  lite.migrate(Student.TABLE);
+  SingleTable table = lite.table(Student.TABLE);
+
+  table.insert([Student.NAME >> "entao", Student.SCORE >> 90]);
+  table.insert([Student.NAME >> "yang", Student.SCORE >> 88]);
+  List<Student> ls = table.list(Student.new);
+  for (var a in ls) {
+    println(a);
+  }
+
+  lite.dispose();
+}
+
 class Student extends ModelSQL {
   Student(super.mapSQL);
 
@@ -23,19 +38,4 @@ class Student extends ModelSQL {
   static TableSQL TABLE = TableSQL("student", [ID, NAME, SCORE]);
 
   static SingleTable table(LiteSQL lite) => SingleTable(lite: lite, table: TABLE);
-}
-
-void main() {
-  LiteSQL lite = LiteSQL.openMemory();
-  lite.migrate(Student.TABLE);
-  SingleTable table = lite.table(Student.TABLE);
-
-  table.insert([Student.NAME >> "entao", Student.SCORE >> 90]);
-  table.insert([Student.NAME >> "yang", Student.SCORE >> 88]);
-  List<Student> ls = table.list(Student.new);
-  for (var a in ls) {
-    println(a);
-  }
-
-  lite.dispose();
 }

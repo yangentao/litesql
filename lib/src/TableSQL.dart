@@ -5,7 +5,7 @@ class TableSQL {
   final List<FieldSQL> fields;
   final String nameSQL;
 
-  TableSQL(this.name, this.fields) : nameSQL = name.shouldEscapeSQL ? name.escapeSQL : name {
+  TableSQL(this.name, this.fields) : nameSQL = name.escapeSQL {
     for (var e in fields) {
       e.table = this;
     }

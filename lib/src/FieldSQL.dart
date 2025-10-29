@@ -10,8 +10,6 @@ class FieldSQL {
   final bool notNull;
   final String? defaultValue;
   final String? check;
-
-  //
   final String? uniqueName;
   final bool index;
 
@@ -117,11 +115,11 @@ class FieldSQL {
   }
 
   T? get<T>(ModelSQL model) {
-    return model.getProp(this.name);
+    return model.get(this.name);
   }
 
   void set(ModelSQL model, dynamic value) {
-    model.setProp(this.name, value);
+    model.set(this.name, value);
   }
 
   /// join on clause
