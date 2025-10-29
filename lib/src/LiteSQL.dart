@@ -186,9 +186,7 @@ class LiteSQL {
     }
   }
 
-  void migrateEnumTable<T extends ETable<T>>(List<T> fields) {
-    MigrateETable(this, fields);
-  }
+
 
   void migrate(TableSQL table) {
     MigrateTable(this, table.name, table.fields);

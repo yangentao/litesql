@@ -15,10 +15,6 @@ class EnumTable {
 
   String get tableName => tableSQL.nameSQL;
 
-  void dump() {
-    lite.dumpTable(tableName);
-  }
-
   // <T extends ETable<T>>
 
   ResultSet query(
@@ -54,10 +50,28 @@ class EnumTable {
       args: w.args,
     );
   }
+
+  void dump() {
+    lite.dumpTable(tableName);
+  }
 }
 
 extension LiteSQLEnum on LiteSQL {
+  /// liteSQL.migrateEnumTable(Person.values)
+  void migrateEnumTable<T extends ETable<T>>(List<T> fields) {
+    MigrateETable(this, fields);
+  }
+
+  /// liteSQL.from(Person)
   EnumTable from(Type table) {
     return EnumTable(lite: this, tableType: table);
+  }
+}
+
+extension ETableFieldValueEx<T> on ETable<T> {
+  FieldValue operator >>(dynamic value) {
+    TableSQL? t = findTableByType(this.runtimeType);
+    assert(t != null);
+    return FieldValue(t!.fields.firstWhere((e) => e.name == this.nameColumn), value);
   }
 }

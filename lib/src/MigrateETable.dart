@@ -15,6 +15,6 @@ void MigrateETable<T extends ETable<T>>(LiteSQL lite, List<T> fields) {
   }
 
   TableSQL tab = TableSQL(first.tableName, fieldList);
-  lite.migrate(tab);
   _enumTypeMap[first.tableType] = tab;
+  lite.migrate(tab);
 }

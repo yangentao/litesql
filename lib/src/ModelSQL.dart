@@ -8,8 +8,6 @@ class ModelSQL {
   ModelSQL.empty() : this({});
 
   T? get<T>(String key) {
-    // println("GET: type=", T, " key=", key );
-    // assert(T == bool || T == int || T == double || T == num || T == String || T == BlobSQL);
     var v = mapSQL[key];
     if (v == null) return null;
     if (v is num) {
@@ -19,8 +17,7 @@ class ModelSQL {
         return v.toDouble() as T;
       }
     }
-    return v ;
-    // errorSQL("Type mismatch. type=$T, value=$v ");
+    return v;
   }
 
   void set<T>(String key, T? value) {

@@ -1,11 +1,5 @@
 part of 'sql.dart';
 
-ArgSQL? _mergeArgs(ArgSQL? a, ArgSQL? b) {
-  if (a == null) return b;
-  if (b == null) return a;
-  return a + b;
-}
-
 extension FieldSQLValue on FieldSQL {
   FieldValue operator >>(dynamic value) {
     return FieldValue(this, value);
@@ -20,6 +14,11 @@ class FieldValue {
   FieldValue(this.field, this.value, {this.express = false});
 }
 
+ArgSQL? _mergeArgs(ArgSQL? a, ArgSQL? b) {
+  if (a == null) return b;
+  if (b == null) return a;
+  return a + b;
+}
 
 // https://sqlite.org/lang_keywords.html
 extension StringSQLExt on String {

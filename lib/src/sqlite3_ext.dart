@@ -1,7 +1,7 @@
 part of 'sql.dart';
 
 extension ResultSetExt on ResultSet {
-  dynamic get firstRowFirstColumn {
+  dynamic get oneValue {
     return this.firstOrNull?.firstColumn;
   }
 
