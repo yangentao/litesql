@@ -1,34 +1,32 @@
 part of 'sql.dart';
 
-class Configs extends JsonModel {
-  Configs(super.jsonValue);
+class Configs extends ModelSQL {
+  Configs(super.mapSQL);
 
-  static Configs create() {
-    return Configs(JsonValue.object());
-  }
+  Configs.empty() : super.empty();
 
   String get key => KEY.get(this);
 
   set key(String value) => KEY.set(this, value);
 
-  String? get valueS => VALUE_S.get(this);
+  String? get sValue => SVALUE.get(this);
 
-  set valueS(String? value) => VALUE_S.set(this, value);
+  set sValue(String? value) => SVALUE.set(this, value);
 
-  int? get valueN => VALUE_N.get(this);
+  int? get nValue => NVALUE.get(this);
 
-  set valueN(int? value) => VALUE_N.set(this, value);
+  set nValue(int? value) => NVALUE.set(this, value);
 
-  double? get valueF => VALUE_F.get(this);
+  double? get fValue => FVALUE.get(this);
 
-  set valueF(double? value) => VALUE_F.set(this, value);
+  set fValue(double? value) => FVALUE.set(this, value);
 
   static FieldSQL KEY = FieldSQL.text(name: "key_", primaryKey: true);
-  static FieldSQL VALUE_S = FieldSQL.text(name: "values_");
-  static FieldSQL VALUE_N = FieldSQL.integer(name: "valuen_");
-  static FieldSQL VALUE_F = FieldSQL.integer(name: "valuef_");
+  static FieldSQL SVALUE = FieldSQL.text(name: "svalue");
+  static FieldSQL NVALUE = FieldSQL.integer(name: "nvalue");
+  static FieldSQL FVALUE = FieldSQL.real(name: "fvalue");
 
-  static TableSQL TABLE = TableSQL("configs", [KEY, VALUE_S, VALUE_N, VALUE_F]);
+  static TableSQL TABLE = TableSQL("configs", [KEY, SVALUE, NVALUE, FVALUE]);
 
   static ConfigsTable use(LiteSQL lite) {
     return ConfigsTable(lite: lite, table: TABLE);
@@ -39,26 +37,26 @@ class ConfigsTable extends SingleTable {
   ConfigsTable({required super.table, required super.lite});
 
   void putString(String key, String value) {
-    upsert([Configs.KEY >> key, Configs.VALUE_S >> value]);
+    upsert([Configs.KEY >> key, Configs.SVALUE >> value]);
   }
 
   void putInt(String key, int value) {
-    upsert([Configs.KEY >> key, Configs.VALUE_N >> value]);
+    upsert([Configs.KEY >> key, Configs.NVALUE >> value]);
   }
 
   void putDouble(String key, double value) {
-    upsert([Configs.KEY >> key, Configs.VALUE_F >> value]);
+    upsert([Configs.KEY >> key, Configs.FVALUE >> value]);
   }
 
   String getString(String key) {
-    return this.oneValue(Configs.VALUE_S, where: Configs.KEY.EQ(key));
+    return this.oneValue(Configs.SVALUE, where: Configs.KEY.EQ(key));
   }
 
   int getInt(String key) {
-    return this.oneValue(Configs.VALUE_N, where: Configs.KEY.EQ(key));
+    return this.oneValue(Configs.NVALUE, where: Configs.KEY.EQ(key));
   }
 
   double getDouble(String key) {
-    return this.oneValue(Configs.VALUE_F, where: Configs.KEY.EQ(key));
+    return this.oneValue(Configs.FVALUE, where: Configs.KEY.EQ(key));
   }
 }

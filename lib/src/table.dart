@@ -69,7 +69,7 @@ class SingleTable {
   }
 
   T? oneByKey<T>(
-    T Function(JsonValue) creator, {
+    T Function(MapSQL) creator, {
     required dynamic key,
     List<String>? selections,
     List<FieldSQL>? columns,
@@ -83,7 +83,7 @@ class SingleTable {
   }
 
   T? oneByKeys<T>(
-    T Function(JsonValue) creator, {
+    T Function(MapSQL) creator, {
     required List<dynamic> keys,
     List<String>? selections,
     List<FieldSQL>? columns,
@@ -107,7 +107,7 @@ class SingleTable {
   }
 
   T? one<T>(
-    T Function(JsonValue) creator, {
+    T Function(MapSQL) creator, {
     List<String>? selections,
     List<FieldSQL>? columns,
     Where? where,
@@ -161,7 +161,7 @@ class SingleTable {
   }
 
   List<T> list<T>(
-    T Function(JsonValue) creator, {
+    T Function(MapSQL) creator, {
     List<String>? selections,
     List<FieldSQL>? columns,
     Where? where,
@@ -187,7 +187,7 @@ class SingleTable {
       limit: limit,
       offset: offset,
     );
-    return rs.mapList((e) => creator(e.jsonValue));
+    return rs.mapList((e) => creator(e.mapSQL));
   }
 
   ResultSet query({

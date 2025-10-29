@@ -29,7 +29,7 @@ class LiteSQL {
     ResultSet rs = db.select(sql);
 
     for (Row r in rs) {
-      println(r.jsonValue);
+      println(r.mapSQL);
     }
   }
 

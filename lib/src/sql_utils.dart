@@ -25,12 +25,12 @@ extension ResultSetExt on ResultSet {
     return this.firstOrNull?.firstValue;
   }
 
-  JsonValue get oneJson {
-    return this.firstOrNull?.jsonValue ?? JsonValue.nullValue;
+  MapSQL? get firstRow {
+    return this.firstOrNull?.mapSQL;
   }
 
-  List<JsonValue> get listJson {
-    return this.mapList((e) => e.jsonValue);
+  List<MapSQL> get listRows {
+    return this.mapList((e) => e.mapSQL);
   }
 
   void dump() {
@@ -46,18 +46,20 @@ extension ResultSetExt on ResultSet {
 }
 
 extension RowExt on Row {
-  JsonValue get jsonValue {
-    List<String> labels = this.keys;
-    List<dynamic> values = this.values;
-    JsonMap map = {};
-    for (int i = 0; i < labels.length; ++i) {
-      map[labels[i]] = values[i];
+  MapSQL get mapSQL {
+    MapSQL map = {};
+    for (String k in this.keys) {
+      map[k] = this[k];
     }
-    return JsonValue(map);
+    return map;
   }
 
   dynamic get firstValue {
     return this.columnAt(0);
+  }
+
+  dynamic get secondValue {
+    return this.columnAt(1);
   }
 }
 

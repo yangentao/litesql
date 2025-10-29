@@ -116,50 +116,12 @@ class FieldSQL {
     return ls.join(" ");
   }
 
-  T? get<T>(Object? container) {
-    Object? v = getValue(container);
-    if (v == null) return null;
-    if (T == int) {
-      num? n = v as num?;
-      return castValue(n?.toInt());
-    }
-    if (T == double) {
-      num? n = v as num?;
-      return castValue(n?.toDouble());
-    }
-    return castValue(v);
+  T? get<T>(ModelSQL model) {
+    return model.getProp(this.name);
   }
 
-  dynamic getValue(Object? container) {
-    if (container == null) return null;
-    if (container is JsonValue) {
-      return container[this.name].value;
-    }
-    if (container is JsonModel) {
-      return container.jsonValue[this.name].value;
-    }
-    if (container is JsonMap) {
-      return container[this.name];
-    }
-    throw HareException("FieldSQL.get(), unknown container.");
-  }
-
-  void set(Object? container, dynamic value) {
-    assert(value == null || value is num || value is String || value is bool || value is Uint8List);
-    setValue(container, value);
-  }
-
-  void setValue(Object? container, dynamic value) {
-    if (container == null) return;
-    if (container is JsonMap) {
-      container[this.name] = value;
-    } else if (container is JsonValue) {
-      container[this.name] = value;
-    } else if (container is JsonModel) {
-      container.jsonValue[this.name] = value;
-    } else {
-      throw HareException("FieldSQL.set(), unknown container.");
-    }
+  void set(ModelSQL model, dynamic value) {
+    model.setProp(this.name, value);
   }
 
   /// join on clause

@@ -22,7 +22,7 @@ void main() {
 
     var ls = t.list(Configs.new, orderBy: [Configs.KEY.ASC]);
     for (var e in ls) {
-      println(e.key, e.valueN, e.valueF, e.valueS);
+      println(e.key, e.nValue, e.fValue, e.sValue);
     }
 
     lite.dispose();
