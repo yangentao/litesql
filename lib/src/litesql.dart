@@ -5,6 +5,8 @@ class LiteSQL {
 
   LiteSQL({required this.db});
 
+  SingleTable table(TableSQL t) => SingleTable(lite: this, table: t);
+
   static LiteSQL open(String path) {
     var db = sqlite3.open(path);
     return LiteSQL(db: db);

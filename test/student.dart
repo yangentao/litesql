@@ -28,7 +28,8 @@ class Student extends ModelSQL {
 void main() {
   LiteSQL lite = LiteSQL.openMemory();
   lite.migrate(Student.TABLE);
-  SingleTable table = Student.table(lite);
+  SingleTable table = lite.table(Student.TABLE);
+
   table.insert([Student.NAME >> "entao", Student.SCORE >> 90]);
   table.insert([Student.NAME >> "yang", Student.SCORE >> 88]);
   List<Student> ls = table.list(Student.new);

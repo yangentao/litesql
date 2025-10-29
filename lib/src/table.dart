@@ -65,7 +65,7 @@ class SingleTable {
           limit: 1,
           args: w?.args,
         )
-        .oneValue;
+        .firstRowFirstColumn;
   }
 
   T? oneByKey<T>(
@@ -157,7 +157,7 @@ class SingleTable {
       limit: limit,
       offset: offset,
     );
-    return rs.mapList((e) => e.firstValue);
+    return rs.mapList((e) => e.firstColumn);
   }
 
   List<T> list<T>(

@@ -10,16 +10,17 @@ import 'package:sqlite3/sqlite3.dart';
 
 part 'configs.dart';
 part 'fields.dart';
-part 'lite_sql.dart';
+part 'litesql.dart';
 part 'model.dart';
 part 'sql_utils.dart';
+part 'sqlite3_ext.dart';
 part 'table.dart';
 part 'wheres.dart';
 
 typedef MapSQL = Map<String, dynamic>;
 typedef BlobSQL = Uint8List;
 
-typedef ModelCreator<T> = T Function(MapSQL) ;
+typedef ModelCreator<T> = T Function(MapSQL);
 
 const List<Type> typesSQL = [bool, int, double, String, BlobSQL];
 
@@ -35,6 +36,6 @@ class SQLException implements Exception {
   }
 }
 
-Never errorSQL(String message){
+Never errorSQL(String message) {
   throw SQLException(message);
 }
