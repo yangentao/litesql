@@ -11,10 +11,11 @@ extension LiteSQLEnum on LiteSQL {
     this.dumpTable(t.nameSQL);
   }
 
-  ResultSet selectE(
-    List<dynamic>? columns, {
-    required Object from,
-    String? where,
+  ResultSet queryE(
+    Object from, {
+    List<dynamic>? columns,
+    Where? where,
+    List<Where>? wheres,
     String? groupBy,
     String? having,
     String? window,
@@ -22,8 +23,9 @@ extension LiteSQLEnum on LiteSQL {
     List<String>? orderBy,
     int? limit,
     int? offset,
-    List<dynamic>? args,
   }) {
+    List<Where> wList = [where, ...?wheres].nonNullList;
+    var w = AND_ALL(wList).result();
     return this.select(
       columns?.mapList((e) => e is ETable ? e.nameSQL : e.toString()),
       from: switch (from) {
@@ -31,7 +33,7 @@ extension LiteSQLEnum on LiteSQL {
         Type _ => "$from",
         _ => from.toString(),
       },
-      where: where,
+      where: w.clause,
       groupBy: groupBy,
       having: having,
       window: window,
@@ -39,7 +41,7 @@ extension LiteSQLEnum on LiteSQL {
       orderBy: orderBy,
       limit: limit,
       offset: offset,
-      args: args,
+      args: w.args,
     );
   }
 }

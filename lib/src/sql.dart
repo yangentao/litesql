@@ -21,6 +21,7 @@ part 'ETable.dart';
 part 'LiteSQLExtends.dart';
 part 'MigrateETable.dart';
 part 'Migrate.dart';
+part 'WhereExtends.dart';
 
 typedef MapSQL = Map<String, dynamic>;
 typedef BlobSQL = Uint8List;

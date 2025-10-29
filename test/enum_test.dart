@@ -14,7 +14,7 @@ void main() {
 
   println(rowid1, rowid2, rowid3);
 
-  ResultSet rs = lite.selectE([Person.id, Person.name], from: Person);
+  ResultSet rs = lite.queryE(Person, columns: [Person.id, Person.name], where: Person.id.EQ(2));
   rs.dump();
 
   // lite.dumpTable("Person");
