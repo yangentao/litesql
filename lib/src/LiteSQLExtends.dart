@@ -1,17 +1,27 @@
 part of 'sql.dart';
 
-extension LiteSQLEnum on LiteSQL {
-  // <T extends ETable<T>>
-  void dumpTableE(Type type) {
-    TableSQL? t = findTableByType(type);
+class EnumTable {
+  LiteSQL lite;
+  Type tableType;
+  late TableSQL tableSQL;
+
+  EnumTable({required this.lite, required this.tableType}) {
+    var t = findTableByType(tableType);
     if (t == null) {
-      println("NO table found: $type");
-      return;
+      throw SQLException("Table info NOT found, type=$tableType");
     }
-    this.dumpTable(t.nameSQL);
+    tableSQL = t;
   }
 
-  ResultSet queryE(
+  String get tableName => tableSQL.nameSQL;
+
+  void dump() {
+    lite.dumpTable(tableName);
+  }
+
+  // <T extends ETable<T>>
+
+  ResultSet query(
     Object from, {
     List<dynamic>? columns,
     Where? where,
@@ -26,7 +36,7 @@ extension LiteSQLEnum on LiteSQL {
   }) {
     List<Where> wList = [where, ...?wheres].nonNullList;
     var w = AND_ALL(wList).result();
-    return this.select(
+    return lite.select(
       columns?.mapList((e) => e is ETable ? e.nameSQL : e.toString()),
       from: switch (from) {
         ETable _ => from.tableName,
@@ -43,5 +53,11 @@ extension LiteSQLEnum on LiteSQL {
       offset: offset,
       args: w.args,
     );
+  }
+}
+
+extension LiteSQLEnum on LiteSQL {
+  EnumTable from(Type table) {
+    return EnumTable(lite: this, tableType: table);
   }
 }
