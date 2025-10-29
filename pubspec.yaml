@@ -1,0 +1,22 @@
+name: litesql
+description: SQLite3 wrap.
+repository: https://github.com/yangentao/litesql
+homepage: https://github.com/yangentao/litesql
+version: 1.0.0
+
+environment:
+  sdk: ^3.9.0
+
+# Add regular dependencies here.
+dependencies:
+  sqlite3: ^2.9.3
+  sqlite3_flutter_libs: ^0.5.40
+  println: ^1.0.0
+  any_call: ^1.0.0
+  entao_dutil: ^1.2.6
+  entao_log: ^1.2.5
+  entao_lint: ^1.0.1
+
+dev_dependencies:
+  lints: ^6.0.0
+  test: ^1.25.6
