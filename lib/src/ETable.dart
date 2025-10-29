@@ -8,6 +8,8 @@ mixin ETable<T> on Enum {
   List<T> get columns;
 
   EColumn get column;
+
+  String get nameSQL => (column.name ?? this.name).escapeSQL;
 }
 
 extension<T> on ETable<T> {

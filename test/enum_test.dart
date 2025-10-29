@@ -1,6 +1,7 @@
 import 'package:entao_dutil/entao_dutil.dart';
 import 'package:litesql/litesql.dart';
 import 'package:println/println.dart';
+import 'package:sqlite3/common.dart';
 
 void main() {
   LiteSQL lite = LiteSQL.openMemory();
@@ -12,6 +13,9 @@ void main() {
   int rowid3 = lite.insertRow("Person", ["name" >> "entao3", "age" >> 43, "address" >> "Jinan3"]);
 
   println(rowid1, rowid2, rowid3);
+
+  ResultSet rs = lite.selectE([Person.id, Person.name], from: Person);
+  rs.dump();
 
   // lite.dumpTable("Person");
   lite.dumpTableE(Person);
