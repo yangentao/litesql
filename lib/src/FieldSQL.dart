@@ -114,12 +114,26 @@ class FieldSQL {
     return ls.join(" ");
   }
 
-  T? get<T>(ModelSQL model) {
-    return model.get(this.name);
+  T? get<T>(Object model) {
+    if (model is ModelSQL) return model.get(this.name);
+    if (model is MapSQL) return _checkNum(model[this.name]);
+    if (model is JsonModel) return _checkNum(model.jsonValue[this.name].value);
+    if (model is JsonValue) return _checkNum(model[this.name].value);
+    throw SQLException(" FieldSQL.get(), unknown container.");
   }
 
-  void set(ModelSQL model, dynamic value) {
-    model.set(this.name, value);
+  void set(Object model, dynamic value) {
+    if (model is ModelSQL) {
+      model.set(this.name, value);
+    } else if (model is MapSQL) {
+      model[this.name] = value;
+    } else if (model is JsonValue) {
+      model[this.name] = value;
+    } else if (model is JsonModel) {
+      model.jsonValue[this.name] = value;
+    } else {
+      throw SQLException("FieldSQL.set(), unknown container.");
+    }
   }
 
   /// join on clause

@@ -13,12 +13,119 @@ class EnumTable {
     tableSQL = t;
   }
 
-  String get tableName => tableSQL.nameSQL;
+  String get tableName => tableSQL.name;
 
-  // <T extends ETable<T>>
+  T? oneByKey<T>(
+    T Function(MapSQL) creator, {
+    required dynamic key,
+    List<dynamic>? columns,
+    String? groupBy,
+    String? having,
+    String? window,
+    String? order,
+    List<String>? orderBy,
+  }) {
+    return one<T>(creator, columns: columns, where: keyEQ(key), groupBy: groupBy, having: having, window: window, order: order, orderBy: orderBy);
+  }
 
-  ResultSet query(
-    Object from, {
+  T? oneByKeys<T>(
+    T Function(MapSQL) creator, {
+    required List<dynamic> keys,
+    List<dynamic>? columns,
+    String? groupBy,
+    String? having,
+    String? window,
+    String? order,
+    List<String>? orderBy,
+  }) {
+    return one<T>(creator, columns: columns, where: keysEQ(keys), groupBy: groupBy, having: having, window: window, order: order, orderBy: orderBy);
+  }
+
+  dynamic oneValue<T>(ETable<T> column, {Where? where, String? groupBy, String? having, String? window, String? order, List<String>? orderBy}) {
+    return this.query(columns: [column], where: where, groupBy: groupBy, having: having, window: window, order: order, orderBy: orderBy, limit: 1).oneValue;
+  }
+
+  T? one<T>(
+    T Function(MapSQL) creator, {
+    List<dynamic>? columns,
+    Where? where,
+    List<Where>? wheres,
+    String? groupBy,
+    String? having,
+    String? window,
+    String? order,
+    List<String>? orderBy,
+  }) {
+    return list<T>(
+      creator,
+      columns: columns,
+      where: where,
+      wheres: wheres,
+      groupBy: groupBy,
+      having: having,
+      window: window,
+      order: order,
+      orderBy: orderBy,
+      limit: 1,
+    ).firstOrNull;
+  }
+
+  List<T> listColumn<T>(
+    ETable<T> column, {
+    Where? where,
+    List<Where>? wheres,
+    String? groupBy,
+    String? having,
+    String? window,
+    String? order,
+    List<String>? orderBy,
+    int? limit,
+    int? offset,
+  }) {
+    ResultSet rs = query(
+      columns: [column],
+      where: where,
+      wheres: wheres,
+      groupBy: groupBy,
+      having: having,
+      window: window,
+      order: order,
+      orderBy: orderBy,
+      limit: limit,
+      offset: offset,
+    );
+    return rs.mapList((e) => e.firstColumn);
+  }
+
+  List<T> list<T>(
+    T Function(MapSQL) creator, {
+    List<dynamic>? columns,
+    Where? where,
+    List<Where>? wheres,
+    String? groupBy,
+    String? having,
+    String? window,
+    String? order,
+    List<String>? orderBy,
+    int? limit,
+    int? offset,
+  }) {
+    ResultSet rs = this.query(
+      columns: columns,
+      where: where,
+      wheres: wheres,
+      groupBy: groupBy,
+      having: having,
+      window: window,
+      order: order,
+      orderBy: orderBy,
+      limit: limit,
+      offset: offset,
+    );
+    return rs.mapList((e) => creator(e.mapSQL));
+  }
+
+  ResultSet query({
     List<dynamic>? columns,
     Where? where,
     List<Where>? wheres,
@@ -34,11 +141,7 @@ class EnumTable {
     var w = AND_ALL(wList).result();
     return lite.select(
       columns?.mapList((e) => e is ETable ? e.nameSQL : e.toString()),
-      from: switch (from) {
-        ETable _ => from.tableName,
-        Type _ => "$from",
-        _ => from.toString(),
-      },
+      from: tableName,
       where: w.clause,
       groupBy: groupBy,
       having: having,
@@ -49,6 +152,59 @@ class EnumTable {
       offset: offset,
       args: w.args,
     );
+  }
+
+  Where keyEQ(dynamic keyValue) {
+    var keyList = tableSQL.fields.filter((e) => e.primaryKey);
+    if (keyList.length != 1) throw HareException("Primary Key count MULST is ONE");
+    return keyList.first.EQ(keyValue);
+  }
+
+  Where keysEQ(List<dynamic> keyValues) {
+    var keyList = tableSQL.fields.filter((e) => e.primaryKey);
+    if (keyList.isEmpty) throw HareException("No Primary Key defined");
+    if (keyList.length > keyValues.length) throw HareException("Primary Key Great than key value length");
+    List<Where> ws = keyList.mapIndex((n, e) => e.EQ(keyValues[n]));
+    return AND_ALL(ws);
+  }
+
+  int delete(Where where) {
+    var w = where.result();
+    return lite.delete(tableName, where: w.clause, args: w.args);
+  }
+
+  int update(List<FieldValue> values, {Where? where}) {
+    var w = where?.result();
+    return lite.update(tableSQL.name, values.mapList((e) => LabelValue(e.field.nameSQL, e.value)), where: w?.clause, args: w?.args);
+  }
+
+  List<int> upsertAll(List<List<FieldValue>> rows) {
+    return lite.upsertRows(tableSQL.name, rows);
+  }
+
+  int upsert(List<FieldValue> row) {
+    return lite.upsert(tableSQL.name, row);
+  }
+
+  int insertAll(List<List<FieldValue>> rows) {
+    return lite.insertRows(tableSQL.name, rows.mapList((r) => r.mapList((e) => LabelValue(e.field.name, e.value))));
+  }
+
+  int insert(List<FieldValue> row) {
+    return lite.insertRow(tableSQL.name, row.mapList((e) => LabelValue(e.field.name, e.value)));
+  }
+
+  int save(dynamic item) {
+    if (item == null) return 0;
+    if (item is ModelSQL || item is JsonMap || item is JsonValue || item is JsonModel) {
+      return upsert(tableSQL.fields.mapList((e) => e >> e.get(item)));
+    }
+    throw HareException("Unkonwn object to save: $item");
+  }
+
+  List<int> saveAll(List<dynamic> items) {
+    var ls = items.filter((item) => item is ModelSQL || item is Map<String, dynamic> || item is List<dynamic> || item is JsonValue);
+    return upsertAll(ls.mapList((item) => tableSQL.fields.mapList((e) => e >> e.get(item))));
   }
 
   void dump() {

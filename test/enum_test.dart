@@ -18,12 +18,15 @@ void main() {
   int rowid3 = lite.insertRow("Person", ["name" >> "entao3", "age" >> 43, "address" >> "Jinan3"]);
 
   EnumTable e = lite.from(Person);
-  ResultSet rs = e.query(Person, columns: [Person.id, Person.name], where: Person.id.EQ(2));
+  ResultSet rs = e.query(columns: [Person.id, Person.name], where: Person.id.EQ(2));
   rs.dump();
   // SELECT id, name FROM Person WHERE id = 2
   // id: 2, name: entao2
 
-  e.dump();
+  var r = e.query(columns: [Person.id.MAX()]);
+  r.dump();
+
+  // e.dump();
   lite.dispose();
 }
 

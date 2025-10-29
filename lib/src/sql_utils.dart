@@ -43,3 +43,15 @@ extension StringSQLExt on String {
     return this;
   }
 }
+
+T? _checkNum<T>(dynamic v) {
+  if (v == null) return null;
+  if (v is num) {
+    if (T == int) {
+      return v.toInt() as T;
+    } else if (T == double) {
+      return v.toDouble() as T;
+    }
+  }
+  return v;
+}

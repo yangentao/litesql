@@ -26,6 +26,8 @@ mixin ETable<T> on Enum {
   String get nameColumn => column.name ?? this.name;
 
   String get nameSQL => (column.name ?? this.name).escapeSQL;
+
+  String get fullname => "${tableName.escapeSQL}.$nameSQL}";
 }
 
 extension<T> on ETable<T> {
@@ -44,5 +46,24 @@ extension<T> on ETable<T> {
       index: col.index,
     );
     return field;
+  }
+}
+
+extension ETableSQLExt<T> on ETable<T> {
+  /// join on clause
+  String EQUAL(FieldSQL other) {
+    return "${this.fullname} = ${other.fullname}";
+  }
+
+  String AS(String label) {
+    return "${this.fullname} AS $label";
+  }
+
+  String MAX() {
+    return "MAX($nameSQL)";
+  }
+
+  String MIN() {
+    return "MIN($nameSQL)";
   }
 }
