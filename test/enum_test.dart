@@ -13,7 +13,8 @@ void main() {
 
   println(rowid1, rowid2, rowid3);
 
-  lite.dumpTable("Person");
+  // lite.dumpTable("Person");
+  lite.dumpTableE(Person);
   lite.dispose();
 }
 
