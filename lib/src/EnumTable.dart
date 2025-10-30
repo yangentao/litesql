@@ -3,7 +3,7 @@ part of 'sql.dart';
 class EnumTable {
   LiteSQL lite;
   Type tableType;
-  late TableSQL tableSQL;
+  late TableProto tableSQL;
 
   EnumTable({required this.lite, required this.tableType}) {
     var t = findTableByType(tableType);
@@ -41,7 +41,7 @@ class EnumTable {
     return one<T>(creator, columns: columns, where: keysEQ(keys), groupBy: groupBy, having: having, window: window, order: order, orderBy: orderBy);
   }
 
-  Object? oneValue<T>(ETable<T> column, {Where? where, String? groupBy, String? having, String? window, String? order, List<String>? orderBy}) {
+  Object? oneValue<T>(TableColumn<T> column, {Where? where, String? groupBy, String? having, String? window, String? order, List<String>? orderBy}) {
     return this.query(columns: [column], where: where, groupBy: groupBy, having: having, window: window, order: order, orderBy: orderBy, limit: 1).firstValue;
   }
 
@@ -71,7 +71,7 @@ class EnumTable {
   }
 
   List<T> listColumn<T>(
-    ETable<T> column, {
+    TableColumn<T> column, {
     Where? where,
     List<Where>? wheres,
     String? groupBy,
@@ -141,7 +141,7 @@ class EnumTable {
     var w = AND_ALL(wList).result();
     return lite
         .select(
-          columns?.mapList((e) => e is ETable ? e.nameSQL : e.toString()),
+          columns?.mapList((e) => e is TableColumn ? e.nameSQL : e.toString()),
           from: tableName,
           where: w.clause,
           groupBy: groupBy,
@@ -188,7 +188,7 @@ class EnumTable {
     return lite.upsert(tableSQL.name, row);
   }
 
-  int insertAll(List<List<FieldValue>> rows) {
+  List<int> insertAll(List<List<FieldValue>> rows) {
     return lite.insertRows(tableSQL.name, rows.mapList((r) => r.mapList((e) => LabelValue(e.field.name, e.value))));
   }
 
@@ -198,14 +198,14 @@ class EnumTable {
 
   int save(dynamic item) {
     if (item == null) return 0;
-    if (item is ModelSQL || item is JsonMap || item is JsonValue || item is JsonModel) {
+    if (item is TableModel || item is JsonMap || item is JsonValue || item is JsonModel) {
       return upsert(tableSQL.fields.mapList((e) => e >> e.get(item)));
     }
     throw HareException("Unkonwn object to save: $item");
   }
 
   List<int> saveAll(List<dynamic> items) {
-    var ls = items.filter((item) => item is ModelSQL || item is Map<String, dynamic> || item is List<dynamic> || item is JsonValue);
+    var ls = items.filter((item) => item is TableModel || item is Map<String, dynamic> || item is List<dynamic> || item is JsonValue);
     return upsertAll(ls.mapList((item) => tableSQL.fields.mapList((e) => e >> e.get(item))));
   }
 
@@ -216,7 +216,7 @@ class EnumTable {
 
 extension LiteSQLEnum on LiteSQL {
   /// liteSQL.migrateEnumTable(Person.values)
-  void migrateEnumTable<T extends ETable<T>>(List<T> fields) {
+  void migrateEnumTable<T extends TableColumn<T>>(List<T> fields) {
     MigrateETable(this, fields);
   }
 
@@ -226,9 +226,9 @@ extension LiteSQLEnum on LiteSQL {
   }
 }
 
-extension ETableFieldValueEx<T> on ETable<T> {
+extension ETableFieldValueEx<T> on TableColumn<T> {
   FieldValue operator >>(dynamic value) {
-    TableSQL? t = findTableByType(this.runtimeType);
+    TableProto? t = findTableByType(this.runtimeType);
     assert(t != null);
     return FieldValue(t!.fields.firstWhere((e) => e.name == this.nameColumn), value);
   }

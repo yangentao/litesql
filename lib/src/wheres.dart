@@ -63,8 +63,8 @@ class Where {
       assert(left != null);
 
       if (left is String) {
-        if (right is FieldSQL) {
-          String rightName = (right as FieldSQL).nameSQL;
+        if (right is FieldProto) {
+          String rightName = (right as FieldProto).nameSQL;
           return "$left ${op.op} $rightName ";
         }
         if (right is num) {
@@ -73,10 +73,10 @@ class Where {
         args.add(right);
         return "$left ${op.op} ? ";
       }
-      if (left is FieldSQL) {
-        String leftName = (left as FieldSQL).nameSQL;
-        if (right is FieldSQL) {
-          String rightName = (right as FieldSQL).nameSQL;
+      if (left is FieldProto) {
+        String leftName = (left as FieldProto).nameSQL;
+        if (right is FieldProto) {
+          String rightName = (right as FieldProto).nameSQL;
           return "$leftName ${op.op} $rightName ";
         }
         if (right is num) {
@@ -91,8 +91,8 @@ class Where {
       String rs = right as String;
       if (left is String) {
         return "$left ${op.op} ${rs.braced}";
-      } else if (left is FieldSQL) {
-        return "${(left as FieldSQL).nameSQL} ${op.op} ${rs.braced} ";
+      } else if (left is FieldProto) {
+        return "${(left as FieldProto).nameSQL} ${op.op} ${rs.braced} ";
       }
     }
 
@@ -171,7 +171,7 @@ extension StringWhereExt on String {
   String get DESC => "${this.escapeSQL} DESC";
 }
 
-extension FieldWhereExt on FieldSQL {
+extension FieldWhereExt on FieldProto {
   Where IN(ArgSQL values) {
     var a = values.map((e) => "?").join(",");
     return Where.raw("${this.nameSQL} IN ($a) ", values);

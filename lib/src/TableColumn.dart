@@ -14,14 +14,14 @@ part of 'sql.dart';
 ///   @override
 ///   List<Person> get columns => Person.values;
 /// }
-mixin ETable<T> on Enum {
+mixin TableColumn<T> on Enum {
   Type get tableType => T;
 
   String get tableName => "$T";
 
   List<T> get columns;
 
-  EColumn get column;
+  ColumnSQL get column;
 
   String get nameColumn => column.name ?? this.name;
 
@@ -30,7 +30,7 @@ mixin ETable<T> on Enum {
   String get fullname => exGetOrPut("fullname", () => "${tableName.escapeSQL}.$nameSQL}");
 }
 
-extension TableColumnPropEx<T> on ETable<T> {
+extension TableColumnPropEx<T> on TableColumn<T> {
   static final Map<Enum, Map<String, dynamic>> _columnPropMap = {};
 
   Map<String, dynamic> get propMap => _columnPropMap.getOrPut(this, () => <String, dynamic>{});
@@ -46,18 +46,18 @@ extension TableColumnPropEx<T> on ETable<T> {
   void exSet(String key, dynamic value) => propMap[key] = value;
 }
 
-extension TableColumnGetSetEx<T> on ETable<T> {
+extension TableColumnGetSetEx<T> on TableColumn<T> {
   V? get<V>(Object? container) {
     if (container == null) return null;
     if (container is MapSQL) return container[this.nameColumn];
-    if (container is ModelSQL) return container.mapSQL[this.nameColumn];
+    if (container is TableModel) return container.get(this.nameColumn);
     if (container is JsonValue) return container[this.nameColumn].value;
     if (container is JsonModel) return container.jsonValue[this.nameColumn].value;
     throw SQLException("TableColumn get(). Unknown container: $container, tableColumn: $nameColumn");
   }
 
   void set(Object model, dynamic value) {
-    if (model is ModelSQL) {
+    if (model is TableModel) {
       model.set(this.nameColumn, value);
     } else if (model is MapSQL) {
       model[this.nameColumn] = value;
@@ -70,9 +70,9 @@ extension TableColumnGetSetEx<T> on ETable<T> {
     }
   }
 
-  FieldSQL toFieldSqL() {
-    EColumn col = column;
-    FieldSQL field = FieldSQL(
+  FieldProto toFieldSqL() {
+    ColumnSQL col = column;
+    FieldProto field = FieldProto(
       name: this.nameColumn,
       type: col.type ?? "TEXT",
       primaryKey: col.primaryKey,
@@ -88,9 +88,9 @@ extension TableColumnGetSetEx<T> on ETable<T> {
   }
 }
 
-extension ETableSQLExt<T> on ETable<T> {
+extension ETableSQLExt<T> on TableColumn<T> {
   /// join on clause
-  String EQUAL(FieldSQL other) {
+  String EQUAL(FieldProto other) {
     return "${this.fullname} = ${other.fullname}";
   }
 

@@ -1,10 +1,10 @@
 part of 'sql.dart';
 
-void Migrate(LiteSQL lite, TableSQL table) {
+void Migrate(LiteSQL lite, TableProto table) {
   MigrateTable(lite, table.name, table.fields);
 }
 
-void MigrateTable(LiteSQL lite, String tableName, List<FieldSQL> fields) {
+void MigrateTable(LiteSQL lite, String tableName, List<FieldProto> fields) {
   if (!lite.existTable(tableName)) {
     lite.createTable(tableName, fields);
     return;
@@ -12,7 +12,7 @@ void MigrateTable(LiteSQL lite, String tableName, List<FieldSQL> fields) {
 
   List<TableInfoItem> cols = lite.tableInfo(tableName);
   Set<String> colSet = cols.map((e) => e.name).toSet();
-  for (FieldSQL f in fields) {
+  for (FieldProto f in fields) {
     if (!colSet.contains(f.name)) {
       lite.addColumn(tableName, f);
     }
@@ -24,7 +24,7 @@ void MigrateTable(LiteSQL lite, String tableName, List<FieldSQL> fields) {
       idxSet.add(ls.first);
     }
   }
-  for (FieldSQL f in fields) {
+  for (FieldProto f in fields) {
     if (f.primaryKey || f.unique || notBlank(f.uniqueName)) continue;
     if (f.index && !idxSet.contains(f.name)) {
       lite.createIndex(tableName, [f.name]);

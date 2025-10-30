@@ -16,7 +16,7 @@ void main() {
   lite.dispose();
 }
 
-class Student extends ModelSQL {
+class Student extends TableModel {
   Student(super.mapSQL);
 
   int get id => ID.get(this);
@@ -31,11 +31,11 @@ class Student extends ModelSQL {
 
   set score(double? value) => SCORE.set(this, value);
 
-  static FieldSQL ID = FieldSQL.integer(name: "id", primaryKey: true, autoInc: true);
-  static FieldSQL NAME = FieldSQL.text(name: "name", notNull: true);
-  static FieldSQL SCORE = FieldSQL.real(name: "score", index: true);
+  static FieldProto ID = FieldProto.integer(name: "id", primaryKey: true, autoInc: true);
+  static FieldProto NAME = FieldProto.text(name: "name", notNull: true);
+  static FieldProto SCORE = FieldProto.real(name: "score", index: true);
 
-  static TableSQL TABLE = TableSQL("student", [ID, NAME, SCORE]);
+  static TableProto TABLE = TableProto("student", [ID, NAME, SCORE]);
 
   static SingleTable table(LiteSQL lite) => SingleTable(lite: lite, table: TABLE);
 }

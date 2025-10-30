@@ -1,6 +1,6 @@
 part of 'sql.dart';
 
-class Configs extends ModelSQL {
+class Configs extends TableModel {
   Configs(super.mapSQL);
 
   Configs.empty() : super.empty();
@@ -21,12 +21,12 @@ class Configs extends ModelSQL {
 
   set fValue(double? value) => FVALUE.set(this, value);
 
-  static FieldSQL KEY = FieldSQL.text(name: "key_", primaryKey: true);
-  static FieldSQL SVALUE = FieldSQL.text(name: "svalue");
-  static FieldSQL NVALUE = FieldSQL.integer(name: "nvalue");
-  static FieldSQL FVALUE = FieldSQL.real(name: "fvalue");
+  static FieldProto KEY = FieldProto.text(name: "key_", primaryKey: true);
+  static FieldProto SVALUE = FieldProto.text(name: "svalue");
+  static FieldProto NVALUE = FieldProto.integer(name: "nvalue");
+  static FieldProto FVALUE = FieldProto.real(name: "fvalue");
 
-  static TableSQL TABLE = TableSQL("configs", [KEY, SVALUE, NVALUE, FVALUE]);
+  static TableProto TABLE = TableProto("configs", [KEY, SVALUE, NVALUE, FVALUE]);
 
   static ConfigsTable use(LiteSQL lite) {
     return ConfigsTable(lite: lite, table: TABLE);

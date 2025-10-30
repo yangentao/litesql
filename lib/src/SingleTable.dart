@@ -1,7 +1,7 @@
 part of 'sql.dart';
 
 class SingleTable {
-  TableSQL table;
+  TableProto table;
   LiteSQL lite;
 
   SingleTable({required this.lite, required this.table});
@@ -20,7 +20,7 @@ class SingleTable {
     return AND_ALL(ws);
   }
 
-  dynamic oneValue(FieldSQL column, {Where? where, String? groupBy, String? having, String? window, String? order, List<String>? orderBy}) {
+  dynamic oneValue(FieldProto column, {Where? where, String? groupBy, String? having, String? window, String? order, List<String>? orderBy}) {
     var w = where?.result();
     return lite
         .select(
@@ -42,7 +42,7 @@ class SingleTable {
     T Function(MapSQL) creator, {
     required dynamic key,
     List<String>? selections,
-    List<FieldSQL>? columns,
+    List<FieldProto>? columns,
     String? groupBy,
     String? having,
     String? window,
@@ -56,7 +56,7 @@ class SingleTable {
     T Function(MapSQL) creator, {
     required List<dynamic> keys,
     List<String>? selections,
-    List<FieldSQL>? columns,
+    List<FieldProto>? columns,
     String? groupBy,
     String? having,
     String? window,
@@ -79,7 +79,7 @@ class SingleTable {
   T? one<T>(
     T Function(MapSQL) creator, {
     List<String>? selections,
-    List<FieldSQL>? columns,
+    List<FieldProto>? columns,
     Where? where,
     List<Where>? wheres,
     String? groupBy,
@@ -133,7 +133,7 @@ class SingleTable {
   List<T> list<T>(
     T Function(MapSQL) creator, {
     List<String>? selections,
-    List<FieldSQL>? columns,
+    List<FieldProto>? columns,
     Where? where,
     List<Where>? wheres,
     String? groupBy,
@@ -162,7 +162,7 @@ class SingleTable {
 
   ResultSet query({
     List<String>? selections,
-    List<FieldSQL>? columns,
+    List<FieldProto>? columns,
     Where? where,
     List<Where>? wheres,
     String? groupBy,
@@ -209,7 +209,7 @@ class SingleTable {
     return lite.upsert(table.name, row);
   }
 
-  int insertAll(List<List<FieldValue>> rows) {
+  List<int> insertAll(List<List<FieldValue>> rows) {
     return lite.insertRows(table.name, rows.mapList((r) => r.mapList((e) => LabelValue(e.field.name, e.value))));
   }
 

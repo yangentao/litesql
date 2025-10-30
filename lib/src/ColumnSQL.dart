@@ -1,6 +1,6 @@
 part of 'sql.dart';
 
-class EColumn {
+class ColumnSQL {
   final String? name;
   final String? type;
   final bool primaryKey;
@@ -12,7 +12,7 @@ class EColumn {
   final String? uniqueName;
   final bool index;
 
-  const EColumn({
+  const ColumnSQL({
     this.name,
     this.type,
     this.primaryKey = false,
@@ -25,7 +25,7 @@ class EColumn {
     this.defaultValue,
   });
 
-  const EColumn.text({
+  const ColumnSQL.text({
     this.name,
     this.type = "TEXT",
     this.primaryKey = false,
@@ -38,7 +38,7 @@ class EColumn {
     this.defaultValue,
   });
 
-  const EColumn.integer({
+  const ColumnSQL.integer({
     this.name,
     this.type = "INTEGER",
     this.primaryKey = false,
@@ -51,7 +51,7 @@ class EColumn {
     this.defaultValue,
   });
 
-  const EColumn.real({
+  const ColumnSQL.real({
     this.name,
     this.type = "REAL",
     this.primaryKey = false,
@@ -64,7 +64,7 @@ class EColumn {
     this.defaultValue,
   });
 
-  const EColumn.blob({
+  const ColumnSQL.blob({
     this.name,
     this.type = "BLOB",
     this.primaryKey = false,
@@ -77,7 +77,7 @@ class EColumn {
     this.defaultValue,
   });
 
-  const EColumn.numberic({
+  const ColumnSQL.numberic({
     this.name,
     this.type = "NUMERIC",
     this.primaryKey = false,

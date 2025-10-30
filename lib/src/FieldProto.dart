@@ -1,7 +1,7 @@
 part of 'sql.dart';
 
 /// https://sqlite.org/datatype3.html
-class FieldSQL {
+class FieldProto {
   final String name;
   final String type; // TEXT, INTEGER, BLOB, REAL, (NUMERIC)
   final bool primaryKey;
@@ -16,11 +16,11 @@ class FieldSQL {
   // escaped
   final String nameSQL;
 
-  late TableSQL table;
+  late TableProto table;
 
   String get fullname => "${table.nameSQL}.$nameSQL";
 
-  FieldSQL({
+  FieldProto({
     required this.name,
     required this.type,
     this.primaryKey = false,
@@ -33,7 +33,7 @@ class FieldSQL {
     this.check,
   }) : nameSQL = name.shouldEscapeSQL ? name.escapeSQL : name;
 
-  FieldSQL.text({
+  FieldProto.text({
     required this.name,
     this.primaryKey = false,
     this.unique = false,
@@ -47,7 +47,7 @@ class FieldSQL {
        autoInc = false,
        nameSQL = name.shouldEscapeSQL ? name.escapeSQL : name;
 
-  FieldSQL.integer({
+  FieldProto.integer({
     required this.name,
     this.primaryKey = false,
     this.unique = false,
@@ -61,7 +61,7 @@ class FieldSQL {
        defaultValue = defaultValue?.toString(),
        nameSQL = name.shouldEscapeSQL ? name.escapeSQL : name;
 
-  FieldSQL.real({required this.name, this.notNull = false, this.index = false, this.check, double? defaultValue})
+  FieldProto.real({required this.name, this.notNull = false, this.index = false, this.check, double? defaultValue})
     : type = "REAL",
       autoInc = false,
       primaryKey = false,
@@ -70,7 +70,7 @@ class FieldSQL {
       defaultValue = defaultValue?.toString(),
       nameSQL = name.shouldEscapeSQL ? name.escapeSQL : name;
 
-  FieldSQL.blob({required this.name, this.notNull = false, this.check, this.defaultValue})
+  FieldProto.blob({required this.name, this.notNull = false, this.check, this.defaultValue})
     : type = "BLOB",
       autoInc = false,
       primaryKey = false,
@@ -79,7 +79,7 @@ class FieldSQL {
       index = false,
       nameSQL = name.shouldEscapeSQL ? name.escapeSQL : name;
 
-  FieldSQL.numberic({required this.name, this.notNull = false, this.index = false, this.check, int? defaultValue})
+  FieldProto.numberic({required this.name, this.notNull = false, this.index = false, this.check, int? defaultValue})
     : type = "NUMERIC",
       autoInc = false,
       primaryKey = false,
@@ -115,7 +115,7 @@ class FieldSQL {
   }
 
   T? get<T>(Object model) {
-    if (model is ModelSQL) return model.get(this.name);
+    if (model is TableModel) return model.get(this.name);
     if (model is MapSQL) return _checkNum(model[this.name]);
     if (model is JsonModel) return _checkNum(model.jsonValue[this.name].value);
     if (model is JsonValue) return _checkNum(model[this.name].value);
@@ -123,7 +123,7 @@ class FieldSQL {
   }
 
   void set(Object model, dynamic value) {
-    if (model is ModelSQL) {
+    if (model is TableModel) {
       model.set(this.name, value);
     } else if (model is MapSQL) {
       model[this.name] = value;
@@ -137,7 +137,7 @@ class FieldSQL {
   }
 
   /// join on clause
-  String EQUAL(FieldSQL other) {
+  String EQUAL(FieldProto other) {
     return "${this.fullname} = ${other.fullname}";
   }
 

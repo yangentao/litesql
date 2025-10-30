@@ -5,7 +5,7 @@ class LiteSQL {
 
   LiteSQL({required this.db});
 
-  SingleTable table(TableSQL t) => SingleTable(lite: this, table: t);
+  SingleTable table(TableProto t) => SingleTable(lite: this, table: t);
 
   static LiteSQL open(String path) {
     var db = sqlite3.open(path);
@@ -86,10 +86,15 @@ class LiteSQL {
     return rs;
   }
 
+  PreparedStatement prepareSQL(String sql) {
+    logd(sql);
+    return db.prepare(sql);
+  }
+
   int delete(String table, {required String where, ArgSQL? args}) {
     assert(where.isNotEmpty);
     String sql = "DELETE FROM ${table.escapeSQL} WHERE $where";
-    PreparedStatement st = db.prepare(sql);
+    PreparedStatement st = prepareSQL(sql);
     st.execute(args ?? []);
     st.dispose();
     return db.updatedRows;
@@ -100,7 +105,7 @@ class LiteSQL {
     if (notBlank(where)) {
       sql += " WHERE $where";
     }
-    PreparedStatement st = db.prepare(sql);
+    PreparedStatement st = prepareSQL(sql);
     st.execute(values.mapList((e) => e.value) + (args ?? []));
     st.dispose();
     return db.updatedRows;
@@ -123,7 +128,7 @@ class LiteSQL {
     }
     logd(sql);
     List<int> rowids = [];
-    PreparedStatement st = db.prepare(sql);
+    PreparedStatement st = prepareSQL(sql);
     for (var row in rows) {
       List<FieldValue> uniqueList = row.filter((e) => e.field.primaryKey || e.field.unique);
       List<FieldValue> otherList = row.filter((e) => !e.field.primaryKey && !e.field.unique);
@@ -143,21 +148,23 @@ class LiteSQL {
     return upsertRows(table, [row]).firstOrNull ?? 0;
   }
 
-  int insertRows(String table, List<List<LabelValue<dynamic>>> rows, {InsertOption? conflict}) {
-    if (rows.isEmpty) return 0;
+  List<int> insertRows(String table, List<List<LabelValue<dynamic>>> rows, {InsertOption? conflict}) {
+    if (rows.isEmpty) return List.empty();
     var firstRow = rows.first;
     String cs = conflict == null ? "" : "OR ${conflict.conflict}";
     String sql = "INSERT $cs INTO ${table.escapeSQL} (${firstRow.map((e) => e.label.escapeSQL).join(",")}) VALUES (${firstRow.map((e) => '?').join(",")})";
-    PreparedStatement st = db.prepare(sql);
+    PreparedStatement st = prepareSQL(sql);
+    List<int> idList = [];
     for (var oneRow in rows) {
       st.execute(oneRow.mapList((e) => e.value));
+      idList.add(db.lastInsertRowId);
     }
     st.dispose();
-    return db.lastInsertRowId;
+    return idList;
   }
 
   int insertRow(String table, List<LabelValue<dynamic>> row, {InsertOption? conflict}) {
-    return insertRows(table, [row], conflict: conflict);
+    return insertRows(table, [row], conflict: conflict).first;
   }
 
   int insert(String table, List<String> columns, List<dynamic> row, {InsertOption? conflict}) {
@@ -167,7 +174,7 @@ class LiteSQL {
   int insertMulti(String table, List<String> columns, List<List<dynamic>> rows, {InsertOption? conflict}) {
     String cs = conflict == null ? "" : "OR ${conflict.conflict}";
     String sql = "INSERT $cs INTO ${table.escapeSQL} (${columns.map((e) => e.escapeSQL).join(",")}) VALUES (${columns.map((e) => '?').join(",")})";
-    PreparedStatement st = db.prepare(sql);
+    PreparedStatement st = prepareSQL(sql);
     for (var row in rows) {
       st.execute(row);
     }
@@ -186,13 +193,11 @@ class LiteSQL {
     }
   }
 
-
-
-  void migrate(TableSQL table) {
+  void migrate(TableProto table) {
     MigrateTable(this, table.name, table.fields);
   }
 
-  void migrateTable(String tableName, List<FieldSQL> fields) {
+  void migrateTable(String tableName, List<FieldProto> fields) {
     MigrateTable(this, tableName, fields);
   }
 
@@ -251,7 +256,7 @@ class LiteSQL {
     db.execute(sql);
   }
 
-  void addColumn(String table, FieldSQL field) {
+  void addColumn(String table, FieldProto field) {
     String sql = "ALTER TABLE ${table.escapeSQL} ADD COLUMN ${field.defineField(false)}";
     db.execute(sql);
   }
@@ -263,7 +268,7 @@ class LiteSQL {
     db.execute(sql);
   }
 
-  void createTable(String table, List<FieldSQL> fields, {List<String>? constraints, List<String>? options, bool notExist = true}) {
+  void createTable(String table, List<FieldProto> fields, {List<String>? constraints, List<String>? options, bool notExist = true}) {
     ListString ls = [];
     if (notExist) {
       ls << "CREATE TABLE IF NOT EXISTS ${table.escapeSQL} (";
@@ -273,15 +278,15 @@ class LiteSQL {
 
     ListString colList = [];
 
-    List<FieldSQL> keyFields = fields.filter((e) => e.primaryKey);
+    List<FieldProto> keyFields = fields.filter((e) => e.primaryKey);
     colList.addAll(fields.map((e) => e.defineField(keyFields.length > 1)));
 
     if (keyFields.length > 1) {
       colList << "PRIMARY KEY ( ${keyFields.map((e) => e.nameSQL).join(", ")})";
     }
-    List<FieldSQL> uniqeList = fields.filter((e) => e.uniqueName != null && e.uniqueName!.isNotEmpty);
+    List<FieldProto> uniqeList = fields.filter((e) => e.uniqueName != null && e.uniqueName!.isNotEmpty);
     if (uniqeList.isNotEmpty) {
-      Map<String, List<FieldSQL>> map = uniqeList.groupBy((e) => e.uniqueName!);
+      Map<String, List<FieldProto>> map = uniqeList.groupBy((e) => e.uniqueName!);
       for (var e in map.entries) {
         colList << "UNIQUE (${e.value.map((f) => f.nameSQL).join(", ")})";
       }

@@ -14,13 +14,14 @@ void main() {
   // address TEXT,
   // age TEXT
   // )
-  int rowid1 = lite.insertRow("Person", ["name" >> "entao1", "age" >> 41, "address" >> "Jinan1"]);
-  int rowid2 = lite.insertRow("Person", ["name" >> "entao2", "age" >> 42, "address" >> "Jinan2"]);
-  int rowid3 = lite.insertRow("Person", ["name" >> "entao3", "age" >> 43, "address" >> "Jinan3"]);
+  int rowid1 = lite.insertRow("Person", ["name" >> "entao1", "age" >> 41, "add" >> "Jinan1"]);
+  int rowid2 = lite.insertRow("Person", ["name" >> "entao2", "age" >> 42, "add" >> "Jinan2"]);
+  int rowid3 = lite.insertRow("Person", ["name" >> "entao3", "age" >> 43, "add" >> "Jinan3"]);
 
   EnumTable e = lite.from(Person);
 
-  e.insert([Person.name >> "yang", Person.age >> 99]);
+  e.insert([Person.name >> "yang", Person.add >> "jinan"]);
+  e.dump();
 
   e.delete(Person.name.EQ("entao3"));
 
@@ -35,7 +36,7 @@ void main() {
   println(p);
 
   MapSQL row = e.query(where: Person.id.EQ(2)).first;
-  println(Person.id.get(row), Person.name.get(row), Person.addr.get(row), Person.age.get(row));
+  println(Person.id.get(row), Person.name.get(row), Person.add.get(row), Person.age.get(row));
 
   println("full: ", Person.name.exGet("fullName"));
   Person.name.exSet("fullName", "this is full name");
@@ -45,7 +46,7 @@ void main() {
   lite.dispose();
 }
 
-class PersonModel extends ModelSQL {
+class PersonModel extends TableModel {
   PersonModel(super.mapSQL);
 
   int get id => get("id");
@@ -56,25 +57,25 @@ class PersonModel extends ModelSQL {
 
   set name(String? value) => set(Person.name, value);
 
-  String? get addr => get(Person.addr);
+  String? get addr => get(Person.add);
 
-  set addr(String? value) => set(Person.addr, value);
+  set addr(String? value) => set(Person.add, value);
 
   int? get age => get("age");
 
   set age(int? value) => set("age", value);
 }
 
-enum Person with ETable<Person> {
-  id(EColumn.integer(primaryKey: true)),
-  name(EColumn.text()),
-  addr(EColumn.text(name: "address")),
-  age(EColumn.integer());
+enum Person with TableColumn<Person> {
+  id(ColumnSQL.integer(primaryKey: true)),
+  name(ColumnSQL.text()),
+  add(ColumnSQL.text()),
+  age(ColumnSQL.integer());
 
   const Person(this.column);
 
   @override
-  final EColumn column;
+  final ColumnSQL column;
 
   @override
   List<Person> get columns => Person.values;
