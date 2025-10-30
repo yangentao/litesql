@@ -228,9 +228,7 @@ extension LiteSQLEnum on LiteSQL {
 
 extension ETableFieldValueEx<T> on TableColumn<T> {
   FieldValue operator >>(dynamic value) {
-    TableProto? t = findTableByEnum(this.runtimeType);
-    assert(t != null);
-    return FieldValue(t!.fields.firstWhere((e) => e.name == this.nameColumn), value);
+    return FieldValue(this.proto, value);
   }
 }
 
