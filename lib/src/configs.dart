@@ -1,62 +1,64 @@
 part of 'sql.dart';
 
-class Configs extends TableModel {
-  Configs(super.model);
+enum Configs with TableColumn<Configs> {
+  name(ColumnSQL.text(primaryKey: true)),
+  nValue(ColumnSQL.integer()),
+  fValue(ColumnSQL.real()),
+  sValue(ColumnSQL.text());
 
-  // Configs.empty() : super.empty();
+  const Configs(this.column);
 
-  String get key => KEY.get(this);
+  @override
+  final ColumnSQL column;
 
-  set key(String value) => KEY.set(this, value);
-
-  String? get sValue => SVALUE.get(this);
-
-  set sValue(String? value) => SVALUE.set(this, value);
-
-  int? get nValue => NVALUE.get(this);
-
-  set nValue(int? value) => NVALUE.set(this, value);
-
-  double? get fValue => FVALUE.get(this);
-
-  set fValue(double? value) => FVALUE.set(this, value);
-
-  static FieldProto KEY = FieldProto.text(name: "key_", primaryKey: true);
-  static FieldProto SVALUE = FieldProto.text(name: "svalue");
-  static FieldProto NVALUE = FieldProto.integer(name: "nvalue");
-  static FieldProto FVALUE = FieldProto.real(name: "fvalue");
-
-  static TableProto TABLE = TableProto("configs", [KEY, SVALUE, NVALUE, FVALUE]);
-
-  static ConfigsTable use(LiteSQL lite) {
-    return ConfigsTable(lite: lite, table: TABLE);
-  }
+  @override
+  List<Configs> get columns => Configs.values;
 }
 
-class ConfigsTable extends SingleTable {
-  ConfigsTable({required super.table, required super.lite});
+class MConfigs extends TableModel<Configs> {
+  MConfigs(super.model);
 
-  void putString(String key, String value) {
-    upsert([Configs.KEY >> key, Configs.SVALUE >> value]);
+  String get name => Configs.name.get(this);
+
+  set name(String value) => Configs.name.set(this, value);
+
+  String? get sValue => Configs.sValue.get(this);
+
+  set sValue(String? value) => Configs.sValue.set(this, value);
+
+  int? get nValue => Configs.nValue.get(this);
+
+  set nValue(int? value) => Configs.nValue.set(this, value);
+
+  double? get fValue => Configs.fValue.get(this);
+
+  set fValue(double? value) => Configs.fValue.set(this, value);
+
+  static EnumTable table() {
+    return From(Configs);
   }
 
-  void putInt(String key, int value) {
-    upsert([Configs.KEY >> key, Configs.NVALUE >> value]);
+  static void putString(String name, String value) {
+    table().upsert([Configs.name >> name, Configs.sValue >> value]);
   }
 
-  void putDouble(String key, double value) {
-    upsert([Configs.KEY >> key, Configs.FVALUE >> value]);
+  static void putInt(String name, int value) {
+    table().upsert([Configs.name >> name, Configs.nValue >> value]);
   }
 
-  String getString(String key) {
-    return this.oneValue(Configs.SVALUE, where: Configs.KEY.EQ(key));
+  static void putDouble(String name, double value) {
+    table().upsert([Configs.name >> name, Configs.fValue >> value]);
   }
 
-  int getInt(String key) {
-    return this.oneValue(Configs.NVALUE, where: Configs.KEY.EQ(key));
+  static String? getString(String name) {
+    return table().oneValue(Configs.sValue, where: Configs.name.EQ(name));
   }
 
-  double getDouble(String key) {
-    return this.oneValue(Configs.FVALUE, where: Configs.KEY.EQ(key));
+  static int? getInt(String name) {
+    return table().oneValue(Configs.nValue, where: Configs.name.EQ(name));
+  }
+
+  static double? getDouble(String name) {
+    return table().oneValue(Configs.fValue, where: Configs.name.EQ(name));
   }
 }

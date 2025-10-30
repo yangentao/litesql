@@ -2,6 +2,7 @@ part of 'sql.dart';
 
 class TableModel<E> {
   MapSQL model;
+  Type tableType = E;
 
   // DType<T> dtype = DType<T>();
   final Set<String> _modifiedKeys = {};

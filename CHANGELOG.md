@@ -15,3 +15,6 @@
 
 ## 1.0.5
 * Model.insert/update/upsert/delete
+
+## 1.0.6
+* Configs
