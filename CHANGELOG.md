@@ -6,3 +6,6 @@
 
 ## 1.0.2
 * rename
+
+## 1.0.3
+* trim table proto name.

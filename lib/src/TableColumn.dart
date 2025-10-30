@@ -17,7 +17,14 @@ part of 'sql.dart';
 mixin TableColumn<T> on Enum {
   Type get tableType => T;
 
-  String get tableName => "$T";
+  String get tableName => exGetOrPut("tableName", () {
+    String a = "$T";
+    String f = TRIM_SUFFIX;
+    if (f.isEmpty || a == f) return a;
+    return a.substringBefore("Table");
+  });
+
+  String get TRIM_SUFFIX => "Table";
 
   List<T> get columns;
 
