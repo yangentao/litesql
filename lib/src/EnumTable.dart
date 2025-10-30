@@ -13,6 +13,8 @@ class EnumTable {
     tableSQL = t;
   }
 
+  static EnumTable of(Type type) => tableByType(type);
+
   String get tableName => tableSQL.name;
 
   T? oneByKey<T>(

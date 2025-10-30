@@ -4,6 +4,7 @@ class TableProto {
   final String name;
   final List<FieldProto> fields;
   final String nameSQL;
+  LiteSQL? liteSQL;
 
   TableProto(this.name, this.fields) : nameSQL = name.escapeSQL {
     for (var e in fields) {

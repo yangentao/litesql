@@ -4,6 +4,11 @@ Map<Type, TableProto> _enumTypeMap = {};
 
 TableProto? findTableByEnum(Type type) => _enumTypeMap[type];
 
+EnumTable tableByType(Type type) {
+  var info = findTableByEnum(type)!;
+  return info.liteSQL!.from(type);
+}
+
 void MigrateEnumTable<T extends TableColumn<T>>(LiteSQL lite, List<T> fields) {
   assert(fields.isNotEmpty);
   T first = fields.first;
@@ -17,4 +22,5 @@ void MigrateEnumTable<T extends TableColumn<T>>(LiteSQL lite, List<T> fields) {
   TableProto tab = TableProto(first.tableName, fieldList);
   _enumTypeMap[first.tableType] = tab;
   lite.migrate(tab);
+  tab.liteSQL = lite;
 }

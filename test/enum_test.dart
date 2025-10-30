@@ -7,7 +7,7 @@ import 'package:println/println.dart';
 void main() {
   LiteSQL lite = LiteSQL.openMemory();
 
-  lite.migrateEnumTable(PersonT.values);
+  lite.migrateEnumTable(Person.values);
   // CREATE TABLE IF NOT EXISTS Person (
   // id INTEGER PRIMARY KEY,
   // name TEXT,
@@ -18,29 +18,29 @@ void main() {
   int rowid2 = lite.insertRow("Person", ["name" >> "entao2", "age" >> 42, "add" >> "Jinan2"]);
   int rowid3 = lite.insertRow("Person", ["name" >> "entao3", "age" >> 43, "add" >> "Jinan3"]);
 
-  EnumTable e = lite.from(PersonT);
+  EnumTable e = EnumTable.of(Person);
 
-  e.insert([PersonT.name >> "yang", PersonT.add >> "jinan"]);
+  e.insert([Person.name >> "yang", Person.add >> "jinan"]);
   e.dump();
 
-  e.delete(PersonT.name.EQ("entao3"));
+  e.delete(Person.name.EQ("entao3"));
 
-  var rs = e.query(columns: [PersonT.id, PersonT.name], where: PersonT.id.EQ(2));
+  var rs = e.query(columns: [Person.id, Person.name], where: Person.id.EQ(2));
   rs.dump();
   // SELECT id, name FROM Person WHERE id = 2
   // id: 2, name: entao2
 
-  var r = e.query(columns: [PersonT.id.MAX()]);
+  var r = e.query(columns: [Person.id.MAX()]);
   println("max(id): ", r.firstValue);
-  PersonModel? p = e.one(PersonModel.new, where: PersonT.name.EQ("entao2"));
+  PersonModel? p = e.one(PersonModel.new, where: Person.name.EQ("entao2"));
   println(p);
 
-  MapSQL row = e.query(where: PersonT.id.EQ(2)).first;
-  println(PersonT.id.get(row), PersonT.name.get(row), PersonT.add.get(row), PersonT.age.get(row));
+  MapSQL row = e.query(where: Person.id.EQ(2)).first;
+  println(Person.id.get(row), Person.name.get(row), Person.add.get(row), Person.age.get(row));
 
-  println("full: ", PersonT.name.exGet("fullName"));
-  PersonT.name.exSet("fullName", "this is full name");
-  println("full: ", PersonT.name.exGet("fullName"));
+  println("full: ", Person.name.exGet("fullName"));
+  Person.name.exSet("fullName", "this is full name");
+  println("full: ", Person.name.exGet("fullName"));
 
   e.dump();
   lite.dispose();
@@ -49,34 +49,38 @@ void main() {
 class PersonModel extends TableModel {
   PersonModel(super.model);
 
-  int get id => PersonT.id.get(this);
+  static EnumTable table() => tableByType(Person);
 
-  set id(int value) => this[PersonT.id] = value;
+  int get id => Person.id.get(this);
 
-  String? get name => get(PersonT.name);
+  set id(int value) => this[Person.id] = value;
 
-  set name(String? value) => set(PersonT.name, value);
+  String? get name => get(Person.name);
 
-  String? get addr => get(PersonT.add);
+  set name(String? value) => set(Person.name, value);
 
-  set addr(String? value) => set(PersonT.add, value);
+  String? get addr => get(Person.add);
 
-  int? get age => PersonT.age.get(this);
+  set addr(String? value) => set(Person.add, value);
 
-  set age(int? value) => PersonT.age.set(this, value);
+  int? get age => Person.age.get(this);
+
+  set age(int? value) => Person.age.set(this, value);
 }
 
-enum PersonT with TableColumn<PersonT> {
+enum Person with TableColumn<Person> {
   id(ColumnSQL.integer(primaryKey: true)),
   name(ColumnSQL.text()),
   add(ColumnSQL.text()),
   age(ColumnSQL.integer());
 
-  const PersonT(this.column);
+  const Person(this.column);
 
   @override
   final ColumnSQL column;
 
   @override
-  List<PersonT> get columns => PersonT.values;
+  List<Person> get columns => Person.values;
+
+  static EnumTable table() => tableByType(Person);
 }

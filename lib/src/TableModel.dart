@@ -6,6 +6,8 @@ class TableModel {
 
   TableModel(this.model);
 
+  static void fa(){}
+
   // TableModel.empty() : this({});
 
   dynamic operator [](Object key) {
