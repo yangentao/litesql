@@ -11,7 +11,7 @@ void MigrateETable<T extends TableColumn<T>>(LiteSQL lite, List<T> fields) {
 
   List<FieldProto> fieldList = [];
   for (T item in fields) {
-    fieldList.add(item.toFieldSqL());
+    fieldList.add(item.proto);
   }
 
   TableProto tab = TableProto(first.tableName, fieldList);

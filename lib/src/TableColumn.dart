@@ -28,6 +28,8 @@ mixin TableColumn<T> on Enum {
   String get nameSQL => exGetOrPut("nameSQL", () => (column.name ?? this.name).escapeSQL);
 
   String get fullname => exGetOrPut("fullname", () => "${tableName.escapeSQL}.$nameSQL}");
+
+  FieldProto get proto => exGetOrPut("proto", () => _toFieldSqL());
 }
 
 extension TableColumnPropEx<T> on TableColumn<T> {
@@ -70,7 +72,7 @@ extension TableColumnGetSetEx<T> on TableColumn<T> {
     }
   }
 
-  FieldProto toFieldSqL() {
+  FieldProto _toFieldSqL() {
     ColumnSQL col = column;
     FieldProto field = FieldProto(
       name: this.nameColumn,
