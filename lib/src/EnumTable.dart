@@ -41,7 +41,7 @@ class EnumTable {
     return one<T>(creator, columns: columns, where: keysEQ(keys), groupBy: groupBy, having: having, window: window, order: order, orderBy: orderBy);
   }
 
-  V? oneValue<E extends Enum, V>(TableColumn<E> column, {Where? where, String? groupBy, String? having, String? window, String? order, List<String>? orderBy}) {
+  V? oneValue<E extends TableColumn<E>, V>(TableColumn<E> column, {Where? where, String? groupBy, String? having, String? window, String? order, List<String>? orderBy}) {
     return this.query(columns: [column], where: where, groupBy: groupBy, having: having, window: window, order: order, orderBy: orderBy, limit: 1).firstValue;
   }
 
@@ -70,7 +70,7 @@ class EnumTable {
     ).firstOrNull;
   }
 
-  List<T> listColumn<E extends Enum, T>(
+  List<T> listColumn<E extends TableColumn<E>, T>(
     TableColumn<E> column, {
     Where? where,
     List<Where>? wheres,
@@ -226,7 +226,7 @@ extension LiteSQLEnum on LiteSQL {
   }
 }
 
-extension ETableFieldValueEx<T extends Enum> on TableColumn<T> {
+extension ETableFieldValueEx<T extends TableColumn<T>> on TableColumn<T> {
   FieldValue operator >>(dynamic value) {
     return FieldValue(this.proto, value);
   }
