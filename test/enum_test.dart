@@ -29,8 +29,17 @@ void main() {
 
   int r = p.update(() {
     p.age = 99;
+    p.addr = "Peiking";
   });
-  println("update return: ", r );
+  println("update return: ", r);
+
+  PersonModel p2 = PersonModel({});
+  p2.id = 1;
+  p2.name = "yang";
+  p2.upsert();
+  e.dump();
+
+  p2.delete();
 
   // e.insert([Person.name >> "yang", Person.add >> "jinan"]);
   // e.dump();
@@ -59,14 +68,10 @@ void main() {
   lite.dispose();
 }
 
-EnumTable From(Type type) {
-  return EnumTable.of(type);
-}
-
 class PersonModel extends TableModel<Person> {
   PersonModel(super.model);
 
-  static EnumTable table() => tableByType(Person);
+  static EnumTable table() => tableOfType(Person);
 
   int get id => Person.id.get(this);
 
@@ -99,5 +104,5 @@ enum Person with TableColumn<Person> {
   @override
   List<Person> get columns => Person.values;
 
-  static EnumTable table() => tableByType(Person);
+  static EnumTable table() => tableOfType(Person);
 }

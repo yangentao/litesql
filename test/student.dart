@@ -1,5 +1,4 @@
 import 'package:litesql/litesql.dart';
-import 'package:println/println.dart';
 
 void main() {
   LiteSQL lite = LiteSQL.openMemory();

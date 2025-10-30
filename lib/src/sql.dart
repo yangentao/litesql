@@ -6,21 +6,20 @@ import 'dart:typed_data';
 
 import 'package:entao_dutil/entao_dutil.dart';
 import 'package:entao_log/entao_log.dart';
-import 'package:litesql/dtype.dart';
 import 'package:println/println.dart';
 import 'package:sqlite3/sqlite3.dart';
 
 part 'ColumnSQL.dart';
-part 'TableColumn.dart';
 part 'EnumTable.dart';
 part 'FieldProto.dart';
 part 'LiteSQL.dart';
 part 'Migrate.dart';
 part 'MigrateETable.dart';
-part 'TableModel.dart';
 part 'SingleTable.dart';
-part 'TableProto.dart';
+part 'TableColumn.dart';
 part 'TableColumnExt.dart';
+part 'TableModel.dart';
+part 'TableProto.dart';
 part 'configs.dart';
 part 'sql_utils.dart';
 part 'sqlite3_ext.dart';

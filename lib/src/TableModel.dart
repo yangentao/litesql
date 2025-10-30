@@ -19,6 +19,20 @@ class TableModel<E> {
     _modifiedKeys.clear();
   }
 
+  int delete() {
+    EnumTable tab = _table();
+    List<FieldProto> pks = tab.primaryKeys();
+    if (pks.isEmpty) throw SQLException("NO primary key defined.");
+    List<Where> wherePks = [];
+    for (FieldProto f in pks) {
+      dynamic v = get(f.name);
+      if (v == null) throw SQLException("Primary key is null: ${f.name}");
+      wherePks.add(f.EQ(v));
+    }
+    if (wherePks.isEmpty) throw SQLException("NO primary key condition(s).");
+    return tab.delete(wherePks.and());
+  }
+
   int update(VoidCallback callback) {
     EnumTable tab = _table();
     List<FieldProto> pks = tab.primaryKeys();
@@ -47,7 +61,7 @@ class TableModel<E> {
     return n;
   }
 
-  int insert() {
+  int insert({InsertOption? conflict}) {
     EnumTable tab = _table();
     List<FieldValue> ls = [];
     for (String k in _modifiedKeys) {
@@ -55,7 +69,30 @@ class TableModel<E> {
       ls.add(f >> get(k));
     }
     if (ls.isEmpty) return 0;
-    int id = tab.insert(ls);
+    int id = tab.insert(ls, conflict: conflict);
+    if (id > 0) {
+      var ls = tab.proto.fields.filter((e) => e.primaryKey && e.type.toUpperCase() == "INTEGER");
+      if (ls.length == 1) {
+        FieldProto p = ls.first;
+        if (!_modifiedKeys.contains(p.name)) {
+          set(p.name, id);
+        }
+      }
+    }
+    _modifiedKeys.clear();
+    return id;
+  }
+
+  int upsert() {
+    EnumTable tab = _table();
+    List<FieldValue> ls = [];
+    for (String k in _modifiedKeys) {
+      FieldProto f = tab.proto.fields.firstWhere((e) => e.name == k);
+      ls.add(f >> get(k));
+    }
+
+    if (ls.isEmpty) return 0;
+    int id = tab.upsert(ls);
     if (id > 0) {
       var ls = tab.proto.fields.filter((e) => e.primaryKey && e.type.toUpperCase() == "INTEGER");
       if (ls.length == 1) {

@@ -13,7 +13,7 @@ class EnumTable {
     proto = t;
   }
 
-  static EnumTable of(Type type) => tableByType(type);
+  static EnumTable of(Type type) => tableOfType(type);
 
   String get tableName => proto.name;
 
@@ -192,12 +192,12 @@ class EnumTable {
     return lite.upsert(tableName, row);
   }
 
-  List<int> insertAll(List<List<FieldValue>> rows) {
-    return lite.insertRows(proto.name, rows.mapList((r) => r.mapList((e) => LabelValue(e.field.name, e.value))));
+  List<int> insertAll(List<List<FieldValue>> rows, {InsertOption? conflict}) {
+    return lite.insertRows(proto.name, rows.mapList((r) => r.mapList((e) => LabelValue(e.field.name, e.value))), conflict: conflict);
   }
 
-  int insert(List<FieldValue> row) {
-    return lite.insertRow(proto.name, row.mapList((e) => LabelValue(e.field.name, e.value)));
+  int insert(List<FieldValue> row, {InsertOption? conflict}) {
+    return lite.insertRow(proto.name, row.mapList((e) => LabelValue(e.field.name, e.value)), conflict: conflict);
   }
 
   int save(dynamic item) {

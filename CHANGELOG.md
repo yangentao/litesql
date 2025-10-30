@@ -12,3 +12,6 @@
 
 ## 1.0.4
 * table name
+
+## 1.0.5
+* Model.insert/update/upsert/delete

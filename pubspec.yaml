@@ -2,7 +2,7 @@ name: litesql
 description: SQLite3 wrap.
 repository: https://github.com/yangentao/litesql
 homepage: https://github.com/yangentao/litesql
-version: 1.0.4
+version: 1.0.5
 
 environment:
   sdk: ^3.9.0

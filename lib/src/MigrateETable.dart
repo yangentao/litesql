@@ -4,7 +4,11 @@ Map<Type, TableProto> _enumTypeMap = {};
 
 TableProto? findTableByEnum(Type type) => _enumTypeMap[type];
 
-EnumTable tableByType(Type type) {
+EnumTable From(Type type) {
+  return tableOfType(type);
+}
+
+EnumTable tableOfType(Type type) {
   var info = findTableByEnum(type)!;
   return info.liteSQL!.from(type);
 }
