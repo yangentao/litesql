@@ -35,6 +35,10 @@ class LiteSQL {
     }
   }
 
+  int get uesr_version => db.userVersion;
+
+  set uesr_version(int ver) => db.userVersion = ver;
+
   /// distinct on
   /// SELECT a, b, max(c) FROM tab1 GROUP BY a;
   /// min/max 在聚合查询时,  会返回包含min/max值的行.
