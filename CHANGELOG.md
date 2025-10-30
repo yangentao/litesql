@@ -1,5 +1,8 @@
 ## 1.0.0
-- enum table.
+* enum table.
 
 ## 1.0.1
-- enum table, sql model.
+* enum table, sql model.
+
+## 1.0.2
+* rename
