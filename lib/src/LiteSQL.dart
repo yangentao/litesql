@@ -35,9 +35,9 @@ class LiteSQL {
     }
   }
 
-  int get uesr_version => db.userVersion;
+  int get user_version => db.userVersion;
 
-  set uesr_version(int ver) => db.userVersion = ver;
+  set user_version(int ver) => db.userVersion = ver;
 
   /// distinct on
   /// SELECT a, b, max(c) FROM tab1 GROUP BY a;
