@@ -25,12 +25,51 @@ mixin ETable<T> on Enum {
 
   String get nameColumn => column.name ?? this.name;
 
-  String get nameSQL => (column.name ?? this.name).escapeSQL;
+  String get nameSQL => exGetOrPut("nameSQL", () => (column.name ?? this.name).escapeSQL);
 
-  String get fullname => "${tableName.escapeSQL}.$nameSQL}";
+  String get fullname => exGetOrPut("fullname", () => "${tableName.escapeSQL}.$nameSQL}");
 }
 
-extension<T> on ETable<T> {
+extension TableColumnPropEx<T> on ETable<T> {
+  static final Map<Enum, Map<String, dynamic>> _columnPropMap = {};
+
+  Map<String, dynamic> get propMap => _columnPropMap.getOrPut(this, () => <String, dynamic>{});
+
+  V exGetOrPut<V>(String key, V Function() onMiss) {
+    return propMap.getOrPut(key, onMiss);
+  }
+
+  V? exGet<V>(String key) {
+    return propMap[key];
+  }
+
+  void exSet(String key, dynamic value) => propMap[key] = value;
+}
+
+extension TableColumnGetSetEx<T> on ETable<T> {
+  V? get<V>(Object? container) {
+    if (container == null) return null;
+    if (container is MapSQL) return container[this.nameColumn];
+    if (container is ModelSQL) return container.mapSQL[this.nameColumn];
+    if (container is JsonValue) return container[this.nameColumn].value;
+    if (container is JsonModel) return container.jsonValue[this.nameColumn].value;
+    throw SQLException("TableColumn get(). Unknown container: $container, tableColumn: $nameColumn");
+  }
+
+  void set(Object model, dynamic value) {
+    if (model is ModelSQL) {
+      model.set(this.nameColumn, value);
+    } else if (model is MapSQL) {
+      model[this.nameColumn] = value;
+    } else if (model is JsonValue) {
+      model[this.nameColumn] = value;
+    } else if (model is JsonModel) {
+      model.jsonValue[this.nameColumn] = value;
+    } else {
+      throw SQLException("TableColumn.set(), unknown container:$model, tableColumn:$nameColumn.");
+    }
+  }
+
   FieldSQL toFieldSqL() {
     EColumn col = column;
     FieldSQL field = FieldSQL(

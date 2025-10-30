@@ -15,12 +15,16 @@ void main() {
   // address TEXT,
   // age TEXT
   // )
-
   int rowid1 = lite.insertRow("Person", ["name" >> "entao1", "age" >> 41, "address" >> "Jinan1"]);
   int rowid2 = lite.insertRow("Person", ["name" >> "entao2", "age" >> 42, "address" >> "Jinan2"]);
   int rowid3 = lite.insertRow("Person", ["name" >> "entao3", "age" >> 43, "address" >> "Jinan3"]);
 
   EnumTable e = lite.from(Person);
+
+  e.insert([Person.name >> "yang", Person.age >> 99]);
+
+  e.delete(Person.name.EQ("entao3"));
+
   ResultSet rs = e.query(columns: [Person.id, Person.name], where: Person.id.EQ(2));
   rs.dump();
   // SELECT id, name FROM Person WHERE id = 2
@@ -31,7 +35,14 @@ void main() {
   PersonModel? p = e.one(PersonModel.new, where: Person.name.EQ("entao2"));
   println(p);
 
-  // e.dump();
+  MapSQL row = e.query(where: Person.id.EQ(2)).first.mapSQL;
+  println(Person.id.get(row), Person.name.get(row), Person.addr.get(row), Person.age.get(row));
+
+  println("full: ", Person.name.exGet("fullName"));
+  Person.name.exSet("fullName", "this is full name");
+  println("full: ", Person.name.exGet("fullName"));
+
+  e.dump();
   lite.dispose();
 }
 

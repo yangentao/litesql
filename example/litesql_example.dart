@@ -1,17 +1,13 @@
-import 'dart:typed_data';
-
-import 'package:litesql/litesql.dart';
 import 'package:println/println.dart';
 
 void main() {
-  println(access<bool>());
-  println(access<int>());
-  println(access<double>());
-  println(access<String>());
-  println(access<BlobSQL>());
-  println(access<Uint8List>());
+  enumMap[EA.a] = "EA.a";
+  enumMap[EB.a] = "EB.a";
+  println(enumMap[EA.a], enumMap[EB.a]);
 }
 
-bool access<T>() {
-  return typesSQL.contains(T);
-}
+Map<Enum, String> enumMap = {};
+
+enum EA { a, b }
+
+enum EB { a, b }

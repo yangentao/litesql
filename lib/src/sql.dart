@@ -8,28 +8,26 @@ import 'package:entao_log/entao_log.dart';
 import 'package:println/println.dart';
 import 'package:sqlite3/sqlite3.dart';
 
-part 'configs.dart';
 part 'EColumn.dart';
-part 'FieldSQL.dart';
-part 'LiteSQL.dart';
-part 'ModelSQL.dart';
-part 'sql_utils.dart';
-part 'sqlite3_ext.dart';
-part 'TableSQL.dart';
-part 'wheres.dart';
 part 'ETable.dart';
 part 'EnumTable.dart';
-part 'MigrateETable.dart';
+part 'FieldSQL.dart';
+part 'LiteSQL.dart';
 part 'Migrate.dart';
-part 'WhereExtends.dart';
+part 'MigrateETable.dart';
+part 'ModelSQL.dart';
 part 'SingleTable.dart';
+part 'TableSQL.dart';
+part 'WhereExtends.dart';
+part 'configs.dart';
+part 'sql_utils.dart';
+part 'sqlite3_ext.dart';
+part 'wheres.dart';
 
 typedef MapSQL = Map<String, dynamic>;
 typedef BlobSQL = Uint8List;
 
 typedef ModelCreator<T> = T Function(MapSQL);
-
-const List<Type> typesSQL = [bool, int, double, String, BlobSQL];
 
 class SQLException implements Exception {
   String message;
