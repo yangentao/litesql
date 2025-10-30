@@ -231,3 +231,55 @@ extension ETableFieldValueEx<T> on ETable<T> {
     return FieldValue(t!.fields.firstWhere((e) => e.name == this.nameColumn), value);
   }
 }
+
+extension ResultSetExtResult on ResultSet {
+  QueryResult get result => QueryResult(this);
+}
+
+class QueryResult with ListMixin<MapSQL> {
+  ResultSet resultSet;
+
+  QueryResult(this.resultSet);
+
+  int get columnCount => resultSet.columnNames.length;
+
+  List<String> get columnNames => resultSet.columnNames;
+
+  Object? valueAt(int row, int col) => resultSet.rows[row][col];
+
+  Object? valueNamed(int row, String name) => resultSet[row][name];
+
+  MapSQL rowAt(int index) => resultSet[index].mapSQL;
+
+  MapSQL? get firstRow => resultSet.firstOrNull?.mapSQL;
+
+  List<MapSQL> get listRows => resultSet.mapList((e) => e.mapSQL);
+
+  dynamic get firstValue => resultSet.firstOrNull?.columnAt(0);
+
+  dynamic get listValues => resultSet.mapList((e) => e.columnAt(0));
+
+  T modelAt<T>(int index, ModelCreator<T> creator) => resultSet.elementAt(index).let((e) => creator(e));
+
+  T? firstModel<T>(ModelCreator<T> creator) => firstRow?.let((e) => creator(e));
+
+  List<T> listModel<T>(ModelCreator<T> creator) => listRows.mapList((e) => creator(e));
+
+  @override
+  int get length => resultSet.length;
+
+  @override
+  MapSQL operator [](int index) {
+    return rowAt(index);
+  }
+
+  @override
+  void operator []=(int index, MapSQL value) {
+    errorSQL("QueryResult is inmutable");
+  }
+
+  @override
+  set length(int newLength) {
+    errorSQL("QueryResult is inmutable");
+  }
+}
