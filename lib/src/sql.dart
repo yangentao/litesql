@@ -19,7 +19,7 @@ part 'MigrateETable.dart';
 part 'TableModel.dart';
 part 'SingleTable.dart';
 part 'TableProto.dart';
-part 'WhereExtends.dart';
+part 'TableColumnExt.dart';
 part 'configs.dart';
 part 'sql_utils.dart';
 part 'sqlite3_ext.dart';

@@ -9,3 +9,6 @@
 
 ## 1.0.3
 * trim table proto name.
+
+## 1.0.4
+* table name

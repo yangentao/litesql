@@ -1,31 +1,34 @@
 part of 'sql.dart';
 
-/// enum Person with ETable<Person> {
-///   id(EColumn.integer(primaryKey: true)),
-///   name(EColumn.text()),
-///   addr(EColumn.text(name: "address")),
-///   age(EColumn.integer());
-///
-///   const Person(this.column);
-///
-///   @override
-///   final EColumn column;
-///
-///   @override
-///   List<Person> get columns => Person.values;
-/// }
+// enum Person with ETable<Person> {
+//   id(EColumn.integer(primaryKey: true)),
+//   name(EColumn.text()),
+//   addr(EColumn.text(name: "address")),
+//   age(EColumn.integer());
+//
+//   const Person(this.column);
+//
+//   @override
+//   final EColumn column;
+//
+//   @override
+//   List<Person> get columns => Person.values;
+// }
 mixin TableColumn<T extends Enum> on Enum {
   Type get tableType => T;
 
   String get tableName => exGetOrPut("tableName", () {
     String a = "$T";
     if (a == "Object") throw SQLException("TableColumn MUST has a generic type parameter. forexample:  enum Person with TableColumn<Person> ");
-    String f = TRIM_SUFFIX;
-    if (f.isEmpty || a == f) return a;
-    return a.substringBefore("Table");
+    List<String> ls = TRIM_SUFFIXS;
+    if (ls.isEmpty) return a;
+    for (String s in ls) {
+      if (s.isNotEmpty && a != s && a.endsWith(s)) return a.substringBeforeLast(s);
+    }
+    return a;
   });
 
-  String get TRIM_SUFFIX => "Table";
+  List<String> get TRIM_SUFFIXS => ["T", "Table"];
 
   List<T> get columns;
 
@@ -38,22 +41,6 @@ mixin TableColumn<T extends Enum> on Enum {
   String get fullname => exGetOrPut("fullname", () => "${tableName.escapeSQL}.$nameSQL}");
 
   FieldProto get proto => exGetOrPut("proto", () => _toFieldSqL());
-}
-
-extension TableColumnPropEx<T extends Enum> on TableColumn<T> {
-  static final Map<Enum, Map<String, dynamic>> _columnPropMap = {};
-
-  Map<String, dynamic> get propMap => _columnPropMap.getOrPut(this, () => <String, dynamic>{});
-
-  V exGetOrPut<V>(String key, V Function() onMiss) {
-    return propMap.getOrPut(key, onMiss);
-  }
-
-  V? exGet<V>(String key) {
-    return propMap[key];
-  }
-
-  void exSet(String key, dynamic value) => propMap[key] = value;
 }
 
 extension TableColumnGetSetEx<T extends Enum> on TableColumn<T> {
@@ -95,24 +82,5 @@ extension TableColumnGetSetEx<T extends Enum> on TableColumn<T> {
       index: col.index,
     );
     return field;
-  }
-}
-
-extension ETableSQLExt<T extends Enum> on TableColumn<T> {
-  /// join on clause
-  String EQUAL(FieldProto other) {
-    return "${this.fullname} = ${other.fullname}";
-  }
-
-  String AS(String label) {
-    return "${this.fullname} AS $label";
-  }
-
-  String MAX() {
-    return "MAX($nameSQL)";
-  }
-
-  String MIN() {
-    return "MIN($nameSQL)";
   }
 }
