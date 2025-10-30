@@ -2,6 +2,7 @@ part of 'sql.dart';
 
 class TableModel {
   MapSQL mapSQL;
+  final Set<String> _modifiedKeys = {};
 
   TableModel(this.mapSQL);
 
@@ -24,6 +25,7 @@ class TableModel {
   void set<T>(Object key, T? value) {
     String k = key is TableColumn ? key.name : key.toString();
     mapSQL[k] = value;
+    _modifiedKeys.add(k);
   }
 
   @override

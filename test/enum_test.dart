@@ -49,9 +49,9 @@ void main() {
 class PersonModel extends TableModel {
   PersonModel(super.mapSQL);
 
-  int get id => get("id");
+  int get id => Person.id.get(this);
 
-  set id(int value) => set("id", value);
+  set id(int value) => this[Person.id] = value;
 
   String? get name => get(Person.name);
 
@@ -61,9 +61,9 @@ class PersonModel extends TableModel {
 
   set addr(String? value) => set(Person.add, value);
 
-  int? get age => get("age");
+  int? get age => Person.age.get(this);
 
-  set age(int? value) => set("age", value);
+  set age(int? value) => Person.age.set(this, value);
 }
 
 enum Person with TableColumn<Person> {

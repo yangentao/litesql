@@ -185,7 +185,7 @@ class EnumTable {
   }
 
   int upsert(List<FieldValue> row) {
-    return lite.upsert(tableSQL.name, row);
+    return lite.upsert(tableName, row);
   }
 
   List<int> insertAll(List<List<FieldValue>> rows) {
