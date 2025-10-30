@@ -28,6 +28,10 @@ class TableModel {
     _modifiedKeys.add(k);
   }
 
+  String toJson() {
+    return json.encode(model);
+  }
+
   @override
   String toString() {
     return json.encode(model);
