@@ -2,9 +2,9 @@ part of 'sql.dart';
 
 Map<Type, TableProto> _enumTypeMap = {};
 
-TableProto? findTableByType(Type type) => _enumTypeMap[type];
+TableProto? findTableByEnum(Type type) => _enumTypeMap[type];
 
-void MigrateETable<T extends TableColumn<T>>(LiteSQL lite, List<T> fields) {
+void MigrateEnumTable<T extends TableColumn<T>>(LiteSQL lite, List<T> fields) {
   assert(fields.isNotEmpty);
   T first = fields.first;
   if (_enumTypeMap.containsKey(first.tableType)) return;

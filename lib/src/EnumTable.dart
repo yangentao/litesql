@@ -6,7 +6,7 @@ class EnumTable {
   late TableProto tableSQL;
 
   EnumTable({required this.lite, required this.tableType}) {
-    var t = findTableByType(tableType);
+    var t = findTableByEnum(tableType);
     if (t == null) {
       throw SQLException("Table info NOT found, type=$tableType");
     }
@@ -217,7 +217,7 @@ class EnumTable {
 extension LiteSQLEnum on LiteSQL {
   /// liteSQL.migrateEnumTable(Person.values)
   void migrateEnumTable<T extends TableColumn<T>>(List<T> fields) {
-    MigrateETable(this, fields);
+    MigrateEnumTable(this, fields);
   }
 
   /// liteSQL.from(Person)
@@ -228,7 +228,7 @@ extension LiteSQLEnum on LiteSQL {
 
 extension ETableFieldValueEx<T> on TableColumn<T> {
   FieldValue operator >>(dynamic value) {
-    TableProto? t = findTableByType(this.runtimeType);
+    TableProto? t = findTableByEnum(this.runtimeType);
     assert(t != null);
     return FieldValue(t!.fields.firstWhere((e) => e.name == this.nameColumn), value);
   }
