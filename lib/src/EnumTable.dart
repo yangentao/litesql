@@ -41,8 +41,8 @@ class EnumTable {
     return one<T>(creator, columns: columns, where: keysEQ(keys), groupBy: groupBy, having: having, window: window, order: order, orderBy: orderBy);
   }
 
-  dynamic oneValue<T>(ETable<T> column, {Where? where, String? groupBy, String? having, String? window, String? order, List<String>? orderBy}) {
-    return this.query(columns: [column], where: where, groupBy: groupBy, having: having, window: window, order: order, orderBy: orderBy, limit: 1).oneValue;
+  Object? oneValue<T>(ETable<T> column, {Where? where, String? groupBy, String? having, String? window, String? order, List<String>? orderBy}) {
+    return this.query(columns: [column], where: where, groupBy: groupBy, having: having, window: window, order: order, orderBy: orderBy, limit: 1).firstValue;
   }
 
   T? one<T>(
@@ -82,7 +82,7 @@ class EnumTable {
     int? limit,
     int? offset,
   }) {
-    ResultSet rs = query(
+    return query(
       columns: [column],
       where: where,
       wheres: wheres,
@@ -93,8 +93,7 @@ class EnumTable {
       orderBy: orderBy,
       limit: limit,
       offset: offset,
-    );
-    return rs.mapList((e) => e.firstColumn);
+    ).listValues();
   }
 
   List<T> list<T>(
@@ -110,22 +109,23 @@ class EnumTable {
     int? limit,
     int? offset,
   }) {
-    ResultSet rs = this.query(
-      columns: columns,
-      where: where,
-      wheres: wheres,
-      groupBy: groupBy,
-      having: having,
-      window: window,
-      order: order,
-      orderBy: orderBy,
-      limit: limit,
-      offset: offset,
-    );
-    return rs.mapList((e) => creator(e.mapSQL));
+    return this
+        .query(
+          columns: columns,
+          where: where,
+          wheres: wheres,
+          groupBy: groupBy,
+          having: having,
+          window: window,
+          order: order,
+          orderBy: orderBy,
+          limit: limit,
+          offset: offset,
+        )
+        .listModel(creator);
   }
 
-  ResultSet query({
+  QueryResult query({
     List<dynamic>? columns,
     Where? where,
     List<Where>? wheres,
@@ -139,19 +139,21 @@ class EnumTable {
   }) {
     List<Where> wList = [where, ...?wheres].nonNullList;
     var w = AND_ALL(wList).result();
-    return lite.select(
-      columns?.mapList((e) => e is ETable ? e.nameSQL : e.toString()),
-      from: tableName,
-      where: w.clause,
-      groupBy: groupBy,
-      having: having,
-      window: window,
-      order: order,
-      orderBy: orderBy,
-      limit: limit,
-      offset: offset,
-      args: w.args,
-    );
+    return lite
+        .select(
+          columns?.mapList((e) => e is ETable ? e.nameSQL : e.toString()),
+          from: tableName,
+          where: w.clause,
+          groupBy: groupBy,
+          having: having,
+          window: window,
+          order: order,
+          orderBy: orderBy,
+          limit: limit,
+          offset: offset,
+          args: w.args,
+        )
+        .result;
   }
 
   Where keyEQ(dynamic keyValue) {
@@ -257,7 +259,7 @@ class QueryResult with ListMixin<MapSQL> {
 
   dynamic get firstValue => resultSet.firstOrNull?.columnAt(0);
 
-  dynamic get listValues => resultSet.mapList((e) => e.columnAt(0));
+  List<T> listValues<T>() => resultSet.mapList((e) => e.columnAt(0));
 
   T modelAt<T>(int index, ModelCreator<T> creator) => resultSet.elementAt(index).let((e) => creator(e));
 
@@ -281,5 +283,15 @@ class QueryResult with ListMixin<MapSQL> {
   @override
   set length(int newLength) {
     errorSQL("QueryResult is inmutable");
+  }
+
+  void dump() {
+    if (this.isEmpty) {
+      println("[empty]");
+      return;
+    }
+    for (MapSQL r in this) {
+      println(json.encode(r));
+    }
   }
 }

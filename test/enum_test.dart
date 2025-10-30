@@ -3,7 +3,6 @@
 import 'package:entao_dutil/entao_dutil.dart';
 import 'package:litesql/litesql.dart';
 import 'package:println/println.dart';
-import 'package:sqlite3/common.dart';
 
 void main() {
   LiteSQL lite = LiteSQL.openMemory();
@@ -25,17 +24,17 @@ void main() {
 
   e.delete(Person.name.EQ("entao3"));
 
-  ResultSet rs = e.query(columns: [Person.id, Person.name], where: Person.id.EQ(2));
+  var rs = e.query(columns: [Person.id, Person.name], where: Person.id.EQ(2));
   rs.dump();
   // SELECT id, name FROM Person WHERE id = 2
   // id: 2, name: entao2
 
-  ResultSet r = e.query(columns: [Person.id.MAX()]);
-  println("max(id): ", r.oneValue);
+  var r = e.query(columns: [Person.id.MAX()]);
+  println("max(id): ", r.firstValue);
   PersonModel? p = e.one(PersonModel.new, where: Person.name.EQ("entao2"));
   println(p);
 
-  MapSQL row = e.query(where: Person.id.EQ(2)).first.mapSQL;
+  MapSQL row = e.query(where: Person.id.EQ(2)).first;
   println(Person.id.get(row), Person.name.get(row), Person.addr.get(row), Person.age.get(row));
 
   println("full: ", Person.name.exGet("fullName"));
