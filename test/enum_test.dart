@@ -1,6 +1,5 @@
 // ignore_for_file: unused_local_variable
 
-import 'package:entao_dutil/entao_dutil.dart';
 import 'package:litesql/litesql.dart';
 import 'package:println/println.dart';
 
@@ -14,39 +13,57 @@ void main() {
   // address TEXT,
   // age TEXT
   // )
-  int rowid1 = lite.insertRow("Person", ["name" >> "entao1", "age" >> 41, "add" >> "Jinan1"]);
-  int rowid2 = lite.insertRow("Person", ["name" >> "entao2", "age" >> 42, "add" >> "Jinan2"]);
-  int rowid3 = lite.insertRow("Person", ["name" >> "entao3", "age" >> 43, "add" >> "Jinan3"]);
+  // int rowid1 = lite.insertRow("Person", ["name" >> "entao1", "age" >> 41, "add" >> "Jinan1"]);
+  // int rowid2 = lite.insertRow("Person", ["name" >> "entao2", "age" >> 42, "add" >> "Jinan2"]);
+  // int rowid3 = lite.insertRow("Person", ["name" >> "entao3", "age" >> 43, "add" >> "Jinan3"]);
 
   EnumTable e = EnumTable.of(Person);
 
-  e.insert([Person.name >> "yang", Person.add >> "jinan"]);
-  e.dump();
-
-  e.delete(Person.name.EQ("entao3"));
-
-  var rs = e.query(columns: [Person.id, Person.name], where: Person.id.EQ(2));
-  rs.dump();
-  // SELECT id, name FROM Person WHERE id = 2
-  // id: 2, name: entao2
-
-  var r = e.query(columns: [Person.id.MAX()]);
-  println("max(id): ", r.firstValue);
-  PersonModel? p = e.one(PersonModel.new, where: Person.name.EQ("entao2"));
+  PersonModel p = PersonModel({});
+  p.name = "entao";
+  p.age = 33;
+  p.addr = "jinan";
+  int id = p.insert();
+  println("id: ", id);
   println(p);
 
-  MapSQL row = e.query(where: Person.id.EQ(2)).first;
-  println(Person.id.get(row), Person.name.get(row), Person.add.get(row), Person.age.get(row));
+  int r = p.update(() {
+    p.age = 99;
+  });
+  println("update return: ", r );
 
-  println("full: ", Person.name.exGet("fullName"));
-  Person.name.exSet("fullName", "this is full name");
-  println("full: ", Person.name.exGet("fullName"));
+  // e.insert([Person.name >> "yang", Person.add >> "jinan"]);
+  // e.dump();
+  //
+  // e.delete(Person.name.EQ("entao3"));
+  //
+  // var rs = e.query(columns: [Person.id, Person.name], where: Person.id.EQ(2));
+  // rs.dump();
+  //
+  // var r = e.query(columns: [Person.id.MAX()]);
+  // println("max(id): ", r.firstValue);
+  // PersonModel? p = e.one(PersonModel.new, where: Person.name.EQ("entao2"));
+  // println(p);
+  //
+  // MapSQL row = e.query(where: Person.id.EQ(2)).first;
+  // println(Person.id.get(row), Person.name.get(row), Person.add.get(row), Person.age.get(row));
+  //
+  // println("full: ", Person.name.exGet("fullName"));
+  // Person.name.exSet("fullName", "this is full name");
+  // println("full: ", Person.name.exGet("fullName"));
+  //
+  // List<String> ls = From(Person).listColumn(Person.name);
+  // println(ls);
 
   e.dump();
   lite.dispose();
 }
 
-class PersonModel extends TableModel {
+EnumTable From(Type type) {
+  return EnumTable.of(type);
+}
+
+class PersonModel extends TableModel<Person> {
   PersonModel(super.model);
 
   static EnumTable table() => tableByType(Person);

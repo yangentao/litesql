@@ -6,6 +6,7 @@ import 'dart:typed_data';
 
 import 'package:entao_dutil/entao_dutil.dart';
 import 'package:entao_log/entao_log.dart';
+import 'package:litesql/dtype.dart';
 import 'package:println/println.dart';
 import 'package:sqlite3/sqlite3.dart';
 

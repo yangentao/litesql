@@ -3,19 +3,21 @@ part of 'sql.dart';
 class EnumTable {
   LiteSQL lite;
   Type tableType;
-  late TableProto tableSQL;
+  late TableProto proto;
 
   EnumTable({required this.lite, required this.tableType}) {
     var t = findTableByEnum(tableType);
     if (t == null) {
       throw SQLException("Table info NOT found, type=$tableType");
     }
-    tableSQL = t;
+    proto = t;
   }
 
   static EnumTable of(Type type) => tableByType(type);
 
-  String get tableName => tableSQL.name;
+  String get tableName => proto.name;
+
+  List<FieldProto> primaryKeys() => proto.fields.filter((e) => e.primaryKey);
 
   T? oneByKey<T>(
     T Function(MapSQL) creator, {
@@ -159,13 +161,13 @@ class EnumTable {
   }
 
   Where keyEQ(dynamic keyValue) {
-    var keyList = tableSQL.fields.filter((e) => e.primaryKey);
+    var keyList = proto.fields.filter((e) => e.primaryKey);
     if (keyList.length != 1) throw HareException("Primary Key count MULST is ONE");
     return keyList.first.EQ(keyValue);
   }
 
   Where keysEQ(List<dynamic> keyValues) {
-    var keyList = tableSQL.fields.filter((e) => e.primaryKey);
+    var keyList = proto.fields.filter((e) => e.primaryKey);
     if (keyList.isEmpty) throw HareException("No Primary Key defined");
     if (keyList.length > keyValues.length) throw HareException("Primary Key Great than key value length");
     List<Where> ws = keyList.mapIndex((n, e) => e.EQ(keyValues[n]));
@@ -179,11 +181,11 @@ class EnumTable {
 
   int update(List<FieldValue> values, {Where? where}) {
     var w = where?.result();
-    return lite.update(tableSQL.name, values.mapList((e) => LabelValue(e.field.nameSQL, e.value)), where: w?.clause, args: w?.args);
+    return lite.update(proto.name, values.mapList((e) => LabelValue(e.field.nameSQL, e.value)), where: w?.clause, args: w?.args);
   }
 
   List<int> upsertAll(List<List<FieldValue>> rows) {
-    return lite.upsertRows(tableSQL.name, rows);
+    return lite.upsertRows(proto.name, rows);
   }
 
   int upsert(List<FieldValue> row) {
@@ -191,24 +193,24 @@ class EnumTable {
   }
 
   List<int> insertAll(List<List<FieldValue>> rows) {
-    return lite.insertRows(tableSQL.name, rows.mapList((r) => r.mapList((e) => LabelValue(e.field.name, e.value))));
+    return lite.insertRows(proto.name, rows.mapList((r) => r.mapList((e) => LabelValue(e.field.name, e.value))));
   }
 
   int insert(List<FieldValue> row) {
-    return lite.insertRow(tableSQL.name, row.mapList((e) => LabelValue(e.field.name, e.value)));
+    return lite.insertRow(proto.name, row.mapList((e) => LabelValue(e.field.name, e.value)));
   }
 
   int save(dynamic item) {
     if (item == null) return 0;
     if (item is TableModel || item is JsonMap || item is JsonValue || item is JsonModel) {
-      return upsert(tableSQL.fields.mapList((e) => e >> e.get(item)));
+      return upsert(proto.fields.mapList((e) => e >> e.get(item)));
     }
     throw HareException("Unkonwn object to save: $item");
   }
 
   List<int> saveAll(List<dynamic> items) {
     var ls = items.filter((item) => item is TableModel || item is Map<String, dynamic> || item is List<dynamic> || item is JsonValue);
-    return upsertAll(ls.mapList((item) => tableSQL.fields.mapList((e) => e >> e.get(item))));
+    return upsertAll(ls.mapList((item) => proto.fields.mapList((e) => e >> e.get(item))));
   }
 
   void dump() {
