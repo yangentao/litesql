@@ -47,7 +47,7 @@ void main() {
 }
 
 class PersonModel extends TableModel {
-  PersonModel(super.mapSQL);
+  PersonModel(super.model);
 
   int get id => Person.id.get(this);
 

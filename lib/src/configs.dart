@@ -1,9 +1,9 @@
 part of 'sql.dart';
 
 class Configs extends TableModel {
-  Configs(super.mapSQL);
+  Configs(super.model);
 
-  Configs.empty() : super.empty();
+  // Configs.empty() : super.empty();
 
   String get key => KEY.get(this);
 

@@ -1,6 +1,6 @@
 part of 'sql.dart';
 
-extension WhereEnum<T> on TableColumn<T> {
+extension WhereEnum<T extends Enum> on TableColumn<T> {
   Where EQ(dynamic value) {
     return Where(this.nameSQL, OpSQL.eq, value);
   }

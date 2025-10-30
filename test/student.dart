@@ -17,7 +17,7 @@ void main() {
 }
 
 class Student extends TableModel {
-  Student(super.mapSQL);
+  Student(super.model);
 
   int get id => ID.get(this);
 

@@ -1,12 +1,12 @@
 part of 'sql.dart';
 
 class TableModel {
-  MapSQL mapSQL;
+  MapSQL model;
   final Set<String> _modifiedKeys = {};
 
-  TableModel(this.mapSQL);
+  TableModel(this.model);
 
-  TableModel.empty() : this({});
+  // TableModel.empty() : this({});
 
   dynamic operator [](Object key) {
     return get(key);
@@ -18,18 +18,18 @@ class TableModel {
 
   T? get<T>(Object key) {
     String k = key is TableColumn ? key.name : key.toString();
-    var v = mapSQL[k];
+    var v = model[k];
     return _checkNum(v);
   }
 
   void set<T>(Object key, T? value) {
     String k = key is TableColumn ? key.name : key.toString();
-    mapSQL[k] = value;
+    model[k] = value;
     _modifiedKeys.add(k);
   }
 
   @override
   String toString() {
-    return json.encode(mapSQL);
+    return json.encode(model);
   }
 }
