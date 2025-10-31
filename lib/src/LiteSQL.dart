@@ -130,7 +130,6 @@ class LiteSQL {
         sql += " ON CONFLICT (${conflicts.join(", ")}) DO UPDATE SET ${otherList.map((e) => "${e.field.nameSQL} = ?").join(", ")}";
       }
     }
-    logd(sql);
     List<int> rowids = [];
     PreparedStatement st = prepareSQL(sql);
     for (var row in rows) {

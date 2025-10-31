@@ -18,3 +18,6 @@
 
 ## 1.0.6
 * Configs
+
+## 1.0.7
+* examples

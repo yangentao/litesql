@@ -8,6 +8,10 @@ EnumTable From(Type type) {
   return tableOfType(type);
 }
 
+EnumTable FromTable(Type type) {
+  return tableOfType(type);
+}
+
 EnumTable tableOfType(Type type) {
   var info = findTableByEnum(type)!;
   return info.liteSQL!.from(type);
