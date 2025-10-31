@@ -1,6 +1,8 @@
 ## LiteSQL
 
 SQLite wrap for package 'sqlite3'.
+platform support see  https://pub.dev/packages/sqlite3
+
 
 ## Usage
 more example see 'example/xxx_example.dart'

@@ -21,3 +21,6 @@
 
 ## 1.0.7
 * examples
+
+## 1.0.8
+* remove 'sqlite3_flutter_libs' depend
