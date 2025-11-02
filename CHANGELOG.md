@@ -24,3 +24,5 @@
 
 ## 1.0.8
 * remove 'sqlite3_flutter_libs' depend
+## 1.0.9
+* update dependices

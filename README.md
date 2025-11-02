@@ -1,6 +1,5 @@
 ## LiteSQL
-
-SQLite wrap for package 'sqlite3'.
+SQLite with single table ORM..
 platform support see  https://pub.dev/packages/sqlite3
 
 
