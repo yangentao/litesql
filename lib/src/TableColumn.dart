@@ -11,7 +11,7 @@ mixin TableColumn<T extends Enum> on Enum {
         for (String s in ls) {
           if (s.isNotEmpty && a != s && a.endsWith(s)) return a.substringBeforeLast(s);
         }
-        return a.toLowerCase();
+        return a;
       });
 
   List<String> get TRIM_SUFFIXS => ["T", "Table"];
@@ -20,7 +20,7 @@ mixin TableColumn<T extends Enum> on Enum {
 
   ColumnSQL get column;
 
-  String get nameColumn => exGetOrPut("nameColumn", () => (column.name ?? this.name).toLowerCase());
+  String get nameColumn => exGetOrPut("nameColumn", () => (column.name ?? this.name));
 
   String get nameSQL => exGetOrPut("nameSQL", () => nameColumn.escapeSQL);
 

@@ -28,4 +28,7 @@
 * update dependices
 
 ## 1.1.0
-* table & column name to lower case.
+* BAD VERSION. table & column name to lower case.
+
+## 1.2.0
+* table & column name with raw case.
