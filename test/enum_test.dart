@@ -20,7 +20,7 @@ void main() {
   EnumTable e = EnumTable.of(Person);
 
   PersonModel p = PersonModel({});
-  p.name = "entao";
+  p.Name = "entao";
   p.age = 33;
   p.addr = "jinan";
   int id = p.insert();
@@ -35,7 +35,7 @@ void main() {
 
   PersonModel p2 = PersonModel({});
   p2.id = 1;
-  p2.name = "yang";
+  p2.Name = "yang";
   p2.upsert();
   e.dump();
 
@@ -77,9 +77,9 @@ class PersonModel extends TableModel<Person> {
 
   set id(int value) => this[Person.id] = value;
 
-  String? get name => get(Person.name);
+  String? get Name => get(Person.name);
 
-  set name(String? value) => set(Person.name, value);
+  set Name(String? value) => set(Person.name, value);
 
   String? get addr => get(Person.add);
 

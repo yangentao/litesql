@@ -26,3 +26,6 @@
 * remove 'sqlite3_flutter_libs' depend
 ## 1.0.9
 * update dependices
+
+## 1.1.0
+* table & column name to lower case.

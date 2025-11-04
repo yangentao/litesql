@@ -1,32 +1,18 @@
 part of 'sql.dart';
 
-// enum Person with ETable<Person> {
-//   id(EColumn.integer(primaryKey: true)),
-//   name(EColumn.text()),
-//   addr(EColumn.text(name: "address")),
-//   age(EColumn.integer());
-//
-//   const Person(this.column);
-//
-//   @override
-//   final EColumn column;
-//
-//   @override
-//   List<Person> get columns => Person.values;
-// }
 mixin TableColumn<T extends Enum> on Enum {
   Type get tableType => T;
 
   String get tableName => exGetOrPut("tableName", () {
-    String a = "$T";
-    if (a == "Object") throw SQLException("TableColumn MUST has a generic type parameter. forexample:  enum Person with TableColumn<Person> ");
-    List<String> ls = TRIM_SUFFIXS;
-    if (ls.isEmpty) return a;
-    for (String s in ls) {
-      if (s.isNotEmpty && a != s && a.endsWith(s)) return a.substringBeforeLast(s);
-    }
-    return a;
-  });
+        String a = "$T";
+        if (a == "Object") throw SQLException("TableColumn MUST has a generic type parameter. forexample:  enum Person with TableColumn<Person> ");
+        List<String> ls = TRIM_SUFFIXS;
+        if (ls.isEmpty) return a;
+        for (String s in ls) {
+          if (s.isNotEmpty && a != s && a.endsWith(s)) return a.substringBeforeLast(s);
+        }
+        return a.toLowerCase();
+      });
 
   List<String> get TRIM_SUFFIXS => ["T", "Table"];
 
@@ -34,9 +20,9 @@ mixin TableColumn<T extends Enum> on Enum {
 
   ColumnSQL get column;
 
-  String get nameColumn => column.name ?? this.name;
+  String get nameColumn => exGetOrPut("nameColumn", () => (column.name ?? this.name).toLowerCase());
 
-  String get nameSQL => exGetOrPut("nameSQL", () => (column.name ?? this.name).escapeSQL);
+  String get nameSQL => exGetOrPut("nameSQL", () => nameColumn.escapeSQL);
 
   String get fullname => exGetOrPut("fullname", () => "${tableName.escapeSQL}.$nameSQL}");
 

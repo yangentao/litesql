@@ -116,13 +116,13 @@ class TableModel<E> {
   }
 
   T? get<T>(Object key) {
-    String k = key is TableColumn ? key.name : key.toString();
+    String k = key is TableColumn ? key.nameColumn : key.toString();
     var v = model[k];
     return _checkNum(v);
   }
 
   void set<T>(Object key, T? value) {
-    String k = key is TableColumn ? key.name : key.toString();
+    String k = key is TableColumn ? key.nameColumn : key.toString();
     model[k] = value;
     _modifiedKeys.add(k);
   }
