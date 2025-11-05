@@ -144,7 +144,7 @@ class EnumTable {
     List<Where> wList = [where, ...?wheres].nonNullList;
     var w = AND_ALL(wList).result();
     return lite
-        .select(
+        .query(
           columns?.mapList((e) => e is TableColumn ? e.nameSQL : e.toString()),
           from: tableName,
           where: w.clause,
@@ -289,11 +289,11 @@ class QueryResult with ListMixin<MapSQL> {
 
   void dump() {
     if (this.isEmpty) {
-      println("[empty]");
+      logSQL.d("[empty]");
       return;
     }
     for (MapSQL r in this) {
-      println(json.encode(r));
+      logSQL.d(json.encode(r));
     }
   }
 }

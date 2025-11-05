@@ -23,7 +23,7 @@ class SingleTable {
   dynamic oneValue(FieldProto column, {Where? where, String? groupBy, String? having, String? window, String? order, List<String>? orderBy}) {
     var w = where?.result();
     return lite
-        .select(
+        .query(
           [column.name],
           from: table.name,
           where: w?.clause,
@@ -176,7 +176,7 @@ class SingleTable {
     List<Where> wList = [where, ...?wheres].nonNullList;
     var w = AND_ALL(wList).result();
     List<String> selList = [...?selections, ...?columns?.mapList((e) => e.nameSQL)];
-    return lite.select(
+    return lite.query(
       selList,
       from: table.name,
       where: w.clause,

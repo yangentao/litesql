@@ -26,7 +26,7 @@ void main() {
   println("insert 3 rows: ", rowid1, rowid2, rowid3);
   // insert 3 rows:  1 2 3
 
-  ResultSet rs = lite.select(['id', 'name'], from: 'Person', where: 'age=22');
+  ResultSet rs = lite.query(['id', 'name'], from: 'Person', where: 'age=22');
   // SELECT id, name FROM Person WHERE age=22
   for (Row row in rs) {
     println(row['id'], row['name']);

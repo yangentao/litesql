@@ -6,7 +6,6 @@ import 'dart:typed_data';
 
 import 'package:entao_dutil/entao_dutil.dart';
 import 'package:entao_log/entao_log.dart';
-import 'package:println/println.dart';
 import 'package:sqlite3/sqlite3.dart';
 
 part 'ColumnSQL.dart';
@@ -29,6 +28,8 @@ typedef MapSQL = Map<String, dynamic>;
 typedef BlobSQL = Uint8List;
 
 typedef ModelCreator<T> = T Function(MapSQL);
+
+TagLog logSQL = TagLog("SQL");
 
 class SQLException implements Exception {
   String message;

@@ -32,3 +32,6 @@
 
 ## 1.2.0
 * table & column name with raw case.
+
+## 1.2.1
+* print log with tag 'SQL'

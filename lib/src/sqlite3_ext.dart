@@ -15,12 +15,12 @@ extension ResultSetExt on ResultSet {
 
   void dump() {
     if (this.isEmpty) {
-      println("[empty]");
+      logSQL.d("[empty]");
       return;
     }
     for (Row r in this) {
       String s = r.entries.map((e) => "${e.key}: ${e.value}").join(", ");
-      println(s);
+      logSQL.d(s);
     }
   }
 }

@@ -28,10 +28,10 @@ class LiteSQL {
 
   void dumpTable(String table) {
     String sql = "SELECT * FROM ${table.escapeSQL}";
-    ResultSet rs = db.select(sql);
+    ResultSet rs = selectSQL(sql);
 
     for (Row r in rs) {
-      println(r.mapSQL);
+      logSQL.d(r.mapSQL);
     }
   }
 
@@ -39,13 +39,35 @@ class LiteSQL {
 
   set user_version(int ver) => db.userVersion = ver;
 
+  int get updatedRows => db.updatedRows;
+
+  int get lastInsertRowId => db.lastInsertRowId;
+
+  @Deprecated("use query() instead")
+  ResultSet select(
+    List<String>? columns, {
+    required String from,
+    String? where,
+    String? groupBy,
+    String? having,
+    String? window,
+    String? order,
+    List<String>? orderBy,
+    int? limit,
+    int? offset,
+    List<dynamic>? args,
+  }) {
+    return query(columns,
+        from: from, where: where, groupBy: groupBy, having: having, window: window, order: order, orderBy: orderBy, limit: limit, offset: offset, args: args);
+  }
+
   /// distinct on
   /// SELECT a, b, max(c) FROM tab1 GROUP BY a;
   /// min/max 在聚合查询时,  会返回包含min/max值的行.
   /// 利用这特特性, 可以实现postgresql distinct on 的特性
   /// //https://sqlite.org/lang_select.html#bareagg
   /// https://sqlite.org/lang_select.html
-  ResultSet select(
+  ResultSet query(
     List<String>? columns, {
     required String from,
     String? where,
@@ -85,23 +107,44 @@ class LiteSQL {
         sql += " OFFSET $offset";
       }
     }
-    println(sql);
-    ResultSet rs = db.select(sql, args ?? []);
-    return rs;
+    return selectSQL(sql, args);
+  }
+
+  ResultSet selectSQL(String sql, [List<Object?>? parameters]) {
+    logSQL.d(sql);
+    logSQL.d(parameters);
+    return db.select(sql, parameters ?? const []);
+  }
+
+  void executeSQL(String sql, [List<Object?>? parameters]) {
+    logSQL.d(sql);
+    logSQL.d(parameters);
+    db.execute(sql, parameters ?? const []);
+  }
+
+  int updateSQL(String sql, [List<Object?>? parameters]) {
+    logSQL.d(sql);
+    logSQL.d(parameters);
+    db.execute(sql, parameters ?? const []);
+    return db.updatedRows;
+  }
+
+  int insertSQL(String sql, [List<Object?>? parameters]) {
+    logSQL.d(sql);
+    logSQL.d(parameters);
+    db.execute(sql, parameters ?? const []);
+    return db.lastInsertRowId;
   }
 
   PreparedStatement prepareSQL(String sql) {
-    logd(sql);
+    logSQL.d(sql);
     return db.prepare(sql);
   }
 
   int delete(String table, {required String where, ArgSQL? args}) {
     assert(where.isNotEmpty);
     String sql = "DELETE FROM ${table.escapeSQL} WHERE $where";
-    PreparedStatement st = prepareSQL(sql);
-    st.execute(args ?? []);
-    st.dispose();
-    return db.updatedRows;
+    return updateSQL(sql, args);
   }
 
   int update(String table, List<LabelValue<dynamic>> values, {String? where, ArgSQL? args}) {
@@ -109,10 +152,7 @@ class LiteSQL {
     if (notBlank(where)) {
       sql += " WHERE $where";
     }
-    PreparedStatement st = prepareSQL(sql);
-    st.execute(values.mapList((e) => e.value) + (args ?? []));
-    st.dispose();
-    return db.updatedRows;
+    return updateSQL(sql, values.mapList((e) => e.value) + (args ?? const []));
   }
 
   List<int> upsertRows(String table, List<List<FieldValue>> rows) {
@@ -139,7 +179,7 @@ class LiteSQL {
       if (uniqueList.isNotEmpty && otherList.isNotEmpty) {
         argList.addAll(otherList.map((e) => e.value));
       }
-      logd(argList);
+      logSQL.d(argList);
       st.execute(argList);
       rowids.add(db.lastInsertRowId);
     }
@@ -171,27 +211,29 @@ class LiteSQL {
   }
 
   int insert(String table, List<String> columns, List<dynamic> row, {InsertOption? conflict}) {
-    return insertMulti(table, columns, [row], conflict: conflict);
+    return insertMulti(table, columns, [row], conflict: conflict).first;
   }
 
-  int insertMulti(String table, List<String> columns, List<List<dynamic>> rows, {InsertOption? conflict}) {
+  List<int> insertMulti(String table, List<String> columns, List<List<dynamic>> rows, {InsertOption? conflict}) {
     String cs = conflict == null ? "" : "OR ${conflict.conflict}";
     String sql = "INSERT $cs INTO ${table.escapeSQL} (${columns.map((e) => e.escapeSQL).join(",")}) VALUES (${columns.map((e) => '?').join(",")})";
     PreparedStatement st = prepareSQL(sql);
+    List<int> idList = [];
     for (var row in rows) {
       st.execute(row);
+      idList.add(db.lastInsertRowId);
     }
     st.dispose();
-    return db.lastInsertRowId;
+    return idList;
   }
 
   void transaction(void Function() callback) {
-    db.execute("BEGIN");
+    executeSQL("BEGIN");
     try {
       callback();
-      db.execute("COMMIT");
+      executeSQL("COMMIT");
     } catch (e) {
-      db.execute("ROLLBACK");
+      executeSQL("ROLLBACK");
       rethrow;
     }
   }
@@ -220,55 +262,54 @@ class LiteSQL {
 
   List<String> indexInfo(String indexName) {
     String sql = "PRAGMA index_info(${indexName.escapeSQL})";
-    ResultSet rs = db.select(sql);
+    ResultSet rs = selectSQL(sql);
     return rs.mapList((e) => e['name']);
   }
 
   List<IndexName> listIndex() {
     String sql = "SELECT  tbl_name , name FROM sqlite_master WHERE type='index'";
-    ResultSet rs = db.select(sql);
+    ResultSet rs = selectSQL(sql);
     return rs.mapList((r) => IndexName(table: r.columnAt(0), index: r.columnAt(1)));
   }
 
   List<String> listTable() {
     String sql = "SELECT name FROM sqlite_master WHERE type = 'table'";
-    ResultSet rs = db.select(sql);
+    ResultSet rs = selectSQL(sql);
     return rs.mapList((r) => r.columnAt(0));
   }
 
   bool existTable(String table) {
     String sql = "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ${table.singleQuoted}";
-    ResultSet rs = db.select(sql);
+    ResultSet rs = selectSQL(sql);
     return rs.isNotEmpty;
   }
 
   int countTable(String table) {
     String sql = "SELECT count(*) FROM ${table.escapeSQL}";
-    ResultSet rs = db.select(sql);
+    ResultSet rs = selectSQL(sql);
     return rs.firstOrNull?.columnAt(0) ?? 0;
   }
 
   void dropTable(String table) {
     String sql = "DROP TABLE IF EXISTS ${table.escapeSQL}";
-    db.execute(sql);
+    executeSQL(sql);
   }
 
   void dropIndex(String table, String fieldName) {
     String idx = makeIndexName(table, [fieldName]);
     String sql = "DROP INDEX IF EXISTS $idx";
-    db.execute(sql);
+    executeSQL(sql);
   }
 
   void addColumn(String table, FieldProto field) {
     String sql = "ALTER TABLE ${table.escapeSQL} ADD COLUMN ${field.defineField(false)}";
-    db.execute(sql);
+    executeSQL(sql);
   }
 
   void createIndex(String table, List<String> fields) {
     String idxName = makeIndexName(table, fields);
     String sql = "CREATE INDEX IF NOT EXISTS $idxName ON ${table.escapeSQL} (${fields.map((e) => e.escapeSQL).join(",")})";
-    println(sql);
-    db.execute(sql);
+    executeSQL(sql);
   }
 
   void createTable(String table, List<FieldProto> fields, {List<String>? constraints, List<String>? options, bool notExist = true}) {
@@ -306,8 +347,7 @@ class LiteSQL {
     }
 
     String sql = ls.join("\n");
-    println(sql);
-    db.execute(sql);
+    executeSQL(sql);
 
     for (var f in fields) {
       if (f.primaryKey || f.unique || notBlank(f.uniqueName)) {
