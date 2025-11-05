@@ -11,7 +11,7 @@ environment:
 dependencies:
   sqlite3: ^2.9.4
 #  sqlite3_flutter_libs: ^0.5.40
-#  println: ^1.0.4
+  println: ^1.0.4
   entao_dutil: ^1.2.7
   entao_log: ^1.2.8
   entao_lint: ^1.0.1
