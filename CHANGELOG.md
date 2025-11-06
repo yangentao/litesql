@@ -38,3 +38,6 @@
 
 ## 2.0.0
 * remove JsonValue
+
+## 2.0.1
+* deprate
