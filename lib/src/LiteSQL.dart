@@ -5,6 +5,7 @@ class LiteSQL {
 
   LiteSQL({required this.db});
 
+  @Deprecated("use EnumTable instead.")
   SingleTable table(TableProto t) => SingleTable(lite: this, table: t);
 
   static LiteSQL open(String path) {

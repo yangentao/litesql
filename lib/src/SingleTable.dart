@@ -1,5 +1,6 @@
 part of 'sql.dart';
 
+@Deprecated("use EnumTable instead.")
 class SingleTable {
   TableProto table;
   LiteSQL lite;
