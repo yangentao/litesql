@@ -22,20 +22,18 @@ class SingleTable {
 
   dynamic oneValue(FieldProto column, {Where? where, String? groupBy, String? having, String? window, String? order, List<String>? orderBy}) {
     var w = where?.result();
-    return lite
-        .query(
-          [column.name],
-          from: table.name,
-          where: w?.clause,
-          groupBy: groupBy,
-          having: having,
-          window: window,
-          order: order,
-          orderBy: orderBy,
-          limit: 1,
-          args: w?.args,
-        )
-        .oneValue;
+    return lite.query(
+      [column.name],
+      from: table.name,
+      where: w?.clause,
+      groupBy: groupBy,
+      having: having,
+      window: window,
+      order: order,
+      orderBy: orderBy,
+      limit: 1,
+      args: w?.args,
+    ).oneValue;
   }
 
   T? oneByKey<T>(
@@ -217,18 +215,16 @@ class SingleTable {
     return lite.insertRow(table.name, row.mapList((e) => LabelValue(e.field.name, e.value)));
   }
 
-  /// JsonModel , JsonValue, JsonMap
   int save(dynamic item) {
     if (item == null) return 0;
-    if (item is JsonMap || item is JsonValue || item is JsonModel) {
+    if (_canSave(item)) {
       return upsert(table.fields.mapList((e) => e >> e.get(item)));
     }
     throw HareException("Unkonwn object to save: $item");
   }
 
-  /// JsonModel , JsonValue, JsonMap
-  List<int> saveAll(JsonList items) {
-    var ls = items.filter((item) => item is JsonMap || item is JsonValue || item is JsonModel);
+  List<int> saveAll(List<dynamic> items) {
+    var ls = items.filter((item) => _canSave(item));
     return upsertAll(ls.mapList((item) => table.fields.mapList((e) => e >> e.get(item))));
   }
 

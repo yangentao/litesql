@@ -202,14 +202,14 @@ class EnumTable {
 
   int save(dynamic item) {
     if (item == null) return 0;
-    if (item is TableModel || item is JsonMap || item is JsonValue || item is JsonModel) {
+    if (_canSave(item)) {
       return upsert(proto.fields.mapList((e) => e >> e.get(item)));
     }
     throw HareException("Unkonwn object to save: $item");
   }
 
   List<int> saveAll(List<dynamic> items) {
-    var ls = items.filter((item) => item is TableModel || item is Map<String, dynamic> || item is List<dynamic> || item is JsonValue);
+    var ls = items.filter((item) => _canSave(item));
     return upsertAll(ls.mapList((item) => proto.fields.mapList((e) => e >> e.get(item))));
   }
 

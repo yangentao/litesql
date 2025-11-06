@@ -32,25 +32,11 @@ mixin TableColumn<T extends Enum> on Enum {
 extension TableColumnGetSetEx<T extends Enum> on TableColumn<T> {
   V? get<V>(Object? container) {
     if (container == null) return null;
-    if (container is MapSQL) return container[this.nameColumn];
-    if (container is TableModel) return container.get(this.nameColumn);
-    if (container is JsonValue) return container[this.nameColumn].value;
-    if (container is JsonModel) return container.jsonValue[this.nameColumn].value;
-    throw SQLException("TableColumn get(). Unknown container: $container, tableColumn: $nameColumn");
+    return _getModelValue(container, this.nameColumn);
   }
 
   void set(Object model, dynamic value) {
-    if (model is TableModel) {
-      model.set(this.nameColumn, value);
-    } else if (model is MapSQL) {
-      model[this.nameColumn] = value;
-    } else if (model is JsonValue) {
-      model[this.nameColumn] = value;
-    } else if (model is JsonModel) {
-      model.jsonValue[this.nameColumn] = value;
-    } else {
-      throw SQLException("TableColumn.set(), unknown container:$model, tableColumn:$nameColumn.");
-    }
+    _setModelValue(model, this.nameColumn, value);
   }
 
   FieldProto _toFieldSqL() {

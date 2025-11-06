@@ -46,3 +46,26 @@ class SQLException implements Exception {
 Never errorSQL(String message) {
   throw SQLException(message);
 }
+
+bool _canSave(dynamic item) {
+  return item is TableModel || item is Map<String, dynamic> || item is MapModel;
+}
+
+T? _getModelValue<T>(Object model, String name) {
+  if (model is TableModel) return model[name];
+  if (model is Map<String, dynamic>) return _checkNum(model[name]);
+  if (model is MapModel) return _checkNum(model[name].value);
+  throw SQLException(" get model value failed, unknown container: $model, column: $name.");
+}
+
+void _setModelValue(Object model, String key, dynamic value) {
+  if (model is TableModel) {
+    model[key] = value;
+  } else if (model is Map<String, dynamic>) {
+    model[key] = value;
+  } else if (model is MapModel) {
+    model[key] = value;
+  } else {
+    throw SQLException("set value failed, unknown container:$model, tableColumn:$key.");
+  }
+}

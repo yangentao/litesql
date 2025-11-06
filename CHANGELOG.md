@@ -35,3 +35,6 @@
 
 ## 1.2.2
 * print log with tag 'SQL'
+
+## 2.0.0
+* remove JsonValue

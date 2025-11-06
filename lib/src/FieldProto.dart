@@ -42,10 +42,10 @@ class FieldProto {
     this.uniqueName,
     this.check,
     String? defaultValue,
-  }) : type = "TEXT",
-       defaultValue = defaultValue == null ? null : "'$defaultValue'",
-       autoInc = false,
-       nameSQL = name.shouldEscapeSQL ? name.escapeSQL : name;
+  })  : type = "TEXT",
+        defaultValue = defaultValue == null ? null : "'$defaultValue'",
+        autoInc = false,
+        nameSQL = name.shouldEscapeSQL ? name.escapeSQL : name;
 
   FieldProto.integer({
     required this.name,
@@ -57,36 +57,36 @@ class FieldProto {
     this.uniqueName,
     this.check,
     int? defaultValue,
-  }) : type = "INTEGER",
-       defaultValue = defaultValue?.toString(),
-       nameSQL = name.shouldEscapeSQL ? name.escapeSQL : name;
+  })  : type = "INTEGER",
+        defaultValue = defaultValue?.toString(),
+        nameSQL = name.shouldEscapeSQL ? name.escapeSQL : name;
 
   FieldProto.real({required this.name, this.notNull = false, this.index = false, this.check, double? defaultValue})
-    : type = "REAL",
-      autoInc = false,
-      primaryKey = false,
-      unique = false,
-      uniqueName = null,
-      defaultValue = defaultValue?.toString(),
-      nameSQL = name.shouldEscapeSQL ? name.escapeSQL : name;
+      : type = "REAL",
+        autoInc = false,
+        primaryKey = false,
+        unique = false,
+        uniqueName = null,
+        defaultValue = defaultValue?.toString(),
+        nameSQL = name.shouldEscapeSQL ? name.escapeSQL : name;
 
   FieldProto.blob({required this.name, this.notNull = false, this.check, this.defaultValue})
-    : type = "BLOB",
-      autoInc = false,
-      primaryKey = false,
-      unique = false,
-      uniqueName = null,
-      index = false,
-      nameSQL = name.shouldEscapeSQL ? name.escapeSQL : name;
+      : type = "BLOB",
+        autoInc = false,
+        primaryKey = false,
+        unique = false,
+        uniqueName = null,
+        index = false,
+        nameSQL = name.shouldEscapeSQL ? name.escapeSQL : name;
 
   FieldProto.numberic({required this.name, this.notNull = false, this.index = false, this.check, int? defaultValue})
-    : type = "NUMERIC",
-      autoInc = false,
-      primaryKey = false,
-      unique = false,
-      uniqueName = null,
-      defaultValue = defaultValue?.toString(),
-      nameSQL = name.shouldEscapeSQL ? name.escapeSQL : name;
+      : type = "NUMERIC",
+        autoInc = false,
+        primaryKey = false,
+        unique = false,
+        uniqueName = null,
+        defaultValue = defaultValue?.toString(),
+        nameSQL = name.shouldEscapeSQL ? name.escapeSQL : name;
 
   String defineField(bool multiKey) {
     List<String> ls = [nameSQL];
@@ -115,25 +115,11 @@ class FieldProto {
   }
 
   T? get<T>(Object model) {
-    if (model is TableModel) return model.get(this.name);
-    if (model is MapSQL) return _checkNum(model[this.name]);
-    if (model is JsonModel) return _checkNum(model.jsonValue[this.name].value);
-    if (model is JsonValue) return _checkNum(model[this.name].value);
-    throw SQLException(" FieldSQL.get(), unknown container.");
+    return _getModelValue(model, this.name);
   }
 
   void set(Object model, dynamic value) {
-    if (model is TableModel) {
-      model.set(this.name, value);
-    } else if (model is MapSQL) {
-      model[this.name] = value;
-    } else if (model is JsonValue) {
-      model[this.name] = value;
-    } else if (model is JsonModel) {
-      model.jsonValue[this.name] = value;
-    } else {
-      throw SQLException("FieldSQL.set(), unknown container.");
-    }
+    _setModelValue(model, this.name, value);
   }
 
   /// join on clause
