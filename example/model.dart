@@ -3,8 +3,6 @@ import 'package:litesql/litesql.dart';
 class MPerson extends TableModel<Person> {
   MPerson(super.model);
 
-  static EnumTable table() => tableOfType(Person);
-
   int get id => Person.id.get(this);
 
   set id(int value) => this[Person.id] = value;

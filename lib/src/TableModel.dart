@@ -11,7 +11,7 @@ class TableModel<E> {
 
   // TableModel.empty() : this({});
 
-  EnumTable _table() {
+  EnumTable mtable() {
     if (E == Object) throw SQLException("TableModel<T>, generic type parameter MUST be set");
     return EnumTable.of(E);
   }
@@ -20,8 +20,9 @@ class TableModel<E> {
     _modifiedKeys.clear();
   }
 
+  /// delete by key
   int delete() {
-    EnumTable tab = _table();
+    EnumTable tab = mtable();
     List<FieldProto> pks = tab.primaryKeys();
     if (pks.isEmpty) throw SQLException("NO primary key defined.");
     List<Where> wherePks = [];
@@ -34,8 +35,13 @@ class TableModel<E> {
     return tab.delete(wherePks.and());
   }
 
+  /// MPerson p = From(Person).oneByKey(MPerson.new , key: 1)!
+  /// p.update((){
+  ///   p.name = "new name";
+  /// });
+  /// ONLY update columns changed in callback.
   int update(VoidCallback callback) {
-    EnumTable tab = _table();
+    EnumTable tab = mtable();
     List<FieldProto> pks = tab.primaryKeys();
     if (pks.isEmpty) throw SQLException("NO primary key defined.");
     _modifiedKeys.clear();
@@ -62,34 +68,49 @@ class TableModel<E> {
     return n;
   }
 
-  int insert({InsertOption? conflict}) {
-    EnumTable tab = _table();
+  int insert({InsertOption? conflict, List<TableColumn>? columns, List<String>? names}) {
+    EnumTable tab = mtable();
+
     List<FieldValue> ls = [];
-    for (String k in _modifiedKeys) {
-      FieldProto f = tab.proto.fields.firstWhere((e) => e.name == k);
-      ls.add(f >> get(k));
+    if (columns != null && columns.isNotEmpty) {
+      for (TableColumn f in columns) {
+        ls.add(tab.proto.find(f.nameColumn)! >> get(f));
+      }
+    } else if (names != null && names.isNotEmpty) {
+      for (String f in names) {
+        ls.add(tab.proto.find(f)! >> get(f));
+      }
+    } else {
+      for (FieldProto f in tab.proto.fields) {
+        ls.add(f >> get(f));
+      }
     }
     if (ls.isEmpty) return 0;
     int id = tab.insert(ls, conflict: conflict);
     if (id > 0) {
       var ls = tab.proto.fields.filter((e) => e.primaryKey && e.type.toUpperCase() == "INTEGER");
       if (ls.length == 1) {
-        FieldProto p = ls.first;
-        if (!_modifiedKeys.contains(p.name)) {
-          set(p.name, id);
-        }
+        set(ls.first.name, id);
       }
     }
-    _modifiedKeys.clear();
     return id;
   }
 
-  int upsert() {
-    EnumTable tab = _table();
+  int upsert({List<TableColumn>? columns, List<String>? names}) {
+    EnumTable tab = mtable();
     List<FieldValue> ls = [];
-    for (String k in _modifiedKeys) {
-      FieldProto f = tab.proto.fields.firstWhere((e) => e.name == k);
-      ls.add(f >> get(k));
+    if (columns != null && columns.isNotEmpty) {
+      for (TableColumn f in columns) {
+        ls.add(tab.proto.find(f.nameColumn)! >> get(f));
+      }
+    } else if (names != null && names.isNotEmpty) {
+      for (String f in names) {
+        ls.add(tab.proto.find(f)! >> get(f));
+      }
+    } else {
+      for (FieldProto f in tab.proto.fields) {
+        ls.add(f >> get(f));
+      }
     }
 
     if (ls.isEmpty) return 0;
@@ -97,10 +118,7 @@ class TableModel<E> {
     if (id > 0) {
       var ls = tab.proto.fields.filter((e) => e.primaryKey && e.type.toUpperCase() == "INTEGER");
       if (ls.length == 1) {
-        FieldProto p = ls.first;
-        if (!_modifiedKeys.contains(p.name)) {
-          set(p.name, id);
-        }
+        set(ls.first.name, id);
       }
     }
     _modifiedKeys.clear();
@@ -116,13 +134,13 @@ class TableModel<E> {
   }
 
   T? get<T>(Object key) {
-    String k = key is TableColumn ? key.nameColumn : key.toString();
+    String k = key is TableColumn ? key.nameColumn : (key is FieldProto ? key.name : key.toString());
     var v = model[k];
     return _checkNum(v);
   }
 
   void set<T>(Object key, T? value) {
-    String k = key is TableColumn ? key.nameColumn : key.toString();
+    String k = key is TableColumn ? key.nameColumn : (key is FieldProto ? key.name : key.toString());
     model[k] = value;
     _modifiedKeys.add(k);
   }

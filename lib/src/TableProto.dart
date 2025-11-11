@@ -11,6 +11,10 @@ class TableProto {
       e.table = this;
     }
   }
+
+  FieldProto? find(String fieldName) {
+    return fields.firstWhere((e) => e.name == fieldName);
+  }
 }
 
 extension FieldSQLJoinOnExt on FieldProto {

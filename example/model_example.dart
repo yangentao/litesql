@@ -19,7 +19,8 @@ void main() {
   p.name = "entao";
   p.age = 33;
   p.addr = "jinan";
-  int id = p.insert();
+  // int id = p.insert(columns: [Person.name, Person.age]);
+  int id = p.upsert(names: ['name', 'age']);
   // 2025-10-31 14:25:57.080 D xlog: INSERT  INTO Person (name,age,"add") VALUES (?,?,?)
   println("enum insert, id= ", id, ", person:", p);
   // enum insert, id=  1 , person: {"name":"entao","age":33,"add":"jinan","id":1}

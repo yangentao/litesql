@@ -34,31 +34,27 @@ class MConfigs extends TableModel<Configs> {
 
   set fValue(double? value) => Configs.fValue.set(this, value);
 
-  static EnumTable table() {
-    return From(Configs);
-  }
-
   static void putString(String name, String value) {
-    table().upsert([Configs.name >> name, Configs.sValue >> value]);
+    From(Configs).upsert([Configs.name >> name, Configs.sValue >> value]);
   }
 
   static void putInt(String name, int value) {
-    table().upsert([Configs.name >> name, Configs.nValue >> value]);
+    From(Configs).upsert([Configs.name >> name, Configs.nValue >> value]);
   }
 
   static void putDouble(String name, double value) {
-    table().upsert([Configs.name >> name, Configs.fValue >> value]);
+    From(Configs).upsert([Configs.name >> name, Configs.fValue >> value]);
   }
 
   static String? getString(String name) {
-    return table().oneValue(Configs.sValue, where: Configs.name.EQ(name));
+    return From(Configs).oneValue(Configs.sValue, where: Configs.name.EQ(name));
   }
 
   static int? getInt(String name) {
-    return table().oneValue(Configs.nValue, where: Configs.name.EQ(name));
+    return From(Configs).oneValue(Configs.nValue, where: Configs.name.EQ(name));
   }
 
   static double? getDouble(String name) {
-    return table().oneValue(Configs.fValue, where: Configs.name.EQ(name));
+    return From(Configs).oneValue(Configs.fValue, where: Configs.name.EQ(name));
   }
 }

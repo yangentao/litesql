@@ -41,3 +41,6 @@
 
 ## 2.0.1
 * deprate
+
+## 2.0.2
+* TableModel.insert/upsert
