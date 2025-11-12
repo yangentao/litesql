@@ -113,26 +113,34 @@ class LiteSQL {
 
   ResultSet selectSQL(String sql, [List<Object?>? parameters]) {
     logSQL.d(sql);
-    logSQL.d(parameters);
+    if (parameters != null && parameters.isNotEmpty) {
+      logSQL.d(parameters);
+    }
     return db.select(sql, parameters ?? const []);
   }
 
   void executeSQL(String sql, [List<Object?>? parameters]) {
     logSQL.d(sql);
-    logSQL.d(parameters);
+    if (parameters != null && parameters.isNotEmpty) {
+      logSQL.d(parameters);
+    }
     db.execute(sql, parameters ?? const []);
   }
 
   int updateSQL(String sql, [List<Object?>? parameters]) {
     logSQL.d(sql);
-    logSQL.d(parameters);
+    if (parameters != null && parameters.isNotEmpty) {
+      logSQL.d(parameters);
+    }
     db.execute(sql, parameters ?? const []);
     return db.updatedRows;
   }
 
   int insertSQL(String sql, [List<Object?>? parameters]) {
     logSQL.d(sql);
-    logSQL.d(parameters);
+    if(parameters != null && parameters.isNotEmpty) {
+      logSQL.d(parameters);
+    }
     db.execute(sql, parameters ?? const []);
     return db.lastInsertRowId;
   }

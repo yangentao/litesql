@@ -44,3 +44,6 @@
 
 ## 2.0.2
 * TableModel.insert/upsert
+
+## 2.0.3
+* TableModel.updateBy

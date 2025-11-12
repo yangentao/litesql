@@ -68,23 +68,26 @@ class TableModel<E> {
     return n;
   }
 
-  int insert({InsertOption? conflict, List<TableColumn>? columns, List<String>? names}) {
+  int updateBy({List<TableColumn>? columns, List<String>? names, List<TableColumn>? excludeColumns, List<String>? excludeNames}) {
     EnumTable tab = mtable();
 
-    List<FieldValue> ls = [];
-    if (columns != null && columns.isNotEmpty) {
-      for (TableColumn f in columns) {
-        ls.add(tab.proto.find(f.nameColumn)! >> get(f));
-      }
-    } else if (names != null && names.isNotEmpty) {
-      for (String f in names) {
-        ls.add(tab.proto.find(f)! >> get(f));
-      }
-    } else {
-      for (FieldProto f in tab.proto.fields) {
-        ls.add(f >> get(f));
-      }
+    List<FieldProto> pks = tab.primaryKeys();
+    if (pks.isEmpty) throw SQLException("NO primary key defined.");
+    List<Where> wherePks = [];
+    for (FieldProto f in pks) {
+      dynamic v = get(f.name);
+      if (v == null) throw SQLException("Primary key is null: ${f.name}");
+      wherePks.add(f.EQ(v));
     }
+    List<FieldValue> values = fieldValues(columns: columns, names: names, excludeColumns: excludeColumns, excludeNames: excludeNames);
+    values.removeWhere((e) => e.field.primaryKey);
+    if (values.isEmpty) return 0;
+    return tab.update(values, where: wherePks.and());
+  }
+
+  int insert({InsertOption? conflict, List<TableColumn>? columns, List<String>? names, List<TableColumn>? excludeColumns, List<String>? excludeNames}) {
+    EnumTable tab = mtable();
+    List<FieldValue> ls = fieldValues(columns: columns, names: names, excludeColumns: excludeColumns, excludeNames: excludeNames);
     if (ls.isEmpty) return 0;
     int id = tab.insert(ls, conflict: conflict);
     if (id > 0) {
@@ -96,22 +99,9 @@ class TableModel<E> {
     return id;
   }
 
-  int upsert({List<TableColumn>? columns, List<String>? names}) {
+  int upsert({List<TableColumn>? columns, List<String>? names, List<TableColumn>? excludeColumns, List<String>? excludeNames}) {
     EnumTable tab = mtable();
-    List<FieldValue> ls = [];
-    if (columns != null && columns.isNotEmpty) {
-      for (TableColumn f in columns) {
-        ls.add(tab.proto.find(f.nameColumn)! >> get(f));
-      }
-    } else if (names != null && names.isNotEmpty) {
-      for (String f in names) {
-        ls.add(tab.proto.find(f)! >> get(f));
-      }
-    } else {
-      for (FieldProto f in tab.proto.fields) {
-        ls.add(f >> get(f));
-      }
-    }
+    List<FieldValue> ls = fieldValues(columns: columns, names: names, excludeColumns: excludeColumns, excludeNames: excludeNames);
 
     if (ls.isEmpty) return 0;
     int id = tab.upsert(ls);
@@ -125,6 +115,35 @@ class TableModel<E> {
     return id;
   }
 
+  List<FieldValue> fieldValues({List<TableColumn>? columns, List<String>? names, List<TableColumn>? excludeColumns, List<String>? excludeNames}) {
+    EnumTable tab = mtable();
+    List<FieldValue> ls = [];
+    if (columns != null && columns.isNotEmpty) {
+      for (TableColumn f in columns) {
+        ls.add(tab.proto.find(f.nameColumn)! >> get(f));
+      }
+    } else if (names != null && names.isNotEmpty) {
+      for (String f in names) {
+        ls.add(tab.proto.find(f)! >> get(f));
+      }
+    } else {
+      for (FieldProto f in tab.proto.fields) {
+        ls.add(f >> get(f));
+      }
+    }
+    if (excludeColumns != null && excludeColumns.isNotEmpty) {
+      for (TableColumn c in excludeColumns) {
+        ls.removeWhere((e) => e.field.name == c.nameColumn);
+      }
+    }
+    if (excludeNames != null && excludeNames.isNotEmpty) {
+      for (String n in excludeNames) {
+        ls.removeWhere((e) => e.field.name == n);
+      }
+    }
+    return ls;
+  }
+
   dynamic operator [](Object key) {
     return get(key);
   }
@@ -134,13 +153,13 @@ class TableModel<E> {
   }
 
   T? get<T>(Object key) {
-    String k = key is TableColumn ? key.nameColumn : (key is FieldProto ? key.name : key.toString());
+    String k = _nameOfKey(key);
     var v = model[k];
     return _checkNum(v);
   }
 
   void set<T>(Object key, T? value) {
-    String k = key is TableColumn ? key.nameColumn : (key is FieldProto ? key.name : key.toString());
+    String k = _nameOfKey(key);
     model[k] = value;
     _modifiedKeys.add(k);
   }
@@ -153,4 +172,8 @@ class TableModel<E> {
   String toString() {
     return json.encode(model);
   }
+}
+
+String _nameOfKey(Object key) {
+  return switch (key) { TableColumn c => c.nameColumn, FieldProto fp => fp.name, Symbol sy => sy.stringValue, _ => key.toString() };
 }
