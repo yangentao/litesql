@@ -1,21 +1,22 @@
 part of 'sql.dart';
 
 class LiteSQL {
-  Database db;
+  static Version version = sqlite3.version;
+  Database database;
 
-  LiteSQL({required this.db});
+  LiteSQL({required this.database});
 
   @Deprecated("use EnumTable instead.")
   SingleTable table(TableProto t) => SingleTable(lite: this, table: t);
 
   static LiteSQL open(String path) {
     var db = sqlite3.open(path);
-    return LiteSQL(db: db);
+    return LiteSQL(database: db);
   }
 
   static LiteSQL openMemory() {
     var db = sqlite3.openInMemory();
-    return LiteSQL(db: db);
+    return LiteSQL(database: db);
   }
 
   static String makeIndexName(String table, List<String> fields) {
@@ -24,7 +25,7 @@ class LiteSQL {
   }
 
   void dispose() {
-    db.dispose();
+    database.dispose();
   }
 
   void dumpTable(String table) {
@@ -36,13 +37,13 @@ class LiteSQL {
     }
   }
 
-  int get user_version => db.userVersion;
+  int get user_version => database.userVersion;
 
-  set user_version(int ver) => db.userVersion = ver;
+  set user_version(int ver) => database.userVersion = ver;
 
-  int get updatedRows => db.updatedRows;
+  int get updatedRows => database.updatedRows;
 
-  int get lastInsertRowId => db.lastInsertRowId;
+  int get lastInsertRowId => database.lastInsertRowId;
 
   @Deprecated("use query() instead")
   ResultSet select(
@@ -116,7 +117,7 @@ class LiteSQL {
     if (parameters != null && parameters.isNotEmpty) {
       logSQL.d(parameters);
     }
-    return db.select(sql, parameters ?? const []);
+    return database.select(sql, parameters ?? const []);
   }
 
   void executeSQL(String sql, [List<Object?>? parameters]) {
@@ -124,7 +125,7 @@ class LiteSQL {
     if (parameters != null && parameters.isNotEmpty) {
       logSQL.d(parameters);
     }
-    db.execute(sql, parameters ?? const []);
+    database.execute(sql, parameters ?? const []);
   }
 
   int updateSQL(String sql, [List<Object?>? parameters]) {
@@ -132,8 +133,8 @@ class LiteSQL {
     if (parameters != null && parameters.isNotEmpty) {
       logSQL.d(parameters);
     }
-    db.execute(sql, parameters ?? const []);
-    return db.updatedRows;
+    database.execute(sql, parameters ?? const []);
+    return database.updatedRows;
   }
 
   int insertSQL(String sql, [List<Object?>? parameters]) {
@@ -141,13 +142,13 @@ class LiteSQL {
     if(parameters != null && parameters.isNotEmpty) {
       logSQL.d(parameters);
     }
-    db.execute(sql, parameters ?? const []);
-    return db.lastInsertRowId;
+    database.execute(sql, parameters ?? const []);
+    return database.lastInsertRowId;
   }
 
   PreparedStatement prepareSQL(String sql) {
     logSQL.d(sql);
-    return db.prepare(sql);
+    return database.prepare(sql);
   }
 
   int delete(String table, {required String where, ArgSQL? args}) {
@@ -190,7 +191,8 @@ class LiteSQL {
       }
       logSQL.d(argList);
       st.execute(argList);
-      rowids.add(db.lastInsertRowId);
+
+      rowids.add(database.lastInsertRowId);
     }
     st.dispose();
     return rowids;
@@ -209,7 +211,7 @@ class LiteSQL {
     List<int> idList = [];
     for (var oneRow in rows) {
       st.execute(oneRow.mapList((e) => e.value));
-      idList.add(db.lastInsertRowId);
+      idList.add(database.lastInsertRowId);
     }
     st.dispose();
     return idList;
@@ -230,7 +232,7 @@ class LiteSQL {
     List<int> idList = [];
     for (var row in rows) {
       st.execute(row);
-      idList.add(db.lastInsertRowId);
+      idList.add(database.lastInsertRowId);
     }
     st.dispose();
     return idList;
@@ -257,7 +259,7 @@ class LiteSQL {
 
   List<TableInfoItem> tableInfo(String tableName) {
     String sql = "PRAGMA table_info(${tableName.escapeSQL})";
-    ResultSet rs = db.select(sql);
+    ResultSet rs = database.select(sql);
     return rs.mapList((e) {
       var item = TableInfoItem();
       item.cid = e['cid'] ?? 0;
