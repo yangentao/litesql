@@ -47,3 +47,8 @@
 
 ## 2.0.3
 * TableModel.updateBy
+
+## 2.1.0
+* upgrade to sqlite3: 3.0.1
+* make lastInsertRowId  writable
+* set lastInsertRowId=0 before insert/upsert

@@ -3,10 +3,11 @@ part of 'sql.dart';
 class LiteSQL {
   static Version version = sqlite3.version;
   static bool supportReturning = version.versionNumber >= 3035000;
-  static final ffi.DynamicLibrary dylib = (sqlite3 as dynamic).ffiBindings.bindings.library;
   Database database;
 
   LiteSQL({required this.database});
+
+  late ffi.Pointer<ffi.Opaque> nativeDatabase = ffi.Pointer<ffi.Opaque>.fromAddress(database.handle.address);
 
   @Deprecated("use EnumTable instead.")
   SingleTable table(TableProto t) => SingleTable(lite: this, table: t);
@@ -47,7 +48,7 @@ class LiteSQL {
 
   int get lastInsertRowId => database.lastInsertRowId;
 
-  set lastInsertRowId(int value) => setLastInsertRowId(value);
+  set lastInsertRowId(int value) => xsql.sqlite3_set_last_insert_rowid(nativeDatabase, value);
 
   @Deprecated("use query() instead")
   ResultSet select(
@@ -63,8 +64,19 @@ class LiteSQL {
     int? offset,
     List<dynamic>? args,
   }) {
-    return query(columns,
-        from: from, where: where, groupBy: groupBy, having: having, window: window, order: order, orderBy: orderBy, limit: limit, offset: offset, args: args);
+    return query(
+      columns,
+      from: from,
+      where: where,
+      groupBy: groupBy,
+      having: having,
+      window: window,
+      order: order,
+      orderBy: orderBy,
+      limit: limit,
+      offset: offset,
+      args: args,
+    );
   }
 
   /// distinct on
@@ -146,7 +158,7 @@ class LiteSQL {
     if (parameters != null && parameters.isNotEmpty) {
       logSQL.d(parameters);
     }
-    setLastInsertRowId(0);
+    lastInsertRowId = 0;
     database.execute(sql, parameters ?? const []);
     return database.lastInsertRowId;
   }
@@ -203,7 +215,7 @@ class LiteSQL {
       st.execute(argList);
       rowids.add(lastInsertRowId);
     }
-    st.dispose();
+    st.close();
     return rowids;
   }
 
@@ -219,7 +231,7 @@ class LiteSQL {
       st.execute(oneRow.mapList((e) => e.value));
       idList.add(lastInsertRowId);
     }
-    st.dispose();
+    st.close();
     return idList;
   }
 
@@ -233,7 +245,7 @@ class LiteSQL {
       st.execute(row);
       idList.add(lastInsertRowId);
     }
-    st.dispose();
+    st.close();
     return idList;
   }
 
@@ -376,17 +388,16 @@ class LiteSQL {
       }
     }
   }
-
-  static final _SetLastRowId _funSetLastRowId = dylib.lookup<ffi.NativeFunction<_CSetLastRowId>>("sqlite3_set_last_insert_rowid").asFunction();
-
-  void setLastInsertRowId([int newValue = 0]) {
-    _funSetLastRowId(ffi.Pointer<ffi.Void>.fromAddress(database.handle.address), newValue);
-  }
 }
 
-// sqlite3_set_last_insert_rowid
-typedef _CSetLastRowId = ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Int64);
-typedef _SetLastRowId = void Function(ffi.Pointer<ffi.Void>, int);
+// class InsertResult {
+//   int id;
+//   MapSQL row;
+//
+//   InsertResult({required this.id, required this.row});
+//
+//   bool get success => id != 0;
+// }
 
 enum InsertOption {
   abort("ABORT"),

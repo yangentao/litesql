@@ -8,6 +8,7 @@ import 'dart:typed_data';
 import 'package:entao_dutil/entao_dutil.dart';
 import 'package:entao_log/entao_log.dart';
 import 'package:sqlite3/sqlite3.dart';
+import 'sqlite3_x.dart' as xsql;
 
 part 'ColumnSQL.dart';
 part 'EnumTable.dart';
