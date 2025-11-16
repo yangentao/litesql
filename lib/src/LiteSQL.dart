@@ -2,6 +2,8 @@ part of 'sql.dart';
 
 class LiteSQL {
   static Version version = sqlite3.version;
+  static bool supportReturning = version.versionNumber >= 3035000;
+  static final ffi.DynamicLibrary dylib = (sqlite3 as dynamic).ffiBindings.bindings.library;
   Database database;
 
   LiteSQL({required this.database});
@@ -44,6 +46,8 @@ class LiteSQL {
   int get updatedRows => database.updatedRows;
 
   int get lastInsertRowId => database.lastInsertRowId;
+
+  set lastInsertRowId(int value) => setLastInsertRowId(value);
 
   @Deprecated("use query() instead")
   ResultSet select(
@@ -139,9 +143,10 @@ class LiteSQL {
 
   int insertSQL(String sql, [List<Object?>? parameters]) {
     logSQL.d(sql);
-    if(parameters != null && parameters.isNotEmpty) {
+    if (parameters != null && parameters.isNotEmpty) {
       logSQL.d(parameters);
     }
+    setLastInsertRowId(0);
     database.execute(sql, parameters ?? const []);
     return database.lastInsertRowId;
   }
@@ -163,6 +168,10 @@ class LiteSQL {
       sql += " WHERE $where";
     }
     return updateSQL(sql, values.mapList((e) => e.value) + (args ?? const []));
+  }
+
+  int upsert(String table, List<FieldValue> row) {
+    return upsertRows(table, [row]).firstOrNull ?? 0;
   }
 
   List<int> upsertRows(String table, List<List<FieldValue>> rows) {
@@ -190,16 +199,12 @@ class LiteSQL {
         argList.addAll(otherList.map((e) => e.value));
       }
       logSQL.d(argList);
+      lastInsertRowId = 0;
       st.execute(argList);
-
-      rowids.add(database.lastInsertRowId);
+      rowids.add(lastInsertRowId);
     }
     st.dispose();
     return rowids;
-  }
-
-  int upsert(String table, List<FieldValue> row) {
-    return upsertRows(table, [row]).firstOrNull ?? 0;
   }
 
   List<int> insertRows(String table, List<List<LabelValue<dynamic>>> rows, {InsertOption? conflict}) {
@@ -210,8 +215,23 @@ class LiteSQL {
     PreparedStatement st = prepareSQL(sql);
     List<int> idList = [];
     for (var oneRow in rows) {
+      lastInsertRowId = 0;
       st.execute(oneRow.mapList((e) => e.value));
-      idList.add(database.lastInsertRowId);
+      idList.add(lastInsertRowId);
+    }
+    st.dispose();
+    return idList;
+  }
+
+  List<int> insertMulti(String table, List<String> columns, List<List<dynamic>> rows, {InsertOption? conflict}) {
+    String cs = conflict == null ? "" : "OR ${conflict.conflict}";
+    String sql = "INSERT $cs INTO ${table.escapeSQL} (${columns.map((e) => e.escapeSQL).join(",")}) VALUES (${columns.map((e) => '?').join(",")})";
+    PreparedStatement st = prepareSQL(sql);
+    List<int> idList = [];
+    for (var row in rows) {
+      lastInsertRowId = 0;
+      st.execute(row);
+      idList.add(lastInsertRowId);
     }
     st.dispose();
     return idList;
@@ -223,19 +243,6 @@ class LiteSQL {
 
   int insert(String table, List<String> columns, List<dynamic> row, {InsertOption? conflict}) {
     return insertMulti(table, columns, [row], conflict: conflict).first;
-  }
-
-  List<int> insertMulti(String table, List<String> columns, List<List<dynamic>> rows, {InsertOption? conflict}) {
-    String cs = conflict == null ? "" : "OR ${conflict.conflict}";
-    String sql = "INSERT $cs INTO ${table.escapeSQL} (${columns.map((e) => e.escapeSQL).join(",")}) VALUES (${columns.map((e) => '?').join(",")})";
-    PreparedStatement st = prepareSQL(sql);
-    List<int> idList = [];
-    for (var row in rows) {
-      st.execute(row);
-      idList.add(database.lastInsertRowId);
-    }
-    st.dispose();
-    return idList;
   }
 
   void transaction(void Function() callback) {
@@ -369,7 +376,17 @@ class LiteSQL {
       }
     }
   }
+
+  static final _SetLastRowId _funSetLastRowId = dylib.lookup<ffi.NativeFunction<_CSetLastRowId>>("sqlite3_set_last_insert_rowid").asFunction();
+
+  void setLastInsertRowId([int newValue = 0]) {
+    _funSetLastRowId(ffi.Pointer<ffi.Void>.fromAddress(database.handle.address), newValue);
+  }
 }
+
+// sqlite3_set_last_insert_rowid
+typedef _CSetLastRowId = ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Int64);
+typedef _SetLastRowId = void Function(ffi.Pointer<ffi.Void>, int);
 
 enum InsertOption {
   abort("ABORT"),
