@@ -5,7 +5,7 @@ mixin TableColumn<T extends Enum> on Enum {
 
   String get tableName => exGetOrPut("tableName", () {
         String a = "$T";
-        if (a == "Object") throw SQLException("TableColumn MUST has a generic type parameter. forexample:  enum Person with TableColumn<Person> ");
+        if (a == "Object") errorSQL("TableColumn MUST has a generic type parameter. forexample:  enum Person with TableColumn<Person> ");
         List<String> ls = TRIM_SUFFIXS;
         if (ls.isEmpty) return a;
         for (String s in ls) {

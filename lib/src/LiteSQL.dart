@@ -1,13 +1,13 @@
 part of 'sql.dart';
 
 class LiteSQL {
-  static Version version = sqlite3.version;
-  static bool supportReturning = version.versionNumber >= 3035000;
   Database database;
+  late final ffi.Pointer<ffi.Opaque> _nativeDatabase = ffi.Pointer<ffi.Opaque>.fromAddress(database.handle.address);
 
   LiteSQL({required this.database});
 
-  late ffi.Pointer<ffi.Opaque> nativeDatabase = ffi.Pointer<ffi.Opaque>.fromAddress(database.handle.address);
+  static Version version = sqlite3.version;
+  static final bool _supportReturning = version.versionNumber >= 3035000;
 
   static LiteSQL open(String path) {
     var db = sqlite3.open(path);
@@ -19,13 +19,13 @@ class LiteSQL {
     return LiteSQL(database: db);
   }
 
-  static String makeIndexName(String table, List<String> fields) {
+  static String _makeIndexName(String table, List<String> fields) {
     var ls = fields.sorted(null);
     return "${table}_${ls.join("_")}";
   }
 
-  @Deprecated("use EnumTable instead.")
-  SingleTable table(TableProto t) => SingleTable(lite: this, table: t);
+  // @Deprecated("use EnumTable instead.")
+  // SingleTable table(TableProto t) => SingleTable(lite: this, table: t);
 
   void close() {
     database.close();
@@ -39,7 +39,7 @@ class LiteSQL {
 
   int get lastInsertRowId => database.lastInsertRowId;
 
-  set lastInsertRowId(int value) => xsql.sqlite3_set_last_insert_rowid(nativeDatabase, value);
+  set lastInsertRowId(int value) => xsql.sqlite3_set_last_insert_rowid(_nativeDatabase, value);
 
   void dumpTable(String table) {
     String sql = "SELECT * FROM ${table.escapeSQL}";
@@ -80,7 +80,6 @@ class LiteSQL {
     logSQL.d(sql);
     return database.prepare(sql);
   }
-
 
   void transaction(void Function() callback) {
     execute("BEGIN");
@@ -151,7 +150,7 @@ class LiteSQL {
   }
 
   void dropIndex(String table, String fieldName) {
-    String idx = makeIndexName(table, [fieldName]);
+    String idx = _makeIndexName(table, [fieldName]);
     String sql = "DROP INDEX IF EXISTS $idx";
     execute(sql);
   }
@@ -162,7 +161,7 @@ class LiteSQL {
   }
 
   void createIndex(String table, List<String> fields) {
-    String idxName = makeIndexName(table, fields);
+    String idxName = _makeIndexName(table, fields);
     String sql = "CREATE INDEX IF NOT EXISTS $idxName ON ${table.escapeSQL} (${fields.map((e) => e.escapeSQL).join(",")})";
     execute(sql);
   }

@@ -12,7 +12,7 @@ class TableModel<E> {
   // TableModel.empty() : this({});
 
   EnumTable mtable() {
-    if (E == Object) throw SQLException("TableModel<T>, generic type parameter MUST be set");
+    if (E == Object) errorSQL("TableModel<T>, generic type parameter MUST be set");
     return EnumTable.of(E);
   }
 
@@ -24,14 +24,14 @@ class TableModel<E> {
   int delete() {
     EnumTable tab = mtable();
     List<FieldProto> pks = tab.primaryKeys();
-    if (pks.isEmpty) throw SQLException("NO primary key defined.");
+    if (pks.isEmpty) errorSQL("NO primary key defined.");
     List<Where> wherePks = [];
     for (FieldProto f in pks) {
       dynamic v = get(f.name);
-      if (v == null) throw SQLException("Primary key is null: ${f.name}");
+      if (v == null) errorSQL("Primary key is null: ${f.name}");
       wherePks.add(f.EQ(v));
     }
-    if (wherePks.isEmpty) throw SQLException("NO primary key condition(s).");
+    if (wherePks.isEmpty) errorSQL("NO primary key condition(s).");
     return tab.delete(wherePks.and());
   }
 
@@ -43,14 +43,14 @@ class TableModel<E> {
   int update(VoidCallback callback) {
     EnumTable tab = mtable();
     List<FieldProto> pks = tab.primaryKeys();
-    if (pks.isEmpty) throw SQLException("NO primary key defined.");
+    if (pks.isEmpty) errorSQL("NO primary key defined.");
     _modifiedKeys.clear();
     callback();
     if (_modifiedKeys.isEmpty) return 0;
     List<Where> wherePks = [];
     for (FieldProto f in pks) {
       dynamic v = get(f.name);
-      if (v == null) throw SQLException("Primary key is null: ${f.name}");
+      if (v == null) errorSQL("Primary key is null: ${f.name}");
       wherePks.add(f.EQ(v));
     }
 
@@ -76,11 +76,11 @@ class TableModel<E> {
     EnumTable tab = mtable();
 
     List<FieldProto> pks = tab.primaryKeys();
-    if (pks.isEmpty) throw SQLException("NO primary key defined.");
+    if (pks.isEmpty) errorSQL("NO primary key defined.");
     List<Where> wherePks = [];
     for (FieldProto f in pks) {
       dynamic v = get(f.name);
-      if (v == null) throw SQLException("Primary key is null: ${f.name}");
+      if (v == null) errorSQL("Primary key is null: ${f.name}");
       wherePks.add(f.EQ(v));
     }
     List<FieldValue> values = fieldValues(columns: columns, names: names, excludeColumns: excludeColumns, excludeNames: excludeNames);

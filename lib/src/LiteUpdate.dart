@@ -8,8 +8,8 @@ extension LiteUpdateExt on LiteSQL {
   int delete(String table, {required String where, ArgSQL? args, Returning? returning}) {
     assert(where.isNotEmpty);
     String sql = "DELETE FROM ${table.escapeSQL} WHERE $where";
-    if (LiteSQL.supportReturning && returning != null) {
-      sql += " ${returning.clause}";
+    if (LiteSQL._supportReturning && returning != null) {
+      sql += returning.clause;
       ResultSet rs = rawQuery(sql, args);
       returning.returnRows.addAll(rs.listRows);
     } else {
@@ -35,8 +35,8 @@ extension LiteUpdateExt on LiteSQL {
     if (notBlank(where)) {
       sql += " WHERE $where";
     }
-    if (LiteSQL.supportReturning && returning != null) {
-      sql += " ${returning.clause}";
+    if (LiteSQL._supportReturning && returning != null) {
+      sql += returning.clause;
       ResultSet rs = rawQuery(sql, argList);
       returning.returnRows.addAll(rs.listRows);
     } else {

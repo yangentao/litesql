@@ -96,7 +96,7 @@ class Where {
       }
     }
 
-    throw HareException("Where错误, op:$op, left: $left, right:$right");
+    errorSQL("Where错误, op:$op, left: $left, right:$right");
   }
 }
 

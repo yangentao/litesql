@@ -77,7 +77,7 @@ class ColumnSQL {
     this.defaultValue,
   });
 
-  const ColumnSQL.numberic({
+  const ColumnSQL.numeric({
     this.name,
     this.type = "NUMERIC",
     this.primaryKey = false,

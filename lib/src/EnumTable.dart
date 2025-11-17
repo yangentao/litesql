@@ -8,12 +8,12 @@ class EnumTable {
   EnumTable({required this.lite, required this.tableType}) {
     var t = findTableByEnum(tableType);
     if (t == null) {
-      throw SQLException("Table info NOT found, type=$tableType");
+      errorSQL("Table info NOT found, type=$tableType");
     }
     proto = t;
   }
 
-  static EnumTable of(Type type) => tableOfType(type);
+  static EnumTable of(Type type) => From(type);
 
   String get tableName => proto.name;
 
@@ -26,10 +26,10 @@ class EnumTable {
     String? groupBy,
     String? having,
     String? window,
-    String? order,
-    List<String>? orderBy,
+    String? orderBy,
+    List<String>? orders,
   }) {
-    return one<T>(creator, columns: columns, where: keyEQ(key), groupBy: groupBy, having: having, window: window, order: order, orderBy: orderBy);
+    return one<T>(creator, columns: columns, where: keyEQ(key), groupBy: groupBy, having: having, window: window, orderBy: orderBy, orders: orders);
   }
 
   T? oneByKeys<T>(
@@ -39,14 +39,14 @@ class EnumTable {
     String? groupBy,
     String? having,
     String? window,
-    String? order,
-    List<String>? orderBy,
+    String? orderBy,
+    List<String>? orders,
   }) {
-    return one<T>(creator, columns: columns, where: keysEQ(keys), groupBy: groupBy, having: having, window: window, order: order, orderBy: orderBy);
+    return one<T>(creator, columns: columns, where: keysEQ(keys), groupBy: groupBy, having: having, window: window, orderBy: orderBy, orders: orders);
   }
 
-  V? oneValue<E extends TableColumn<E>, V>(TableColumn<E> column, {Where? where, String? groupBy, String? having, String? window, String? order, List<String>? orderBy}) {
-    return this.query(columns: [column], where: where, groupBy: groupBy, having: having, window: window, order: order, orderBy: orderBy, limit: 1).firstValue;
+  V? oneValue<E extends TableColumn<E>, V>(TableColumn<E> column, {Where? where, String? groupBy, String? having, String? window, String? orderBy, List<String>? orders}) {
+    return this.query(columns: [column], where: where, groupBy: groupBy, having: having, window: window, orderBy: orderBy, orders: orders, limit: 1).firstValue;
   }
 
   T? one<T>(
@@ -57,8 +57,8 @@ class EnumTable {
     String? groupBy,
     String? having,
     String? window,
-    String? order,
-    List<String>? orderBy,
+    String? orderBy,
+    List<String>? orders,
   }) {
     return list<T>(
       creator,
@@ -68,8 +68,8 @@ class EnumTable {
       groupBy: groupBy,
       having: having,
       window: window,
-      order: order,
       orderBy: orderBy,
+      orders: orders,
       limit: 1,
     ).firstOrNull;
   }
@@ -81,8 +81,8 @@ class EnumTable {
     String? groupBy,
     String? having,
     String? window,
-    String? order,
-    List<String>? orderBy,
+    String? orderBy,
+    List<String>? orders,
     int? limit,
     int? offset,
   }) {
@@ -93,8 +93,8 @@ class EnumTable {
       groupBy: groupBy,
       having: having,
       window: window,
-      order: order,
       orderBy: orderBy,
+      orders: orders,
       limit: limit,
       offset: offset,
     ).listValues();
@@ -108,8 +108,8 @@ class EnumTable {
     String? groupBy,
     String? having,
     String? window,
-    String? order,
-    List<String>? orderBy,
+    String? orderBy,
+    List<String>? orders,
     int? limit,
     int? offset,
   }) {
@@ -121,8 +121,8 @@ class EnumTable {
           groupBy: groupBy,
           having: having,
           window: window,
-          order: order,
           orderBy: orderBy,
+          orders: orders,
           limit: limit,
           offset: offset,
         )
@@ -136,8 +136,8 @@ class EnumTable {
     String? groupBy,
     String? having,
     String? window,
-    String? order,
-    List<String>? orderBy,
+    String? orderBy,
+    List<String>? orders,
     int? limit,
     int? offset,
   }) {
@@ -151,8 +151,8 @@ class EnumTable {
           groupBy: groupBy,
           having: having,
           window: window,
-          orderBy: order,
-          orders: orderBy,
+          orderBy: orderBy,
+          orders: orders,
           limit: limit,
           offset: offset,
           args: w.args,
@@ -162,14 +162,14 @@ class EnumTable {
 
   Where keyEQ(dynamic keyValue) {
     var keyList = proto.fields.filter((e) => e.primaryKey);
-    if (keyList.length != 1) throw HareException("Primary Key count MULST is ONE");
+    if (keyList.length != 1) errorSQL("Primary Key count MULST is ONE");
     return keyList.first.EQ(keyValue);
   }
 
   Where keysEQ(List<dynamic> keyValues) {
     var keyList = proto.fields.filter((e) => e.primaryKey);
-    if (keyList.isEmpty) throw HareException("No Primary Key defined");
-    if (keyList.length > keyValues.length) throw HareException("Primary Key Great than key value length");
+    if (keyList.isEmpty) errorSQL("No Primary Key defined");
+    if (keyList.length > keyValues.length) errorSQL("Primary Key Great than key value length");
     List<Where> ws = keyList.mapIndex((n, e) => e.EQ(keyValues[n]));
     return AND_ALL(ws);
   }
@@ -207,7 +207,7 @@ class EnumTable {
     if (_canSave(item)) {
       return upsert(proto.fields.mapList((e) => e >> e.get(item)));
     }
-    throw HareException("Unkonwn object to save: $item");
+    errorSQL("Unkonwn object to save: $item");
   }
 
   List<int> saveAll(List<dynamic> items) {

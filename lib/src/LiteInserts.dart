@@ -11,8 +11,8 @@ extension LiteSqlInsertExt on LiteSQL {
     String sql = "INSERT $cs INTO ${table.escapeSQL} (${values.map((e) => e.label.escapeSQL).join(",")}) VALUES (${values.map((e) => '?').join(",")})";
     var args = values.mapList((e) => e.value);
     lastInsertRowId = 0;
-    if (LiteSQL.supportReturning && returning != null) {
-      sql += " ${returning.clause}";
+    if (LiteSQL._supportReturning && returning != null) {
+      sql += returning.clause;
       ResultSet rs = rawQuery(sql, args);
       returning.returnRows.addAll(rs.listRows);
     } else {
@@ -39,15 +39,15 @@ extension LiteSqlInsertExt on LiteSQL {
     var firstRow = rows.first;
     String cs = conflict == null ? "" : "OR ${conflict.conflict}";
     String sql = "INSERT $cs INTO ${table.escapeSQL} (${firstRow.map((e) => e.label.escapeSQL).join(",")}) VALUES (${firstRow.map((e) => '?').join(",")})";
-    if (LiteSQL.supportReturning && returning != null) {
-      sql += " ${returning.clause}";
+    if (LiteSQL._supportReturning && returning != null) {
+      sql += returning.clause;
     }
     PreparedStatement st = prepareSQL(sql);
     List<int> idList = [];
     for (var oneRow in rows) {
       var argList = oneRow.mapList((e) => e.value);
       lastInsertRowId = 0;
-      if (LiteSQL.supportReturning && returning != null) {
+      if (LiteSQL._supportReturning && returning != null) {
         ResultSet rs = st.select(argList);
         returning.returnRows.addAll(rs.listRows);
       } else {
@@ -67,14 +67,14 @@ extension LiteSqlInsertExt on LiteSQL {
   List<int> insertMulti(String table, List<String> columns, List<List<dynamic>> rows, {InsertOption? conflict, Returning? returning}) {
     String cs = conflict == null ? "" : "OR ${conflict.conflict}";
     String sql = "INSERT $cs INTO ${table.escapeSQL} (${columns.map((e) => e.escapeSQL).join(",")}) VALUES (${columns.map((e) => '?').join(",")})";
-    if (LiteSQL.supportReturning && returning != null) {
-      sql += " ${returning.clause}";
+    if (LiteSQL._supportReturning && returning != null) {
+      sql += returning.clause;
     }
     PreparedStatement st = prepareSQL(sql);
     List<int> idList = [];
     for (var row in rows) {
       lastInsertRowId = 0;
-      if (LiteSQL.supportReturning && returning != null) {
+      if (LiteSQL._supportReturning && returning != null) {
         ResultSet rs = st.select(row);
         returning.returnRows.addAll(rs.listRows);
       } else {
@@ -94,18 +94,6 @@ extension LiteSqlInsertExt on LiteSQL {
       returning: returning,
     );
     // return upsertRows(table, [row]).firstOrNull ?? 0;
-  }
-
-  List<int> upsertRows(String table, List<List<FieldValue>> rows, {Returning? returning}) {
-    assert(rows.isNotEmpty);
-    var firstRow = rows.first;
-    return upsertMulti(
-      table,
-      columns: firstRow.mapList((e) => e.field.name),
-      values: rows.mapList((e) => e.mapList((x) => x.value)),
-      constraints: firstRow.filter((e) => e.field.primaryKey || e.field.unique).mapList((e) => e.field.name),
-      returning: returning,
-    );
   }
 
   /// constraints can empty.
@@ -133,7 +121,7 @@ extension LiteSqlInsertExt on LiteSQL {
     }
     var argList = [...values.mapList((e) => e.value), ...otherValues.mapList((e) => e.value)];
     lastInsertRowId = 0;
-    if (LiteSQL.supportReturning && returning != null) {
+    if (LiteSQL._supportReturning && returning != null) {
       sql += returning.clause;
       ResultSet rs = rawQuery(sql, argList);
       returning.returnRows.addAll(rs.listRows);
@@ -141,6 +129,18 @@ extension LiteSqlInsertExt on LiteSQL {
       execute(sql, argList);
     }
     return lastInsertRowId;
+  }
+
+  List<int> upsertRows(String table, List<List<FieldValue>> rows, {Returning? returning}) {
+    assert(rows.isNotEmpty);
+    var firstRow = rows.first;
+    return upsertMulti(
+      table,
+      columns: firstRow.mapList((e) => e.field.name),
+      values: rows.mapList((e) => e.mapList((x) => x.value)),
+      constraints: firstRow.filter((e) => e.field.primaryKey || e.field.unique).mapList((e) => e.field.name),
+      returning: returning,
+    );
   }
 
   List<int> upsertMulti(
@@ -162,7 +162,7 @@ extension LiteSqlInsertExt on LiteSQL {
         sql += " ON CONFLICT (${constraints.map((e) => e.escapeSQL).join(", ")}) DO UPDATE SET ${otherCols.map((e) => "${e.escapeSQL} = ?").join(", ")}";
       }
     }
-    bool useReturn = LiteSQL.supportReturning && returning != null;
+    bool useReturn = LiteSQL._supportReturning && returning != null;
     if (useReturn) {
       sql += returning.clause;
     }

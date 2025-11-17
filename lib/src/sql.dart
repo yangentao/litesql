@@ -88,7 +88,7 @@ T? _getModelValue<T>(Object model, String name) {
   if (model is TableModel) return model[name];
   if (model is Map<String, dynamic>) return _checkNum(model[name]);
   if (model is MapModel) return _checkNum(model[name].value);
-  throw SQLException(" get model value failed, unknown container: $model, column: $name.");
+  errorSQL(" get model value failed, unknown container: $model, column: $name.");
 }
 
 void _setModelValue(Object model, String key, dynamic value) {
@@ -99,6 +99,6 @@ void _setModelValue(Object model, String key, dynamic value) {
   } else if (model is MapModel) {
     model[key] = value;
   } else {
-    throw SQLException("set value failed, unknown container:$model, tableColumn:$key.");
+    errorSQL("set value failed, unknown container:$model, tableColumn:$key.");
   }
 }

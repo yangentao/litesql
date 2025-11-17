@@ -18,7 +18,7 @@ void main() {
     String? addr = MConfigs.getString("addr");
     println("Addr: ", addr);
 
-    var ls = tab.list(MConfigs.new, orderBy: [Configs.name.ASC]);
+    var ls = tab.list(MConfigs.new, orders: [Configs.name.ASC]);
     for (var e in ls) {
       println(e.name, e.nValue, e.fValue, e.sValue);
     }

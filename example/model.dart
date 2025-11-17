@@ -34,5 +34,5 @@ enum Person with TableColumn<Person> {
   @override
   List<Person> get columns => Person.values;
 
-  static EnumTable table() => tableOfType(Person);
+  static EnumTable table() => From(Person);
 }

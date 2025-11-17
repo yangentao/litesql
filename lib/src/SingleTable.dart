@@ -9,14 +9,14 @@ class SingleTable {
 
   Where keyEQ(dynamic keyValue) {
     var keyList = table.fields.filter((e) => e.primaryKey);
-    if (keyList.length != 1) throw HareException("Primary Key count MULST is ONE");
+    if (keyList.length != 1) errorSQL("Primary Key count MULST is ONE");
     return keyList.first.EQ(keyValue);
   }
 
   Where keysEQ(List<dynamic> keyValues) {
     var keyList = table.fields.filter((e) => e.primaryKey);
-    if (keyList.isEmpty) throw HareException("No Primary Key defined");
-    if (keyList.length > keyValues.length) throw HareException("Primary Key Great than key value length");
+    if (keyList.isEmpty) errorSQL("No Primary Key defined");
+    if (keyList.length > keyValues.length) errorSQL("Primary Key Great than key value length");
     List<Where> ws = keyList.mapIndex((n, e) => e.EQ(keyValues[n]));
     return AND_ALL(ws);
   }
@@ -221,7 +221,7 @@ class SingleTable {
     if (_canSave(item)) {
       return upsert(table.fields.mapList((e) => e >> e.get(item)));
     }
-    throw HareException("Unkonwn object to save: $item");
+    errorSQL("Unkonwn object to save: $item");
   }
 
   List<int> saveAll(List<dynamic> items) {

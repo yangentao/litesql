@@ -71,7 +71,7 @@ void main() {
 class PersonModel extends TableModel<Person> {
   PersonModel(super.model);
 
-  static EnumTable table() => tableOfType(Person);
+  static EnumTable table() => From(Person);
 
   int get id => Person.id.get(this);
 
@@ -104,5 +104,5 @@ enum Person with TableColumn<Person> {
   @override
   List<Person> get columns => Person.values;
 
-  static EnumTable table() => tableOfType(Person);
+  static EnumTable table() => From(Person);
 }
