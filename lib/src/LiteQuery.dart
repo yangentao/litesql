@@ -49,33 +49,4 @@ extension LiteQueryExt on LiteSQL {
     }
     return rawQuery(sql, args);
   }
-
-  @Deprecated("use query() instead")
-  ResultSet select(
-    List<String>? columns, {
-    required String from,
-    String? where,
-    String? groupBy,
-    String? having,
-    String? window,
-    String? orderBy,
-    List<String>? orders,
-    int? limit,
-    int? offset,
-    List<dynamic>? args,
-  }) {
-    return query(
-      columns,
-      from: from,
-      where: where,
-      groupBy: groupBy,
-      having: having,
-      window: window,
-      orderBy: orderBy,
-      orders: orders,
-      limit: limit,
-      offset: offset,
-      args: args,
-    );
-  }
 }
