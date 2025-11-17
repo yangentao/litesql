@@ -179,6 +179,7 @@ class EnumTable {
     return lite.delete(tableName, where: w.clause, args: w.args, returning: returning);
   }
 
+  /// From(Configs).upsert([Configs.name >> name, Configs.sValue >> value]);
   int update(List<FieldValue> values, {Where? where, Returning? returning}) {
     var w = where?.result();
     return lite.update(proto.name, values.mapList((e) => LabelValue(e.field.nameSQL, e.value)), where: w?.clause, args: w?.args, returning: returning);
