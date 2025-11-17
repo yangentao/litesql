@@ -16,9 +16,9 @@ void main() {
   // address TEXT,
   // age TEXT
   // )
-  int rowid1 = lite.insertPairs("Person", ["name" >> "entao1", "age" >> 21, "add" >> "Jinan1"]);
-  int rowid2 = lite.insertPairs("Person", ["name" >> "entao2", "age" >> 22, "add" >> "Jinan2"]);
-  int rowid3 = lite.insertPairs("Person", ["name" >> "entao3", "age" >> 23, "add" >> "Jinan3"]);
+  int rowid1 = lite.insert("Person", ["name" >> "entao1", "age" >> 21, "add" >> "Jinan1"]);
+  int rowid2 = lite.insert("Person", ["name" >> "entao2", "age" >> 22, "add" >> "Jinan2"]);
+  int rowid3 = lite.insert("Person", ["name" >> "entao3", "age" >> 23, "add" >> "Jinan3"]);
   // 2025-10-31 14:19:53.214 D xlog: INSERT  INTO Person (name,age,"add") VALUES (?,?,?)
   // 2025-10-31 14:19:53.217 D xlog: INSERT  INTO Person (name,age,"add") VALUES (?,?,?)
   // 2025-10-31 14:19:53.217 D xlog: INSERT  INTO Person (name,age,"add") VALUES (?,?,?)

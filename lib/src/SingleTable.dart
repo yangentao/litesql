@@ -213,7 +213,7 @@ class SingleTable {
   }
 
   int insert(List<FieldValue> row) {
-    return lite.insertPairs(table.name, row.mapList((e) => LabelValue(e.field.name, e.value)));
+    return lite.insert(table.name, row.mapList((e) => LabelValue(e.field.name, e.value)));
   }
 
   int save(dynamic item) {

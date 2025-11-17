@@ -1,66 +1,87 @@
 part of 'sql.dart';
 
 extension LiteSqlInsertExt on LiteSQL {
-  List<int> insertRowsReturning(String table, List<List<LabelValue<dynamic>>> rows, {InsertOption? conflict, Returning? returning}) {
+  ///  Returning ret = Returning.ALL;
+  ///  int id = lite.insertPairs("stu", ["name" >> "tom"], returning: ret ); // INSERT  INTO stu (name) VALUES (?)  RETURNING *
+  ///  println("insert id: ", id); // 4
+  ///  println(ret.returnRows); // [{id: 4, name: tom}]
+  int insert(String table, List<LabelValue<dynamic>> values, {InsertOption? conflict, Returning? returning}) {
+    assert(values.isNotEmpty);
+    String cs = conflict == null ? "" : "OR ${conflict.conflict}";
+    String sql = "INSERT $cs INTO ${table.escapeSQL} (${values.map((e) => e.label.escapeSQL).join(",")}) VALUES (${values.map((e) => '?').join(",")})";
+    var args = values.mapList((e) => e.value);
+    lastInsertRowId = 0;
+    if (LiteSQL.supportReturning && returning != null) {
+      sql += " ${returning.clause}";
+      ResultSet rs = rawQuery(sql, args);
+      returning.returnRows.addAll(rs.listRows);
+    } else {
+      execute(sql, args);
+    }
+    return lastInsertRowId;
+  }
+
+  int insertBy(String table, List<(String, dynamic)> values, {InsertOption? conflict, Returning? returning}) {
+    return insert(table, values.mapList((e) => LabelValue(e.$1, e.$2)), conflict: conflict, returning: returning);
+  }
+  ///   Returning rr = Returning(["*"]);
+  ///   List<int> idList = lite.insertRows("stu", [
+  ///     ["name" >> 'yang'],
+  ///     ["name" >> 'en'],
+  ///     ["name" >> 'tao'],
+  ///   ], returning: rr);
+  ///
+  ///   println("idList: ", idList); // [1, 2, 3]
+  ///   println("returning: ", rr.returnRows); // [{id: 1, name: yang}, {id: 2, name: en}, {id: 3, name: tao}]
+  List<int> insertRows(String table, List<List<LabelValue<dynamic>>> rows, {InsertOption? conflict, Returning? returning}) {
     if (rows.isEmpty) return List.empty();
     var firstRow = rows.first;
     String cs = conflict == null ? "" : "OR ${conflict.conflict}";
     String sql = "INSERT $cs INTO ${table.escapeSQL} (${firstRow.map((e) => e.label.escapeSQL).join(",")}) VALUES (${firstRow.map((e) => '?').join(",")})";
-    if (returning != null && returning.columns.isNotEmpty) {
-      sql = "$sql ${returning.clause}";
+    if (LiteSQL.supportReturning && returning != null) {
+      sql += " ${returning.clause}";
     }
     PreparedStatement st = prepareSQL(sql);
     List<int> idList = [];
     for (var oneRow in rows) {
+      var argList = oneRow.mapList((e) => e.value);
       lastInsertRowId = 0;
-      if (returning != null) {
-        ResultSet rs = st.select(oneRow.mapList((e) => e.value));
-        returning.returnRows.add(rs.firstRow ?? {});
+      if (LiteSQL.supportReturning && returning != null) {
+        ResultSet rs = st.select(argList);
+        returning.returnRows.addAll(rs.listRows);
       } else {
-        st.execute(oneRow.mapList((e) => e.value));
+        st.execute(argList);
       }
       idList.add(lastInsertRowId);
     }
     st.close();
     return idList;
   }
-
-  List<int> insertRows(String table, List<List<LabelValue<dynamic>>> rows, {InsertOption? conflict}) {
-    if (rows.isEmpty) return List.empty();
-    var firstRow = rows.first;
-    String cs = conflict == null ? "" : "OR ${conflict.conflict}";
-    String sql = "INSERT $cs INTO ${table.escapeSQL} (${firstRow.map((e) => e.label.escapeSQL).join(",")}) VALUES (${firstRow.map((e) => '?').join(",")})";
-    PreparedStatement st = prepareSQL(sql);
-    List<int> idList = [];
-    for (var oneRow in rows) {
-      lastInsertRowId = 0;
-      st.execute(oneRow.mapList((e) => e.value));
-      idList.add(lastInsertRowId);
-    }
-    st.close();
-    return idList;
-  }
-
-  List<int> insertMulti(String table, List<String> columns, List<List<dynamic>> rows, {InsertOption? conflict}) {
+  ///   Returning rr = Returning(["*"]);
+  ///   List<int> idList = lite.insertMulti("stu", ["name"], [['yang'], ['en'], ['tao']], returning: rr);
+  ///
+  ///   println("idList: ", idList); // [1, 2, 3]
+  ///   println("returning: ", rr.returnRows); // [{id: 1, name: yang}, {id: 2, name: en}, {id: 3, name: tao}]
+  List<int> insertMulti(String table, List<String> columns, List<List<dynamic>> rows, {InsertOption? conflict, Returning? returning}) {
     String cs = conflict == null ? "" : "OR ${conflict.conflict}";
     String sql = "INSERT $cs INTO ${table.escapeSQL} (${columns.map((e) => e.escapeSQL).join(",")}) VALUES (${columns.map((e) => '?').join(",")})";
+    if (LiteSQL.supportReturning && returning != null) {
+      sql += " ${returning.clause}";
+    }
     PreparedStatement st = prepareSQL(sql);
     List<int> idList = [];
     for (var row in rows) {
       lastInsertRowId = 0;
-      st.execute(row);
+      if (LiteSQL.supportReturning && returning != null) {
+        ResultSet rs = st.select(row);
+        returning.returnRows.addAll(rs.listRows);
+      } else {
+        st.execute(row);
+      }
       idList.add(lastInsertRowId);
     }
     st.close();
     return idList;
-  }
-
-  int insertPairs(String table, List<LabelValue<dynamic>> pairs, {InsertOption? conflict}) {
-    return insertRows(table, [pairs], conflict: conflict).first;
-  }
-
-  int insert(String table, List<String> columns, List<dynamic> values, {InsertOption? conflict}) {
-    return insertMulti(table, columns, [values], conflict: conflict).first;
   }
 
   int upsert(String table, List<FieldValue> row) {

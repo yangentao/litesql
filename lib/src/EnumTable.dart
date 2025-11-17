@@ -197,7 +197,7 @@ class EnumTable {
   }
 
   int insert(List<FieldValue> row, {InsertOption? conflict}) {
-    return lite.insertPairs(proto.name, row.mapList((e) => LabelValue(e.field.name, e.value)), conflict: conflict);
+    return lite.insert(proto.name, row.mapList((e) => LabelValue(e.field.name, e.value)), conflict: conflict);
   }
 
   int save(dynamic item) {

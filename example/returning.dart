@@ -1,4 +1,3 @@
-import 'package:entao_dutil/entao_dutil.dart';
 import 'package:litesql/litesql.dart';
 import 'package:println/println.dart';
 import 'package:sqlite3/sqlite3.dart';
@@ -14,17 +13,11 @@ void main() async {
   println("version: ", LiteSQL.version.versionNumber);
   lite.execute("CREATE TABLE stu(id INTEGER PRIMARY KEY , name text)");
 
-  Returning rr = Returning(["id"]);
-  lite.insertRowsReturning("stu", [
-    ["name" >> 'yang'],
-    ["name" >> 'en'],
-    ["name" >> 'tao'],
-  ], returning: rr);
+  Returning rr = Returning(["*"]);
+  List<int> idList = lite.insertMulti("stu", ["name"], [['yang'], ['en'], ['tao']], returning: rr);
 
-  Returning ret = Returning.ALL;
-  int n = lite.delete("stu", where: "id=1", returning: ret);
-  println("del count: ", n); // 1
-  println(ret.returnRows); // [{id: 1, name: yang}]
+  println("idList: ", idList); // [1, 2, 3]
+  println("returning: ", rr.returnRows); // [{id: 1, name: yang}, {id: 2, name: en}, {id: 3, name: tao}]
 
   ResultSet rs = lite.rawQuery("SELECT * FROM stu");
   rs.dump();
