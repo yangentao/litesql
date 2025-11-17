@@ -189,7 +189,7 @@ class EnumTable {
   }
 
   int upsert(List<FieldValue> row) {
-    return lite.upsert(tableName, row);
+    return lite.upsertFields(tableName, row);
   }
 
   List<int> insertAll(List<List<FieldValue>> rows, {InsertOption? conflict}) {

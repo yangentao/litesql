@@ -24,6 +24,7 @@ extension LiteSqlInsertExt on LiteSQL {
   int insertBy(String table, List<(String, dynamic)> values, {InsertOption? conflict, Returning? returning}) {
     return insert(table, values.mapList((e) => LabelValue(e.$1, e.$2)), conflict: conflict, returning: returning);
   }
+
   ///   Returning rr = Returning(["*"]);
   ///   List<int> idList = lite.insertRows("stu", [
   ///     ["name" >> 'yang'],
@@ -57,6 +58,7 @@ extension LiteSqlInsertExt on LiteSQL {
     st.close();
     return idList;
   }
+
   ///   Returning rr = Returning(["*"]);
   ///   List<int> idList = lite.insertMulti("stu", ["name"], [['yang'], ['en'], ['tao']], returning: rr);
   ///
@@ -84,7 +86,7 @@ extension LiteSqlInsertExt on LiteSQL {
     return idList;
   }
 
-  int upsert(String table, List<FieldValue> row) {
+  int upsertFields(String table, List<FieldValue> row) {
     return upsertRows(table, [row]).firstOrNull ?? 0;
   }
 
@@ -119,5 +121,34 @@ extension LiteSqlInsertExt on LiteSQL {
     }
     st.close();
     return rowids;
+  }
+
+  ///   Returning ur = Returning.ALL;
+  ///   int id = lite.upsertOne("stu", ["id" >> 1, "name" >> "entao"], constraints: ["id"], returning: ur);
+  ///
+  ///   println("id: ", id); // 0
+  ///   println("returning: ", ur.returnRows); //  [{id: 1, name: entao}]
+  int upsert(String table, List<LabelValue<dynamic>> values, {List<String> constraints = const [], InsertOption? conflict, Returning? returning}) {
+    assert(values.isNotEmpty);
+    List<LabelValue<dynamic>> otherValues = values.filter((e) => !constraints.contains(e.label));
+
+    String sql = "INSERT INTO ${table.escapeSQL} (${values.map((e) => e.label).join(", ")}) VALUES ( ${values.map((e) => '?').join(", ")} )";
+    if (constraints.isNotEmpty) {
+      if (otherValues.isEmpty) {
+        sql += " ON CONFLICT (${constraints.join(", ")}) DO NOTHING";
+      } else {
+        sql += " ON CONFLICT (${constraints.join(", ")}) DO UPDATE SET ${otherValues.map((e) => "${e.label} = ?").join(", ")}";
+      }
+    }
+    var argList = [...values.mapList((e) => e.value), ...otherValues.mapList((e) => e.value)];
+    lastInsertRowId = 0;
+    if (LiteSQL.supportReturning && returning != null) {
+      sql += returning.clause;
+      ResultSet rs = rawQuery(sql, argList);
+      returning.returnRows.addAll(rs.listRows);
+    } else {
+      execute(sql, argList);
+    }
+    return lastInsertRowId;
   }
 }

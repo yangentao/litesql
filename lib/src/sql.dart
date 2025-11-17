@@ -45,6 +45,8 @@ final class Returning {
     assert(columns.isNotEmpty);
   }
 
+  MapSQL get firstRow => returnRows.first;
+
   String get clause => " RETURNING ${columns.join(", ")}";
 
   static Returning get ALL => Returning(const ["*"]);

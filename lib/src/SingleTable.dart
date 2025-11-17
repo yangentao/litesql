@@ -205,7 +205,7 @@ class SingleTable {
   }
 
   int upsert(List<FieldValue> row) {
-    return lite.upsert(table.name, row);
+    return lite.upsertFields(table.name, row);
   }
 
   List<int> insertAll(List<List<FieldValue>> rows) {
