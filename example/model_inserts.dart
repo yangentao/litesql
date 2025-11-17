@@ -15,5 +15,5 @@ void main() {
   println(p);
 
   From(Person).dump();
-  lite.dispose();
+  lite.close();
 }

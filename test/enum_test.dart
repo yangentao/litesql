@@ -65,7 +65,7 @@ void main() {
   // println(ls);
 
   e.dump();
-  lite.dispose();
+  lite.close();
 }
 
 class PersonModel extends TableModel<Person> {

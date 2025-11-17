@@ -4,5 +4,5 @@ void main() {
   LiteSQL lite = LiteSQL.openMemory();
   // lite.migrate(Student.TABLE);
 
-  lite.dispose();
+  lite.close();
 }

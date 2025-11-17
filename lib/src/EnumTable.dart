@@ -151,8 +151,8 @@ class EnumTable {
           groupBy: groupBy,
           having: having,
           window: window,
-          order: order,
-          orderBy: orderBy,
+          orderBy: order,
+          orders: orderBy,
           limit: limit,
           offset: offset,
           args: w.args,
@@ -197,7 +197,7 @@ class EnumTable {
   }
 
   int insert(List<FieldValue> row, {InsertOption? conflict}) {
-    return lite.insertRow(proto.name, row.mapList((e) => LabelValue(e.field.name, e.value)), conflict: conflict);
+    return lite.insertPairs(proto.name, row.mapList((e) => LabelValue(e.field.name, e.value)), conflict: conflict);
   }
 
   int save(dynamic item) {

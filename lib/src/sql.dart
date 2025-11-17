@@ -8,12 +8,16 @@ import 'dart:typed_data';
 import 'package:entao_dutil/entao_dutil.dart';
 import 'package:entao_log/entao_log.dart';
 import 'package:sqlite3/sqlite3.dart';
+
 import 'sqlite3_x.dart' as xsql;
 
 part 'ColumnSQL.dart';
 part 'EnumTable.dart';
 part 'FieldProto.dart';
+part 'LiteInserts.dart';
+part 'LiteQuery.dart';
 part 'LiteSQL.dart';
+part 'LiteUpdate.dart';
 part 'Migrate.dart';
 part 'MigrateETable.dart';
 part 'SingleTable.dart';
@@ -32,6 +36,25 @@ typedef BlobSQL = Uint8List;
 typedef ModelCreator<T> = T Function(MapSQL);
 
 TagLog logSQL = TagLog("SQL");
+
+final class Returning {
+  final List<String> columns;
+  List<MapSQL> values = [];
+
+  Returning([this.columns = const ["*"]]);
+}
+
+enum InsertOption {
+  abort("ABORT"),
+  fail("FAIL"),
+  ignore("IGNORE"),
+  replace("REPLACE"),
+  rollback("ROLLBACK");
+
+  const InsertOption(this.conflict);
+
+  final String conflict;
+}
 
 class SQLException implements Exception {
   String message;

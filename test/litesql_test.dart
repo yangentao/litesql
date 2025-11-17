@@ -23,6 +23,6 @@ void main() {
       println(e.name, e.nValue, e.fValue, e.sValue);
     }
 
-    lite.dispose();
+    lite.close();
   });
 }

@@ -30,8 +30,8 @@ class SingleTable {
       groupBy: groupBy,
       having: having,
       window: window,
-      order: order,
-      orderBy: orderBy,
+      orderBy: order,
+      orders: orderBy,
       limit: 1,
       args: w?.args,
     ).oneValue;
@@ -182,8 +182,8 @@ class SingleTable {
       groupBy: groupBy,
       having: having,
       window: window,
-      order: order,
-      orderBy: orderBy,
+      orderBy: order,
+      orders: orderBy,
       limit: limit,
       offset: offset,
       args: w.args,
@@ -213,7 +213,7 @@ class SingleTable {
   }
 
   int insert(List<FieldValue> row) {
-    return lite.insertRow(table.name, row.mapList((e) => LabelValue(e.field.name, e.value)));
+    return lite.insertPairs(table.name, row.mapList((e) => LabelValue(e.field.name, e.value)));
   }
 
   int save(dynamic item) {

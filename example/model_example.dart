@@ -58,5 +58,5 @@ void main() {
   From(Person).dump();
   // [no output]
 
-  lite.dispose();
+  lite.close();
 }

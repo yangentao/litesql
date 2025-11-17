@@ -12,21 +12,21 @@ void main2() async {
 void main() async {
   LiteSQL lite = LiteSQL.openMemory();
   println("version: ", LiteSQL.version.versionNumber);
-  lite.executeSQL("CREATE TABLE stu(id INTEGER PRIMARY KEY AUTOINCREMENT, name text)");
+  lite.execute("CREATE TABLE stu(id INTEGER PRIMARY KEY AUTOINCREMENT, name text)");
 
-  ResultSet r1 = lite.selectSQL("INSERT INTO stu(name) values('yang')  RETURNING id");
+  ResultSet r1 = lite.rawQuery("INSERT INTO stu(name) values('yang')  RETURNING id");
   println("lastRowID: ", lite.lastInsertRowId);
   r1.dump();
 
   lite.lastInsertRowId = 0;
-  ResultSet r2 = lite.selectSQL("INSERT INTO stu(id, name) values(1, 'entao') ON CONFLICT(id) DO UPDATE SET name = 'entao' RETURNING id");
+  ResultSet r2 = lite.rawQuery("INSERT INTO stu(id, name) values(1, 'entao') ON CONFLICT(id) DO UPDATE SET name = 'entao' RETURNING id");
   println("upsert lastRowID: ", lite.lastInsertRowId);
   r2.dump();
 
-  ResultSet rs = lite.selectSQL("SELECT * FROM stu");
+  ResultSet rs = lite.rawQuery("SELECT * FROM stu");
   rs.dump();
 
-  lite.dispose();
+  lite.close();
 }
 
 // late final _sqlite3_last_insert_rowidPtr = _lookup<ffi.NativeFunction<ffi.Int64 Function(ffi.Pointer<imp$1.sqlite3>)>>('sqlite3_last_insert_rowid');
