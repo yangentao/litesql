@@ -86,43 +86,26 @@ extension LiteSqlInsertExt on LiteSQL {
     return idList;
   }
 
-  @Deprecated("use upsert/upsertBy insead")
-  int upsertFields(String table, List<FieldValue> row) {
-    return upsertRows(table, [row]).firstOrNull ?? 0;
+  int upsertFields(String table, List<FieldValue> row, {Returning? returning}) {
+    return upsert(
+      table,
+      values: row.mapList((e) => e.field.name >> e.value),
+      constraints: row.filter((e) => e.field.primaryKey || e.field.unique).mapList((e) => e.field.name),
+      returning: returning,
+    );
+    // return upsertRows(table, [row]).firstOrNull ?? 0;
   }
 
-  @Deprecated("use upsertMulti insead")
-  List<int> upsertRows(String table, List<List<FieldValue>> rows) {
-    if (rows.isEmpty) return [];
-    List<FieldValue> firstRow = rows.first;
-    List<FieldValue> uniqueList = firstRow.filter((e) => e.field.primaryKey || e.field.unique);
-    List<FieldValue> otherList = firstRow.filter((e) => !e.field.primaryKey && !e.field.unique);
-
-    String sql = "INSERT INTO ${table.escapeSQL} (${firstRow.map((e) => e.field.nameSQL).join(", ")}) VALUES ( ${firstRow.map((e) => '?').join(", ")} )";
-    if (uniqueList.isNotEmpty) {
-      List<String> conflicts = uniqueList.mapList((e) => e.field.nameSQL);
-      if (otherList.isEmpty) {
-        sql += " ON CONFLICT (${conflicts.join(", ")}) DO NOTHING";
-      } else {
-        sql += " ON CONFLICT (${conflicts.join(", ")}) DO UPDATE SET ${otherList.map((e) => "${e.field.nameSQL} = ?").join(", ")}";
-      }
-    }
-    List<int> rowids = [];
-    PreparedStatement st = prepareSQL(sql);
-    for (var row in rows) {
-      List<FieldValue> uniqueList = row.filter((e) => e.field.primaryKey || e.field.unique);
-      List<FieldValue> otherList = row.filter((e) => !e.field.primaryKey && !e.field.unique);
-      List<dynamic> argList = row.mapList((e) => e.value);
-      if (uniqueList.isNotEmpty && otherList.isNotEmpty) {
-        argList.addAll(otherList.map((e) => e.value));
-      }
-      logSQL.d(argList);
-      lastInsertRowId = 0;
-      st.execute(argList);
-      rowids.add(lastInsertRowId);
-    }
-    st.close();
-    return rowids;
+  List<int> upsertRows(String table, List<List<FieldValue>> rows, {Returning? returning}) {
+    assert(rows.isNotEmpty);
+    var firstRow = rows.first;
+    return upsertMulti(
+      table,
+      columns: firstRow.mapList((e) => e.field.name),
+      values: rows.mapList((e) => e.mapList((x) => x.value)),
+      constraints: firstRow.filter((e) => e.field.primaryKey || e.field.unique).mapList((e) => e.field.name),
+      returning: returning,
+    );
   }
 
   /// constraints can empty.
@@ -138,14 +121,14 @@ extension LiteSqlInsertExt on LiteSQL {
   ///   constraints can empty.
   int upsert(String table, {required List<LabelValue<dynamic>> values, required List<String> constraints, InsertOption? conflict, Returning? returning}) {
     assert(values.isNotEmpty);
-    List<LabelValue<dynamic>> otherValues = values.filter((e) => !constraints.contains(e.label));
+    List<LabelValue<dynamic>> otherValues = constraints.isEmpty ? [] : values.filter((e) => !constraints.contains(e.label));
 
-    String sql = "INSERT INTO ${table.escapeSQL} (${values.map((e) => e.label).join(", ")}) VALUES ( ${values.map((e) => '?').join(", ")} )";
+    String sql = "INSERT INTO ${table.escapeSQL} (${values.map((e) => e.label.escapeSQL).join(", ")}) VALUES ( ${values.map((e) => '?').join(", ")} )";
     if (constraints.isNotEmpty) {
       if (otherValues.isEmpty) {
-        sql += " ON CONFLICT (${constraints.join(", ")}) DO NOTHING";
+        sql += " ON CONFLICT (${constraints.mapList((e) => e.escapeSQL).join(", ")}) DO NOTHING";
       } else {
-        sql += " ON CONFLICT (${constraints.join(", ")}) DO UPDATE SET ${otherValues.map((e) => "${e.label} = ?").join(", ")}";
+        sql += " ON CONFLICT (${constraints.mapList((e) => e.escapeSQL).join(", ")}) DO UPDATE SET ${otherValues.map((e) => "${e.label.escapeSQL} = ?").join(", ")}";
       }
     }
     var argList = [...values.mapList((e) => e.value), ...otherValues.mapList((e) => e.value)];
@@ -171,12 +154,12 @@ extension LiteSqlInsertExt on LiteSQL {
     assert(values.isNotEmpty);
     List<String> otherCols = columns.filter((e) => !constraints.contains(e));
 
-    String sql = "INSERT INTO ${table.escapeSQL} (${columns.join(", ")}) VALUES ( ${columns.map((e) => '?').join(", ")} )";
+    String sql = "INSERT INTO ${table.escapeSQL} (${columns.map((e) => e.escapeSQL).join(", ")}) VALUES ( ${columns.map((e) => '?').join(", ")} )";
     if (constraints.isNotEmpty) {
       if (otherCols.isEmpty) {
-        sql += " ON CONFLICT (${constraints.join(", ")}) DO NOTHING";
+        sql += " ON CONFLICT (${constraints.map((e) => e.escapeSQL).join(", ")}) DO NOTHING";
       } else {
-        sql += " ON CONFLICT (${constraints.join(", ")}) DO UPDATE SET ${otherCols.map((e) => "$e = ?").join(", ")}";
+        sql += " ON CONFLICT (${constraints.map((e) => e.escapeSQL).join(", ")}) DO UPDATE SET ${otherCols.map((e) => "${e.escapeSQL} = ?").join(", ")}";
       }
     }
     bool useReturn = LiteSQL.supportReturning && returning != null;
@@ -197,6 +180,7 @@ extension LiteSqlInsertExt on LiteSQL {
       }
       idList << lastInsertRowId;
     }
+    ps.close();
     return idList;
   }
 }

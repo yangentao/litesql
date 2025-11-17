@@ -63,7 +63,11 @@ class TableModel<E> {
     }
     _modifiedKeys.clear();
     if (values.isEmpty) return 0;
-    int n = tab.update(values, where: wherePks.and());
+    Returning ret = Returning.ALL;
+    int n = tab.update(values, where: wherePks.and(), returning: ret);
+    if (n > 0) {
+      this.model.addAll(ret.firstRow);
+    }
 
     return n;
   }
@@ -82,35 +86,47 @@ class TableModel<E> {
     List<FieldValue> values = fieldValues(columns: columns, names: names, excludeColumns: excludeColumns, excludeNames: excludeNames);
     values.removeWhere((e) => e.field.primaryKey);
     if (values.isEmpty) return 0;
-    return tab.update(values, where: wherePks.and());
+    Returning ret = Returning.ALL;
+    int n = tab.update(values, where: wherePks.and(), returning: ret);
+    if (n > 0) {
+      this.model.addAll(ret.firstRow);
+    }
+    return n;
   }
 
   int insert({InsertOption? conflict, List<TableColumn>? columns, List<String>? names, List<TableColumn>? excludeColumns, List<String>? excludeNames}) {
     EnumTable tab = mtable();
     List<FieldValue> ls = fieldValues(columns: columns, names: names, excludeColumns: excludeColumns, excludeNames: excludeNames);
     if (ls.isEmpty) return 0;
-    int id = tab.insert(ls, conflict: conflict);
-    if (id > 0) {
-      var ls = tab.proto.fields.filter((e) => e.primaryKey && e.type.toUpperCase() == "INTEGER");
-      if (ls.length == 1) {
-        set(ls.first.name, id);
-      }
+    Returning ret = Returning.ALL;
+    int id = tab.insert(ls, conflict: conflict, returning: ret);
+    if (tab.lite.updatedRows > 0) {
+      this.model.addAll(ret.firstRow);
     }
+    // if (id > 0) {
+    //   var ls = tab.proto.fields.filter((e) => e.primaryKey && e.type.toUpperCase() == "INTEGER");
+    //   if (ls.length == 1) {
+    //     set(ls.first.name, id);
+    //   }
+    // }
     return id;
   }
 
   int upsert({List<TableColumn>? columns, List<String>? names, List<TableColumn>? excludeColumns, List<String>? excludeNames}) {
     EnumTable tab = mtable();
     List<FieldValue> ls = fieldValues(columns: columns, names: names, excludeColumns: excludeColumns, excludeNames: excludeNames);
-
     if (ls.isEmpty) return 0;
-    int id = tab.upsert(ls);
-    if (id > 0) {
-      var ls = tab.proto.fields.filter((e) => e.primaryKey && e.type.toUpperCase() == "INTEGER");
-      if (ls.length == 1) {
-        set(ls.first.name, id);
-      }
+    Returning ret = Returning.ALL;
+    int id = tab.upsert(ls, returning: ret);
+    if (tab.lite.updatedRows > 0) {
+      this.model.addAll(ret.firstRow);
     }
+    // if (id > 0) {
+    //   var ls = tab.proto.fields.filter((e) => e.primaryKey && e.type.toUpperCase() == "INTEGER");
+    //   if (ls.length == 1) {
+    //     set(ls.first.name, id);
+    //   }
+    // }
     _modifiedKeys.clear();
     return id;
   }
@@ -175,5 +191,10 @@ class TableModel<E> {
 }
 
 String _nameOfKey(Object key) {
-  return switch (key) { TableColumn c => c.nameColumn, FieldProto fp => fp.name, Symbol sy => sy.stringValue, _ => key.toString() };
+  return switch (key) {
+    TableColumn c => c.nameColumn,
+    FieldProto fp => fp.name,
+    Symbol sy => sy.stringValue,
+    _ => key.toString(),
+  };
 }

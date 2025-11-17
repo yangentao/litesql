@@ -52,3 +52,7 @@
 * upgrade to sqlite3: 3.0.1
 * make lastInsertRowId  writable
 * set lastInsertRowId=0 before insert/upsert
+
+## 2.2.0
+* Returning
+* TableModel will replace fields with insert/upsert returning values

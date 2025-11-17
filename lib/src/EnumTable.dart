@@ -174,30 +174,30 @@ class EnumTable {
     return AND_ALL(ws);
   }
 
-  int delete(Where where) {
+  int delete(Where where, {Returning? returning}) {
     var w = where.result();
-    return lite.delete(tableName, where: w.clause, args: w.args);
+    return lite.delete(tableName, where: w.clause, args: w.args, returning: returning);
   }
 
-  int update(List<FieldValue> values, {Where? where}) {
+  int update(List<FieldValue> values, {Where? where, Returning? returning}) {
     var w = where?.result();
-    return lite.update(proto.name, values.mapList((e) => LabelValue(e.field.nameSQL, e.value)), where: w?.clause, args: w?.args);
+    return lite.update(proto.name, values.mapList((e) => LabelValue(e.field.nameSQL, e.value)), where: w?.clause, args: w?.args, returning: returning);
   }
 
-  List<int> upsertAll(List<List<FieldValue>> rows) {
-    return lite.upsertRows(proto.name, rows);
+  List<int> upsertAll(List<List<FieldValue>> rows, {Returning? returning}) {
+    return lite.upsertRows(proto.name, rows, returning: returning);
   }
 
-  int upsert(List<FieldValue> row) {
-    return lite.upsertFields(tableName, row);
+  int upsert(List<FieldValue> row, {Returning? returning}) {
+    return lite.upsertFields(tableName, row, returning: returning);
   }
 
-  List<int> insertAll(List<List<FieldValue>> rows, {InsertOption? conflict}) {
-    return lite.insertRows(proto.name, rows.mapList((r) => r.mapList((e) => LabelValue(e.field.name, e.value))), conflict: conflict);
+  List<int> insertAll(List<List<FieldValue>> rows, {InsertOption? conflict, Returning? returning}) {
+    return lite.insertRows(proto.name, rows.mapList((r) => r.mapList((e) => LabelValue(e.field.name, e.value))), conflict: conflict, returning: returning);
   }
 
-  int insert(List<FieldValue> row, {InsertOption? conflict}) {
-    return lite.insert(proto.name, row.mapList((e) => LabelValue(e.field.name, e.value)), conflict: conflict);
+  int insert(List<FieldValue> row, {InsertOption? conflict, Returning? returning}) {
+    return lite.insert(proto.name, row.mapList((e) => LabelValue(e.field.name, e.value)), conflict: conflict, returning: returning);
   }
 
   int save(dynamic item) {
