@@ -1,13 +1,27 @@
 part of 'sql.dart';
 
 extension LiteUpdateExt on LiteSQL {
-  int delete(String table, {required String where, ArgSQL? args}) {
+  /// Returning ret = Returning.ALL;
+  /// int n = lite.delete("stu", where: "id=1", returning: ret);
+  /// println("del count: ", n); // 1
+  /// println(ret.returnRows); // [{id: 1, name: yang}]
+  int delete(String table, {required String where, ArgSQL? args, Returning? returning}) {
     assert(where.isNotEmpty);
     String sql = "DELETE FROM ${table.escapeSQL} WHERE $where";
-    return rawUpdate(sql, args);
+    if (LiteSQL.supportReturning && returning != null) {
+      sql += " ${returning.clause}";
+      ResultSet rs = rawQuery(sql, args);
+      returning.returnRows.addAll(rs.listRows);
+    } else {
+      execute(sql, args);
+    }
+    return updatedRows;
   }
 
-  /// int n = update("person", ["name">>"entao", "addr">>"Peiking"]);
+  ///  Returning ret = Returning(["name"]);
+  ///  int n  = lite.update("stu", ["name" >> "yangentao"], where: "id=1", returning: ret);
+  ///  println("update count: ", n ); // 1
+  ///  println(ret.returnRows); // [{name: yangentao}]
   int update(String table, List<LabelValue<dynamic>> values, {String? where, ArgSQL? args, Returning? returning}) {
     return updateBy(table, values.mapList((e) => (e.label, e.value)), where: where, args: args, returning: returning);
   }
@@ -21,7 +35,7 @@ extension LiteUpdateExt on LiteSQL {
     if (notBlank(where)) {
       sql += " WHERE $where";
     }
-    if (returning != null) {
+    if (LiteSQL.supportReturning && returning != null) {
       sql += " ${returning.clause}";
       ResultSet rs = rawQuery(sql, argList);
       returning.returnRows.addAll(rs.listRows);

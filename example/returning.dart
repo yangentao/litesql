@@ -21,10 +21,10 @@ void main() async {
     ["name" >> 'tao'],
   ], returning: rr);
 
-  Returning ret = Returning(["name"]);
-  int n  = lite.update("stu", ["name" >> "yangentao"], where: "id=1", returning: ret);
-  println("update n: ", n );
-  println(ret.returnRows);
+  Returning ret = Returning.ALL;
+  int n = lite.delete("stu", where: "id=1", returning: ret);
+  println("del count: ", n); // 1
+  println(ret.returnRows); // [{id: 1, name: yang}]
 
   ResultSet rs = lite.rawQuery("SELECT * FROM stu");
   rs.dump();

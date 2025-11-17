@@ -41,11 +41,13 @@ final class Returning {
   final List<String> columns;
   List<MapSQL> returnRows = [];
 
-  Returning([this.columns = const ["*"]]) {
+  Returning(this.columns) {
     assert(columns.isNotEmpty);
   }
 
   String get clause => " RETURNING ${columns.join(", ")}";
+
+  static Returning get ALL => Returning(const ["*"]);
 }
 
 enum InsertOption {
