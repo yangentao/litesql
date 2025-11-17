@@ -185,6 +185,7 @@ class EnumTable {
   }
 
   List<int> upsertAll(List<List<FieldValue>> rows, {Returning? returning}) {
+    if (rows.isEmpty) return [];
     return lite.upsertRows(proto.name, rows, returning: returning);
   }
 
@@ -193,6 +194,7 @@ class EnumTable {
   }
 
   List<int> insertAll(List<List<FieldValue>> rows, {InsertOption? conflict, Returning? returning}) {
+    if (rows.isEmpty) return [];
     return lite.insertRows(proto.name, rows.mapList((r) => r.mapList((e) => LabelValue(e.field.name, e.value))), conflict: conflict, returning: returning);
   }
 
@@ -209,6 +211,7 @@ class EnumTable {
   }
 
   List<int> saveAll(List<dynamic> items) {
+    if (items.isEmpty) return [];
     var ls = items.filter((item) => _canSave(item));
     return upsertAll(ls.mapList((item) => proto.fields.mapList((e) => e >> e.get(item))));
   }

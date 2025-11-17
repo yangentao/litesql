@@ -56,3 +56,6 @@
 ## 2.2.0
 * Returning
 * TableModel will replace fields with insert/upsert returning values
+
+# 2.2.1
+* EnumTable.saveAll(), check empty.
