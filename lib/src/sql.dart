@@ -39,9 +39,13 @@ TagLog logSQL = TagLog("SQL");
 
 final class Returning {
   final List<String> columns;
-  List<MapSQL> values = [];
+  List<MapSQL> returnRows = [];
 
-  Returning([this.columns = const ["*"]]);
+  Returning([this.columns = const ["*"]]) {
+    assert(columns.isNotEmpty);
+  }
+
+  String get clause => " RETURNING ${columns.join(", ")}";
 }
 
 enum InsertOption {

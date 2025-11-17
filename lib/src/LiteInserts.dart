@@ -7,7 +7,7 @@ extension LiteSqlInsertExt on LiteSQL {
     String cs = conflict == null ? "" : "OR ${conflict.conflict}";
     String sql = "INSERT $cs INTO ${table.escapeSQL} (${firstRow.map((e) => e.label.escapeSQL).join(",")}) VALUES (${firstRow.map((e) => '?').join(",")})";
     if (returning != null && returning.columns.isNotEmpty) {
-      sql = "$sql RETURNING ${returning.columns.join(", ")}";
+      sql = "$sql ${returning.clause}";
     }
     PreparedStatement st = prepareSQL(sql);
     List<int> idList = [];
@@ -15,7 +15,7 @@ extension LiteSqlInsertExt on LiteSQL {
       lastInsertRowId = 0;
       if (returning != null) {
         ResultSet rs = st.select(oneRow.mapList((e) => e.value));
-        returning.values.add(rs.firstRow ?? {});
+        returning.returnRows.add(rs.firstRow ?? {});
       } else {
         st.execute(oneRow.mapList((e) => e.value));
       }

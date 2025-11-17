@@ -3,6 +3,12 @@ import 'package:litesql/litesql.dart';
 import 'package:println/println.dart';
 import 'package:sqlite3/sqlite3.dart';
 
+// extension on String {
+//   (String, dynamic) operator &(dynamic value) {
+//     return (this, value);
+//   }
+// }
+
 void main() async {
   LiteSQL lite = LiteSQL.openMemory();
   println("version: ", LiteSQL.version.versionNumber);
@@ -15,14 +21,13 @@ void main() async {
     ["name" >> 'tao'],
   ], returning: rr);
 
-  for (var row in rr.values) {
-    println(row);
-  }
-  println("update rows: ",lite.updatedRows);
+  Returning ret = Returning(["name"]);
+  int n  = lite.update("stu", ["name" >> "yangentao"], where: "id=1", returning: ret);
+  println("update n: ", n );
+  println(ret.returnRows);
 
   ResultSet rs = lite.rawQuery("SELECT * FROM stu");
   rs.dump();
-
   lite.close();
 }
 
