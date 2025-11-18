@@ -15,6 +15,9 @@ class TableProto {
   FieldProto? find(String fieldName) {
     return fields.firstWhere((e) => e.name == fieldName);
   }
+
+  // after migrate
+  static TableProto of(Type type) => _requireTableProto(type);
 }
 
 extension FieldSQLJoinOnExt on FieldProto {

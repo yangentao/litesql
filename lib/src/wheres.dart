@@ -166,9 +166,7 @@ extension StringWhereExt on String {
     return Where(this, OpSQL.like, value);
   }
 
-  String get ASC => "${this.escapeSQL} ASC";
 
-  String get DESC => "${this.escapeSQL} DESC";
 }
 
 extension FieldWhereExt on FieldProto {

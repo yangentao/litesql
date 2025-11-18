@@ -6,11 +6,7 @@ class EnumTable {
   late TableProto proto;
 
   EnumTable({required this.lite, required this.tableType}) {
-    var t = findTableByEnum(tableType);
-    if (t == null) {
-      errorSQL("Table info NOT found, type=$tableType");
-    }
-    proto = t;
+    proto = TableProto.of(tableType);
   }
 
   static EnumTable of(Type type) => From(type);
@@ -45,7 +41,15 @@ class EnumTable {
     return one<T>(creator, columns: columns, where: keysEQ(keys), groupBy: groupBy, having: having, window: window, orderBy: orderBy, orders: orders);
   }
 
-  V? oneValue<E extends TableColumn<E>, V>(TableColumn<E> column, {Where? where, String? groupBy, String? having, String? window, String? orderBy, List<String>? orders}) {
+  V? oneValue<E extends TableColumn<E>, V>(
+    TableColumn<E> column, {
+    Where? where,
+    String? groupBy,
+    String? having,
+    String? window,
+    String? orderBy,
+    List<String>? orders,
+  }) {
     return this.query(columns: [column], where: where, groupBy: groupBy, having: having, window: window, orderBy: orderBy, orders: orders, limit: 1).firstValue;
   }
 
@@ -179,6 +183,10 @@ class EnumTable {
     return lite.delete(tableName, where: w.clause, args: w.args, returning: returning);
   }
 
+  int updateBy<T extends TableColumn<T>>(List<(TableColumn<T>, dynamic value)> row, {Where? where, Returning? returning}) {
+    return update(row.mapList((e) => e.$1 >> e.$2), where: where, returning: returning);
+  }
+
   /// From(Configs).upsert([Configs.name >> name, Configs.sValue >> value]);
   int update(List<FieldValue> values, {Where? where, Returning? returning}) {
     var w = where?.result();
@@ -192,6 +200,10 @@ class EnumTable {
 
   int upsert(List<FieldValue> row, {Returning? returning}) {
     return lite.upsertFields(tableName, row, returning: returning);
+  }
+
+  int upsertBy<T extends TableColumn<T>>(List<(TableColumn<T>, dynamic value)> row, {Returning? returning}) {
+    return lite.upsertFields(tableName, row.mapList((e) => e.$1 >> e.$2), returning: returning);
   }
 
   List<int> insertAll(List<List<FieldValue>> rows, {InsertOption? conflict, Returning? returning}) {

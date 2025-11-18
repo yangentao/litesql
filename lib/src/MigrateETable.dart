@@ -2,7 +2,13 @@ part of 'sql.dart';
 
 Map<Type, TableProto> _enumTypeMap = {};
 
-TableProto? findTableByEnum(Type type) => _enumTypeMap[type];
+TableProto _requireTableProto(Type type) {
+  TableProto? p = _enumTypeMap[type];
+  if (p == null) {
+    errorSQL("NO table proto of $type  found, migrate it first. ");
+  }
+  return p;
+}
 
 EnumTable From(Type type) {
   return _tableOfType(type);
@@ -13,7 +19,7 @@ EnumTable FromTable(Type type) {
 }
 
 EnumTable _tableOfType(Type type) {
-  var info = findTableByEnum(type)!;
+  var info = _requireTableProto(type);
   return info.liteSQL!.from(type);
 }
 

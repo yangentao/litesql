@@ -91,10 +91,10 @@ class PersonModel extends TableModel<Person> {
 }
 
 enum Person with TableColumn<Person> {
-  id(ColumnSQL.integer(primaryKey: true)),
-  name(ColumnSQL.text()),
-  add(ColumnSQL.text()),
-  age(ColumnSQL.integer());
+  id(INTEGER(primaryKey: true)),
+  name(TEXT()),
+  add(TEXT()),
+  age(INTEGER());
 
   const Person(this.column);
 

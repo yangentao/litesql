@@ -70,7 +70,4 @@ extension WhereEnum<T extends Enum> on TableColumn<T> {
     return Where(nameSQL, OpSQL.like, value);
   }
 
-  String get ASC => "$nameSQL ASC";
-
-  String get DESC => "$nameSQL DESC";
 }

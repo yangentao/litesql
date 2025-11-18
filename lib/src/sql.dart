@@ -7,6 +7,7 @@ import 'dart:typed_data';
 
 import 'package:entao_dutil/entao_dutil.dart';
 import 'package:entao_log/entao_log.dart';
+import 'package:println/println.dart';
 import 'package:sqlite3/sqlite3.dart';
 
 import 'sqlite3_x.dart' as xsql;
@@ -25,10 +26,14 @@ part 'TableColumn.dart';
 part 'TableColumnExt.dart';
 part 'TableModel.dart';
 part 'TableProto.dart';
+part 'clause/express.dart';
+part 'clause/select.dart';
 part 'configs.dart';
 part 'sql_utils.dart';
 part 'sqlite3_ext.dart';
 part 'wheres.dart';
+part 'clause/ext.dart';
+part 'clause/joins.dart';
 
 typedef MapSQL = Map<String, dynamic>;
 typedef BlobSQL = Uint8List;

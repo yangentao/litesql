@@ -1,5 +1,76 @@
 part of 'sql.dart';
 
+class INTEGER extends ColumnSQL {
+  const INTEGER({
+    super.name,
+    super.type = "INTEGER",
+    super.primaryKey = false,
+    super.notNull = false,
+    super.autoInc = false,
+    super.unique = false,
+    super.index = false,
+    super.check,
+    super.uniqueName,
+    super.defaultValue,
+  });
+}
+
+class REAL extends ColumnSQL {
+  const REAL({
+    super.name,
+    super.type = "REAL",
+    super.primaryKey = false,
+    super.notNull = false,
+    super.unique = false,
+    super.index = false,
+    super.check,
+    super.uniqueName,
+    super.defaultValue,
+  });
+}
+
+class NUMERIC extends ColumnSQL {
+  const NUMERIC({
+    super.name,
+    super.type = "NUMERIC",
+    super.primaryKey = false,
+    super.notNull = false,
+    super.unique = false,
+    super.index = false,
+    super.check,
+    super.uniqueName,
+    super.defaultValue,
+  });
+}
+
+class TEXT extends ColumnSQL {
+  const TEXT({
+    super.name,
+    super.type = "TEXT",
+    super.primaryKey = false,
+    super.notNull = false,
+    super.unique = false,
+    super.index = false,
+    super.check,
+    super.uniqueName,
+    super.defaultValue,
+  });
+}
+
+class BLOB extends ColumnSQL {
+  const BLOB({
+    super.name,
+    super.type = "BLOB",
+    super.primaryKey = false,
+    super.notNull = false,
+    super.unique = false,
+    super.index = false,
+    super.check,
+    super.uniqueName,
+    super.defaultValue,
+  });
+}
+
 class ColumnSQL {
   final String? name;
   final String? type;
@@ -15,71 +86,6 @@ class ColumnSQL {
   const ColumnSQL({
     this.name,
     this.type,
-    this.primaryKey = false,
-    this.notNull = false,
-    this.autoInc = false,
-    this.unique = false,
-    this.index = false,
-    this.check,
-    this.uniqueName,
-    this.defaultValue,
-  });
-
-  const ColumnSQL.text({
-    this.name,
-    this.type = "TEXT",
-    this.primaryKey = false,
-    this.notNull = false,
-    this.autoInc = false,
-    this.unique = false,
-    this.index = false,
-    this.check,
-    this.uniqueName,
-    this.defaultValue,
-  });
-
-  const ColumnSQL.integer({
-    this.name,
-    this.type = "INTEGER",
-    this.primaryKey = false,
-    this.notNull = false,
-    this.autoInc = false,
-    this.unique = false,
-    this.index = false,
-    this.check,
-    this.uniqueName,
-    this.defaultValue,
-  });
-
-  const ColumnSQL.real({
-    this.name,
-    this.type = "REAL",
-    this.primaryKey = false,
-    this.notNull = false,
-    this.autoInc = false,
-    this.unique = false,
-    this.index = false,
-    this.check,
-    this.uniqueName,
-    this.defaultValue,
-  });
-
-  const ColumnSQL.blob({
-    this.name,
-    this.type = "BLOB",
-    this.primaryKey = false,
-    this.notNull = false,
-    this.autoInc = false,
-    this.unique = false,
-    this.index = false,
-    this.check,
-    this.uniqueName,
-    this.defaultValue,
-  });
-
-  const ColumnSQL.numeric({
-    this.name,
-    this.type = "NUMERIC",
     this.primaryKey = false,
     this.notNull = false,
     this.autoInc = false,

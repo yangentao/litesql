@@ -1,10 +1,10 @@
 part of 'sql.dart';
 
 enum Configs with TableColumn<Configs> {
-  name(ColumnSQL.text(primaryKey: true)),
-  nValue(ColumnSQL.integer()),
-  fValue(ColumnSQL.real()),
-  sValue(ColumnSQL.text());
+  name(TEXT(primaryKey: true)),
+  nValue(INTEGER()),
+  fValue(REAL()),
+  sValue(TEXT());
 
   const Configs(this.column);
 
