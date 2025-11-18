@@ -15,10 +15,7 @@ class Express {
 
   Express get braced => Express("($sql)", args: this.args);
 
-  QueryResult query(LiteSQL lite) {
-    var rs = lite.rawQuery(this.sql, args);
-    return QueryResult(rs);
-  }
+  ResultSet query(LiteSQL lite) => lite.rawQuery(this.sql, args);
 
   @override
   String toString() {

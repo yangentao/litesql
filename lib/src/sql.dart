@@ -17,7 +17,7 @@ part 'LiteInserts.dart';
 part 'LiteQuery.dart';
 part 'LiteSQL.dart';
 part 'LiteUpdate.dart';
-part 'QueryResult.dart';
+part 'ResultSetEx.dart';
 part 'TableColumn.dart';
 part 'TableModel.dart';
 part 'clause/clauses.dart';

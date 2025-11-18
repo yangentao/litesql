@@ -13,7 +13,7 @@ class EnumTable {
   LiteSQL lite;
   TableProto proto;
 
-  EnumTable(this.proto, {LiteSQL? lite}) : lite = lite ?? proto.liteSQL!;
+  EnumTable(this.proto, {LiteSQL? lite}) : lite = lite ?? proto.liteSQL;
 
   static EnumTable of(Type type, {LiteSQL? lite}) => EnumTable(TableProto.of(type), lite: lite);
 
@@ -56,7 +56,7 @@ class EnumTable {
     String? orderBy,
     List<String>? orders,
   }) {
-    return this.query(columns: [column], where: where, groupBy: groupBy, having: having, window: window, orderBy: orderBy, orders: orders, limit: 1).firstValue;
+    return this.query(columns: [column], where: where, groupBy: groupBy, having: having, window: window, orderBy: orderBy, orders: orders, limit: 1).firstValue();
   }
 
   T? one<T>(
@@ -107,7 +107,7 @@ class EnumTable {
       orders: orders,
       limit: limit,
       offset: offset,
-    ).listValues();
+    ).allValues();
   }
 
   List<T> list<T>(
@@ -136,10 +136,10 @@ class EnumTable {
           limit: limit,
           offset: offset,
         )
-        .listModel(creator);
+        .allModels(creator);
   }
 
-  QueryResult query({
+  ResultSet query({
     List<dynamic>? columns,
     Where? where,
     List<Where>? wheres,
@@ -153,21 +153,19 @@ class EnumTable {
   }) {
     List<Where> wList = [where, ...?wheres].nonNullList;
     var w = AND_ALL(wList);
-    return lite
-        .query(
-          columns?.mapList((e) => e is TableColumn ? e.nameSQL : e.toString()),
-          from: tableName,
-          where: w.sql,
-          groupBy: groupBy,
-          having: having,
-          window: window,
-          orderBy: orderBy,
-          orders: orders,
-          limit: limit,
-          offset: offset,
-          args: w.args,
-        )
-        .result;
+    return lite.query(
+      columns?.mapList((e) => e is TableColumn ? e.nameSQL : e.toString()),
+      from: tableName,
+      where: w.sql,
+      groupBy: groupBy,
+      having: having,
+      window: window,
+      orderBy: orderBy,
+      orders: orders,
+      limit: limit,
+      offset: offset,
+      args: w.args,
+    );
   }
 
   Where keyEQ(dynamic keyValue) {

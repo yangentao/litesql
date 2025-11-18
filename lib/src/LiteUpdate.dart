@@ -11,7 +11,7 @@ extension LiteUpdateExt on LiteSQL {
     if (LiteSQL._supportReturning && returning != null) {
       sql += returning.clause;
       ResultSet rs = rawQuery(sql, args);
-      returning.returnRows.addAll(rs.listRows);
+      returning.returnRows.addAll(rs.allRows());
     } else {
       execute(sql, args);
     }
@@ -38,7 +38,7 @@ extension LiteUpdateExt on LiteSQL {
     if (LiteSQL._supportReturning && returning != null) {
       sql += returning.clause;
       ResultSet rs = rawQuery(sql, argList);
-      returning.returnRows.addAll(rs.listRows);
+      returning.returnRows.addAll(rs.allRows());
     } else {
       execute(sql, argList);
     }

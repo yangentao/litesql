@@ -14,7 +14,7 @@ extension LiteSqlInsertExt on LiteSQL {
     if (LiteSQL._supportReturning && returning != null) {
       sql += returning.clause;
       ResultSet rs = rawQuery(sql, args);
-      returning.returnRows.addAll(rs.listRows);
+      returning.returnRows.addAll(rs.allRows());
     } else {
       execute(sql, args);
     }
@@ -49,7 +49,7 @@ extension LiteSqlInsertExt on LiteSQL {
       lastInsertRowId = 0;
       if (LiteSQL._supportReturning && returning != null) {
         ResultSet rs = st.select(argList);
-        returning.returnRows.addAll(rs.listRows);
+        returning.returnRows.addAll(rs.allRows());
       } else {
         st.execute(argList);
       }
@@ -76,7 +76,7 @@ extension LiteSqlInsertExt on LiteSQL {
       lastInsertRowId = 0;
       if (LiteSQL._supportReturning && returning != null) {
         ResultSet rs = st.select(row);
-        returning.returnRows.addAll(rs.listRows);
+        returning.returnRows.addAll(rs.allRows());
       } else {
         st.execute(row);
       }
@@ -124,7 +124,7 @@ extension LiteSqlInsertExt on LiteSQL {
     if (LiteSQL._supportReturning && returning != null) {
       sql += returning.clause;
       ResultSet rs = rawQuery(sql, argList);
-      returning.returnRows.addAll(rs.listRows);
+      returning.returnRows.addAll(rs.allRows());
     } else {
       execute(sql, argList);
     }
@@ -174,7 +174,7 @@ extension LiteSqlInsertExt on LiteSQL {
       if (useReturn) {
         sql += returning.clause;
         ResultSet rs = ps.select(argList);
-        returning.returnRows.addAll(rs.listRows);
+        returning.returnRows.addAll(rs.allRows());
       } else {
         ps.execute(argList);
       }

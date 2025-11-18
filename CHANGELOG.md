@@ -57,5 +57,12 @@
 * Returning
 * TableModel will replace fields with insert/upsert returning values
 
-# 2.2.1
+## 2.2.1
 * EnumTable.saveAll(), check empty.
+
+## 3.0.0 
+* refact
+* rename EnumTable to SingleTable
+* remove FieldValue
+* remove FieldProto
+* add query express
