@@ -143,33 +143,3 @@ Express ORDER_BY(Object express) {
   e << express;
   return e;
 }
-
-/// return String OR Express
-Object _clause(dynamic value) {
-  switch (value) {
-    case String s:
-      return s;
-    case Express e:
-      return e;
-    case TableColumn c:
-      return c.fullname;
-    case Type t:
-      return TableProto.of(t).nameSQL;
-    case AnyList ls:
-      AnyList args = [];
-      String s = ls.joinMap(", ", (e) {
-        var r = _clause(e);
-        switch (r) {
-          case String a:
-            return a;
-          case Express x1:
-            args.addAll(x1.args);
-            return x1.sql;
-          default:
-            errorSQL("BAD result");
-        }
-      });
-      return args.isEmpty ? s : Express(s, args: args);
-  }
-  errorSQL("Unknown value: $value ");
-}

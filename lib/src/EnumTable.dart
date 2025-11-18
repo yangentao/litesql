@@ -195,7 +195,7 @@ class EnumTable {
 
   /// From(Configs).upsert([Configs.name >> name, Configs.sValue >> value]);
   int update(List<ColumnValue> values, {Where? where, Returning? returning}) {
-    return lite.update(proto.name, values.mapList((e) => LabelValue(e.column.fullname, e.value)), where: where?.sql, args: where?.args, returning: returning);
+    return lite.update(proto.name, values.mapList((e) => LabelValue(e.column.nameColumn, e.value)), where: where?.sql, args: where?.args, returning: returning);
   }
 
   List<int> upsertAll(List<List<ColumnValue>> rows, {Returning? returning}) {
