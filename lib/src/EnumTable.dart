@@ -13,7 +13,7 @@ class EnumTable {
 
   String get tableName => proto.name;
 
-  List<ColumnProto> primaryKeys() => proto.fields.filter((e) => e.primaryKey);
+  List<TableColumn> primaryKeys() => proto.fields.filter((e) => e.column.primaryKey);
 
   T? oneByKey<T>(
     T Function(AnyMap) creator, {
@@ -165,13 +165,13 @@ class EnumTable {
   }
 
   Where keyEQ(dynamic keyValue) {
-    var keyList = proto.fields.filter((e) => e.primaryKey);
+    var keyList = proto.fields.filter((e) => e.column.primaryKey);
     if (keyList.length != 1) errorSQL("Primary Key count MULST is ONE");
     return keyList.first.EQ(keyValue);
   }
 
   Where keysEQ(List<dynamic> keyValues) {
-    var keyList = proto.fields.filter((e) => e.primaryKey);
+    var keyList = proto.fields.filter((e) => e.column.primaryKey);
     if (keyList.isEmpty) errorSQL("No Primary Key defined");
     if (keyList.length > keyValues.length) errorSQL("Primary Key Great than key value length");
     List<Where> ws = keyList.mapIndex((n, e) => e.EQ(keyValues[n]));
@@ -188,16 +188,16 @@ class EnumTable {
   }
 
   /// From(Configs).upsert([Configs.name >> name, Configs.sValue >> value]);
-  int update(List<FieldValue> values, {Where? where, Returning? returning}) {
-    return lite.update(proto.name, values.mapList((e) => LabelValue(e.field.nameSQL, e.value)), where: where?.sql, args: where?.args, returning: returning);
+  int update(List<ColumnValue> values, {Where? where, Returning? returning}) {
+    return lite.update(proto.name, values.mapList((e) => LabelValue(e.column.fullname, e.value)), where: where?.sql, args: where?.args, returning: returning);
   }
 
-  List<int> upsertAll(List<List<FieldValue>> rows, {Returning? returning}) {
+  List<int> upsertAll(List<List<ColumnValue>> rows, {Returning? returning}) {
     if (rows.isEmpty) return [];
     return lite.upsertRows(proto.name, rows, returning: returning);
   }
 
-  int upsert(List<FieldValue> row, {Returning? returning}) {
+  int upsert(List<ColumnValue> row, {Returning? returning}) {
     return lite.upsertFields(tableName, row, returning: returning);
   }
 
@@ -205,13 +205,13 @@ class EnumTable {
     return lite.upsertFields(tableName, row.mapList((e) => e.$1 >> e.$2), returning: returning);
   }
 
-  List<int> insertAll(List<List<FieldValue>> rows, {InsertOption? conflict, Returning? returning}) {
+  List<int> insertAll(List<List<ColumnValue>> rows, {InsertOption? conflict, Returning? returning}) {
     if (rows.isEmpty) return [];
-    return lite.insertRows(proto.name, rows.mapList((r) => r.mapList((e) => LabelValue(e.field.name, e.value))), conflict: conflict, returning: returning);
+    return lite.insertRows(proto.name, rows.mapList((r) => r.mapList((e) => LabelValue(e.column.nameColumn, e.value))), conflict: conflict, returning: returning);
   }
 
-  int insert(List<FieldValue> row, {InsertOption? conflict, Returning? returning}) {
-    return lite.insert(proto.name, row.mapList((e) => LabelValue(e.field.name, e.value)), conflict: conflict, returning: returning);
+  int insert(List<ColumnValue> row, {InsertOption? conflict, Returning? returning}) {
+    return lite.insert(proto.name, row.mapList((e) => LabelValue(e.column.nameColumn, e.value)), conflict: conflict, returning: returning);
   }
 
   int save(dynamic item) {
@@ -232,6 +232,3 @@ class EnumTable {
     lite.dumpTable(tableName);
   }
 }
-
-
-

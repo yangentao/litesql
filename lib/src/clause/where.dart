@@ -256,7 +256,7 @@ extension StringWhereExt on String {
 }
 
 // where
-extension WhereEnum<T extends TableColumn<T>> on TableColumn<T> {
+extension WhereEnum on TableColumn {
   Where LIKE(String value) {
     return _WhereOp(this, "LIKE", value);
   }
@@ -275,76 +275,6 @@ extension WhereEnum<T extends TableColumn<T>> on TableColumn<T> {
 
   Where IN(AnyList values) {
     return _WhereIn(this, values);
-  }
-
-  Where EQ(dynamic value) {
-    return _WhereOp(this, "=", value);
-  }
-
-  Where NE(dynamic value) {
-    return _WhereOp(this, "!=", value);
-  }
-
-  Where GE(dynamic value) {
-    return _WhereOp(this, ">=", value);
-  }
-
-  Where LE(dynamic value) {
-    return _WhereOp(this, "<=", value);
-  }
-
-  Where GT(dynamic value) {
-    return _WhereOp(this, ">", value);
-  }
-
-  Where LT(dynamic value) {
-    return _WhereOp(this, "<", value);
-  }
-
-  Where BETWEEN(Object minValue, Object maxValue) {
-    Where w = Where(this.fullname);
-    w << "BETWEEN" << minValue << "AND" << maxValue;
-    return w;
-  }
-
-  Where get NOT {
-    Where w = Where(this.fullname);
-    w << "NOT";
-    return w;
-  }
-
-  Where get ISNULL {
-    Where w = Where(this.fullname);
-    w << "ISNULL";
-    return w;
-  }
-
-  Where get NOTNULL {
-    Where w = Where(this.fullname);
-    w << "NOTNULL";
-    return w;
-  }
-}
-
-extension on ColumnProto {
-  Where IN(AnyList values) {
-    return _WhereIn(this, values);
-  }
-
-  Where LIKE(String value) {
-    return _WhereOp(this, "LIKE", value);
-  }
-
-  Where GLOB(String value) {
-    return _WhereOp(this, "GLOB", value);
-  }
-
-  Where MATCH(String value) {
-    return _WhereOp(this, "MATCH", value);
-  }
-
-  Where REGEXP(String value) {
-    return _WhereOp(this, "REGEXP", value);
   }
 
   Where EQ(dynamic value) {

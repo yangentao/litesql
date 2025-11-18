@@ -86,11 +86,11 @@ extension LiteSqlInsertExt on LiteSQL {
     return idList;
   }
 
-  int upsertFields(String table, List<FieldValue> row, {Returning? returning}) {
+  int upsertFields(String table, List<ColumnValue> row, {Returning? returning}) {
     return upsert(
       table,
-      values: row.mapList((e) => e.field.name >> e.value),
-      constraints: row.filter((e) => e.field.primaryKey || e.field.unique).mapList((e) => e.field.name),
+      values: row.mapList((e) => e.column.fullname >> e.value),
+      constraints: row.filter((e) => e.column.column.primaryKey || e.column.column.unique).mapList((e) => e.column.fullname),
       returning: returning,
     );
     // return upsertRows(table, [row]).firstOrNull ?? 0;
@@ -131,14 +131,14 @@ extension LiteSqlInsertExt on LiteSQL {
     return lastInsertRowId;
   }
 
-  List<int> upsertRows(String table, List<List<FieldValue>> rows, {Returning? returning}) {
+  List<int> upsertRows(String table, List<List<ColumnValue>> rows, {Returning? returning}) {
     assert(rows.isNotEmpty);
     var firstRow = rows.first;
     return upsertMulti(
       table,
-      columns: firstRow.mapList((e) => e.field.name),
+      columns: firstRow.mapList((e) => e.column.fullname),
       values: rows.mapList((e) => e.mapList((x) => x.value)),
-      constraints: firstRow.filter((e) => e.field.primaryKey || e.field.unique).mapList((e) => e.field.name),
+      constraints: firstRow.filter((e) => e.column.column.primaryKey || e.column.column.unique).mapList((e) => e.column.fullname),
       returning: returning,
     );
   }

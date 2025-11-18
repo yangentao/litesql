@@ -1,19 +1,5 @@
 part of 'sql.dart';
 
-extension FieldSQLValue on ColumnProto {
-  FieldValue operator >>(dynamic value) {
-    return FieldValue(this, value);
-  }
-}
-
-class FieldValue {
-  ColumnProto field;
-  dynamic value;
-  bool express;
-
-  FieldValue(this.field, this.value, {this.express = false});
-}
-
 // https://sqlite.org/lang_keywords.html
 extension StringSQLExt on String {
   String get braced {

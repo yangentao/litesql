@@ -19,10 +19,10 @@ class TableModel<E> {
   /// delete by key
   int delete() {
     EnumTable tab = mtable();
-    List<ColumnProto> pks = tab.primaryKeys();
+    List<TableColumn> pks = tab.primaryKeys();
     if (pks.isEmpty) errorSQL("NO primary key defined.");
     List<Where> wherePks = [];
-    for (ColumnProto f in pks) {
+    for (TableColumn f in pks) {
       dynamic v = get(f.name);
       if (v == null) errorSQL("Primary key is null: ${f.name}");
       wherePks.add(f.EQ(v));
@@ -38,22 +38,22 @@ class TableModel<E> {
   /// ONLY update columns changed in callback.
   int update(VoidCallback callback) {
     EnumTable tab = mtable();
-    List<ColumnProto> pks = tab.primaryKeys();
+    List<TableColumn> pks = tab.primaryKeys();
     if (pks.isEmpty) errorSQL("NO primary key defined.");
     _modifiedKeys.clear();
     callback();
     if (_modifiedKeys.isEmpty) return 0;
     List<Where> wherePks = [];
-    for (ColumnProto f in pks) {
+    for (TableColumn f in pks) {
       dynamic v = get(f.name);
       if (v == null) errorSQL("Primary key is null: ${f.name}");
       wherePks.add(f.EQ(v));
     }
 
-    List<FieldValue> values = [];
+    List<ColumnValue> values = [];
     for (String k in _modifiedKeys) {
-      ColumnProto f = tab.proto.fields.firstWhere((e) => e.name == k);
-      if (!f.primaryKey) {
+      TableColumn f = tab.proto.fields.firstWhere((e) => e.name == k);
+      if (!f.column.primaryKey) {
         values.add(f >> get(k));
       }
     }
@@ -71,16 +71,16 @@ class TableModel<E> {
   int updateBy({List<TableColumn>? columns, List<String>? names, List<TableColumn>? excludeColumns, List<String>? excludeNames}) {
     EnumTable tab = mtable();
 
-    List<ColumnProto> pks = tab.primaryKeys();
+    List<TableColumn> pks = tab.primaryKeys();
     if (pks.isEmpty) errorSQL("NO primary key defined.");
     List<Where> wherePks = [];
-    for (ColumnProto f in pks) {
+    for (TableColumn f in pks) {
       dynamic v = get(f.name);
       if (v == null) errorSQL("Primary key is null: ${f.name}");
       wherePks.add(f.EQ(v));
     }
-    List<FieldValue> values = fieldValues(columns: columns, names: names, excludeColumns: excludeColumns, excludeNames: excludeNames);
-    values.removeWhere((e) => e.field.primaryKey);
+    List<ColumnValue> values = fieldValues(columns: columns, names: names, excludeColumns: excludeColumns, excludeNames: excludeNames);
+    values.removeWhere((e) => e.column.column.primaryKey);
     if (values.isEmpty) return 0;
     Returning ret = Returning.ALL;
     int n = tab.update(values, where: wherePks.and(), returning: ret);
@@ -92,7 +92,7 @@ class TableModel<E> {
 
   int insert({InsertOption? conflict, List<TableColumn>? columns, List<String>? names, List<TableColumn>? excludeColumns, List<String>? excludeNames}) {
     EnumTable tab = mtable();
-    List<FieldValue> ls = fieldValues(columns: columns, names: names, excludeColumns: excludeColumns, excludeNames: excludeNames);
+    List<ColumnValue> ls = fieldValues(columns: columns, names: names, excludeColumns: excludeColumns, excludeNames: excludeNames);
     if (ls.isEmpty) return 0;
     Returning ret = Returning.ALL;
     int id = tab.insert(ls, conflict: conflict, returning: ret);
@@ -110,7 +110,7 @@ class TableModel<E> {
 
   int upsert({List<TableColumn>? columns, List<String>? names, List<TableColumn>? excludeColumns, List<String>? excludeNames}) {
     EnumTable tab = mtable();
-    List<FieldValue> ls = fieldValues(columns: columns, names: names, excludeColumns: excludeColumns, excludeNames: excludeNames);
+    List<ColumnValue> ls = fieldValues(columns: columns, names: names, excludeColumns: excludeColumns, excludeNames: excludeNames);
     if (ls.isEmpty) return 0;
     Returning ret = Returning.ALL;
     int id = tab.upsert(ls, returning: ret);
@@ -127,9 +127,9 @@ class TableModel<E> {
     return id;
   }
 
-  List<FieldValue> fieldValues({List<TableColumn>? columns, List<String>? names, List<TableColumn>? excludeColumns, List<String>? excludeNames}) {
+  List<ColumnValue> fieldValues({List<TableColumn>? columns, List<String>? names, List<TableColumn>? excludeColumns, List<String>? excludeNames}) {
     EnumTable tab = mtable();
-    List<FieldValue> ls = [];
+    List<ColumnValue> ls = [];
     if (columns != null && columns.isNotEmpty) {
       for (TableColumn f in columns) {
         ls.add(tab.proto.find(f.nameColumn)! >> get(f));
@@ -139,18 +139,18 @@ class TableModel<E> {
         ls.add(tab.proto.find(f)! >> get(f));
       }
     } else {
-      for (ColumnProto f in tab.proto.fields) {
+      for (TableColumn f in tab.proto.fields) {
         ls.add(f >> get(f));
       }
     }
     if (excludeColumns != null && excludeColumns.isNotEmpty) {
       for (TableColumn c in excludeColumns) {
-        ls.removeWhere((e) => e.field.name == c.nameColumn);
+        ls.removeWhere((e) => e.column.nameColumn == c.nameColumn);
       }
     }
     if (excludeNames != null && excludeNames.isNotEmpty) {
       for (String n in excludeNames) {
-        ls.removeWhere((e) => e.field.name == n);
+        ls.removeWhere((e) => e.column.nameColumn == n);
       }
     }
     return ls;
@@ -189,7 +189,6 @@ class TableModel<E> {
 String _nameOfKey(Object key) {
   return switch (key) {
     TableColumn c => c.nameColumn,
-    ColumnProto fp => fp.name,
     Symbol sy => sy.stringValue,
     _ => key.toString(),
   };

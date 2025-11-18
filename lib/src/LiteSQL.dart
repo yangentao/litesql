@@ -96,7 +96,7 @@ class LiteSQL {
     _migrateTable(this, table.name, table.fields);
   }
 
-  void migrateTable(String tableName, List<ColumnProto> fields) {
+  void migrateTable(String tableName, List<TableColumn> fields) {
     _migrateTable(this, tableName, fields);
   }
 
@@ -165,7 +165,7 @@ class LiteSQL {
     execute(sql);
   }
 
-  void addColumn(String table, ColumnProto field) {
+  void addColumn(String table, TableColumn field) {
     String sql = "ALTER TABLE ${table.escapeSQL} ADD COLUMN ${field.defineField(false)}";
     execute(sql);
   }
@@ -176,7 +176,7 @@ class LiteSQL {
     execute(sql);
   }
 
-  void createTable(String table, List<ColumnProto> fields, {List<String>? constraints, List<String>? options, bool notExist = true}) {
+  void createTable(String table, List<TableColumn> fields, {List<String>? constraints, List<String>? options, bool notExist = true}) {
     ListString ls = [];
     if (notExist) {
       ls << "CREATE TABLE IF NOT EXISTS ${table.escapeSQL} (";
@@ -186,15 +186,15 @@ class LiteSQL {
 
     ListString colList = [];
 
-    List<ColumnProto> keyFields = fields.filter((e) => e.primaryKey);
+    List<TableColumn> keyFields = fields.filter((e) => e.column.primaryKey);
     colList.addAll(fields.map((e) => e.defineField(keyFields.length > 1)));
 
     if (keyFields.length > 1) {
       colList << "PRIMARY KEY ( ${keyFields.map((e) => e.nameSQL).join(", ")})";
     }
-    List<ColumnProto> uniqeList = fields.filter((e) => e.uniqueName != null && e.uniqueName!.isNotEmpty);
+    List<TableColumn> uniqeList = fields.filter((e) => e.column.uniqueName != null && e.column.uniqueName!.isNotEmpty);
     if (uniqeList.isNotEmpty) {
-      Map<String, List<ColumnProto>> map = uniqeList.groupBy((e) => e.uniqueName!);
+      Map<String, List<TableColumn>> map = uniqeList.groupBy((e) => e.column.uniqueName!);
       for (var e in map.entries) {
         colList << "UNIQUE (${e.value.map((f) => f.nameSQL).join(", ")})";
       }
@@ -214,10 +214,10 @@ class LiteSQL {
     execute(sql);
 
     for (var f in fields) {
-      if (f.primaryKey || f.unique || notBlank(f.uniqueName)) {
+      if (f.column.primaryKey || f.column.unique || notBlank(f.column.uniqueName)) {
         continue;
       }
-      if (f.index) {
+      if (f.column.index) {
         createIndex(table, [f.name]);
       }
     }
@@ -288,18 +288,13 @@ void _migrateEnumTable<T extends TableColumn<T>>(LiteSQL lite, List<T> fields) {
   T first = fields.first;
   if (_enumTypeMap.containsKey(first.tableType)) return;
 
-  List<ColumnProto> fieldList = [];
-  for (T item in fields) {
-    fieldList.add(item._proto);
-  }
-
-  TableProto tab = TableProto(first.tableName, fieldList);
+  TableProto tab = TableProto(first.tableName, fields);
   _enumTypeMap[first.tableType] = tab;
   lite.migrate(tab);
   tab.liteSQL = lite;
 }
 
-void _migrateTable(LiteSQL lite, String tableName, List<ColumnProto> fields) {
+void _migrateTable(LiteSQL lite, String tableName, List<TableColumn> fields) {
   if (!lite.existTable(tableName)) {
     lite.createTable(tableName, fields);
     return;
@@ -307,7 +302,7 @@ void _migrateTable(LiteSQL lite, String tableName, List<ColumnProto> fields) {
 
   List<TableInfoItem> cols = lite.tableInfo(tableName);
   Set<String> colSet = cols.map((e) => e.name).toSet();
-  for (ColumnProto f in fields) {
+  for (TableColumn f in fields) {
     if (!colSet.contains(f.name)) {
       lite.addColumn(tableName, f);
     }
@@ -319,9 +314,9 @@ void _migrateTable(LiteSQL lite, String tableName, List<ColumnProto> fields) {
       idxSet.add(ls.first);
     }
   }
-  for (ColumnProto f in fields) {
-    if (f.primaryKey || f.unique || notBlank(f.uniqueName)) continue;
-    if (f.index && !idxSet.contains(f.name)) {
+  for (TableColumn f in fields) {
+    if (f.column.primaryKey || f.column.unique || notBlank(f.column.uniqueName)) continue;
+    if (f.column.index && !idxSet.contains(f.name)) {
       lite.createIndex(tableName, [f.name]);
     }
   }
