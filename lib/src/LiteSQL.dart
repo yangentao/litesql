@@ -153,15 +153,15 @@ class LiteSQL {
 
     ListString colList = [];
 
-    List<TableColumn> keyFields = fields.filter((e) => e.column.primaryKey);
+    List<TableColumn> keyFields = fields.filter((e) => e.proto.primaryKey);
     colList.addAll(fields.map((e) => e.defineField(keyFields.length > 1)));
 
     if (keyFields.length > 1) {
       colList << "PRIMARY KEY ( ${keyFields.map((e) => e.nameSQL).join(", ")})";
     }
-    List<TableColumn> uniqeList = fields.filter((e) => e.column.uniqueName != null && e.column.uniqueName!.isNotEmpty);
+    List<TableColumn> uniqeList = fields.filter((e) => e.proto.uniqueName != null && e.proto.uniqueName!.isNotEmpty);
     if (uniqeList.isNotEmpty) {
-      Map<String, List<TableColumn>> map = uniqeList.groupBy((e) => e.column.uniqueName!);
+      Map<String, List<TableColumn>> map = uniqeList.groupBy((e) => e.proto.uniqueName!);
       for (var e in map.entries) {
         colList << "UNIQUE (${e.value.map((f) => f.nameSQL).join(", ")})";
       }
@@ -181,10 +181,10 @@ class LiteSQL {
     execute(sql);
 
     for (var f in fields) {
-      if (f.column.primaryKey || f.column.unique || notBlank(f.column.uniqueName)) {
+      if (f.proto.primaryKey || f.proto.unique || notBlank(f.proto.uniqueName)) {
         continue;
       }
-      if (f.column.index) {
+      if (f.proto.index) {
         createIndex(table, [f.columnName]);
       }
     }
@@ -287,8 +287,8 @@ void _migrateTable(LiteSQL lite, String tableName, List<TableColumn> fields) {
     }
   }
   for (TableColumn f in fields) {
-    if (f.column.primaryKey || f.column.unique || notBlank(f.column.uniqueName)) continue;
-    if (f.column.index && !idxSet.contains(f.columnName)) {
+    if (f.proto.primaryKey || f.proto.unique || notBlank(f.proto.uniqueName)) continue;
+    if (f.proto.index && !idxSet.contains(f.columnName)) {
       lite.createIndex(tableName, [f.columnName]);
     }
   }

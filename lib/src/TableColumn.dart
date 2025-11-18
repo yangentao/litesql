@@ -14,9 +14,9 @@ mixin TableColumn<T extends Enum> on Enum {
 
   List<T> get columns;
 
-  ColumnAttributes get column;
+  ColumnProto get proto;
 
-  String get columnName => exGetOrPut("nameColumn", () => (column.rename ?? this.name));
+  String get columnName => exGetOrPut("nameColumn", () => (proto.rename ?? this.name));
 
   String get nameSQL => exGetOrPut("nameSQL", () => columnName.escapeSQL);
 
@@ -55,26 +55,26 @@ mixin TableColumn<T extends Enum> on Enum {
 
   String defineField(bool multiKey) {
     List<String> ls = [nameSQL];
-    ls << column.type;
-    if (column.primaryKey && !multiKey) {
+    ls << proto.type;
+    if (proto.primaryKey && !multiKey) {
       ls << "PRIMARY KEY";
-      if (column.autoInc) {
+      if (proto.autoInc) {
         ls << "AUTOINCREMENT";
       }
     }
-    if (!column.primaryKey && !multiKey) {
-      if (column.unique) {
+    if (!proto.primaryKey && !multiKey) {
+      if (proto.unique) {
         ls << "UNIQUE";
       }
-      if (column.notNull) {
+      if (proto.notNull) {
         ls << "NOT NULL";
       }
     }
-    if (column.defaultValue != null && column.defaultValue!.isNotEmpty) {
-      ls << "DEFAULT ${column.defaultValue}";
+    if (proto.defaultValue != null && proto.defaultValue!.isNotEmpty) {
+      ls << "DEFAULT ${proto.defaultValue}";
     }
-    if (column.check != null && column.check!.isNotEmpty) {
-      ls << "CHECK (${column.check})";
+    if (proto.check != null && proto.check!.isNotEmpty) {
+      ls << "CHECK (${proto.check})";
     }
     return ls.join(" ");
   }
@@ -83,7 +83,7 @@ mixin TableColumn<T extends Enum> on Enum {
 final Map<Enum, Map<String, dynamic>> _columnPropMap = {};
 
 /// https://sqlite.org/datatype3.html
-class INTEGER extends ColumnAttributes {
+class INTEGER extends ColumnProto {
   const INTEGER({
     super.rename,
     super.type = "INTEGER",
@@ -98,7 +98,7 @@ class INTEGER extends ColumnAttributes {
   });
 }
 
-class REAL extends ColumnAttributes {
+class REAL extends ColumnProto {
   const REAL({
     super.rename,
     super.type = "REAL",
@@ -112,7 +112,7 @@ class REAL extends ColumnAttributes {
   });
 }
 
-class NUMERIC extends ColumnAttributes {
+class NUMERIC extends ColumnProto {
   const NUMERIC({
     super.rename,
     super.type = "NUMERIC",
@@ -126,7 +126,7 @@ class NUMERIC extends ColumnAttributes {
   });
 }
 
-class TEXT extends ColumnAttributes {
+class TEXT extends ColumnProto {
   const TEXT({
     super.rename,
     super.type = "TEXT",
@@ -140,7 +140,7 @@ class TEXT extends ColumnAttributes {
   });
 }
 
-class BLOB extends ColumnAttributes {
+class BLOB extends ColumnProto {
   const BLOB({
     super.rename,
     super.type = "BLOB",
@@ -154,7 +154,7 @@ class BLOB extends ColumnAttributes {
   });
 }
 
-class ColumnAttributes {
+class ColumnProto {
   final String type;
   final String? rename;
   final bool primaryKey;
@@ -166,7 +166,7 @@ class ColumnAttributes {
   final String? uniqueName;
   final bool index;
 
-  const ColumnAttributes({
+  const ColumnProto({
     required this.type,
     this.rename,
     this.primaryKey = false,

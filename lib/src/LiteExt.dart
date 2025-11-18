@@ -140,7 +140,7 @@ extension LiteSqlInsertExt on LiteSQL {
     return upsert(
       table,
       values: row.mapList((e) => e.column.columnName >> e.value),
-      constraints: row.filter((e) => e.column.column.primaryKey || e.column.column.unique).mapList((e) => e.column.columnName),
+      constraints: row.filter((e) => e.column.proto.primaryKey || e.column.proto.unique).mapList((e) => e.column.columnName),
       returning: returning,
     );
     // return upsertRows(table, [row]).firstOrNull ?? 0;
@@ -188,7 +188,7 @@ extension LiteSqlInsertExt on LiteSQL {
       table,
       columns: firstRow.mapList((e) => e.column.columnName),
       values: rows.mapList((e) => e.mapList((x) => x.value)),
-      constraints: firstRow.filter((e) => e.column.column.primaryKey || e.column.column.unique).mapList((e) => e.column.columnName),
+      constraints: firstRow.filter((e) => e.column.proto.primaryKey || e.column.proto.unique).mapList((e) => e.column.columnName),
       returning: returning,
     );
   }

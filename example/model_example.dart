@@ -24,7 +24,7 @@ void main() {
   // 2025-10-31 14:25:57.080 D xlog: INSERT  INTO Person (name,age,"add") VALUES (?,?,?)
   println("enum insert, id= ", id, ", person:", p);
   // enum insert, id=  1 , person: {"name":"entao","age":33,"add":"jinan","id":1}
-  From(Person).dump();
+  SingleTable(Person).dump();
   // {id: 1, name: entao, add: jinan, age: 33}
 
   int r = p.update(() {
@@ -34,7 +34,7 @@ void main() {
   // 2025-10-31 14:28:10.793 D xlog: UPDATE Person SET age = ?, "add" = ? WHERE id = 1
   println("update : count=", r, " , person: ", p);
   // update : count= 1  , person:  {"name":"entao","age":99,"add":"Peiking","id":1}
-  From(Person).dump();
+  SingleTable(Person).dump();
   // {id: 1, name: entao, add: Peiking, age: 99}
 
   MPerson p2 = MPerson({});
@@ -43,19 +43,19 @@ void main() {
   p2.upsert();
   // 2025-10-31 14:30:04.384 D xlog: INSERT INTO Person (id, name) VALUES ( ?, ? ) ON CONFLICT (id) DO UPDATE SET name = ?
   // 2025-10-31 14:30:04.384 D xlog: [1, yang, yang]
-  List<MPerson> ls = From(Person).list(MPerson.new);
+  List<MPerson> ls = SingleTable(Person).list(MPerson.new);
   // SELECT * FROM Person
   println(ls);
   // [{"id":1,"name":"yang","add":"Peiking","age":99}]
 
-  From(Person).update([Person.name >> "entao"], where: Person.id.EQ(1));
+  SingleTable(Person).update([Person.name >> "entao"], where: Person.id.EQ(1));
   // 2025-11-07 06:31:10.998 D SQL: UPDATE Person SET name = ? WHERE id = 1
-  From(Person).dump();
+  SingleTable(Person).dump();
   // 2025-11-07 06:31:10.998 D SQL: {id: 1, name: entao, add: Peiking, age: 99}
 
   p2.delete();
   // 2025-10-31 14:30:04.385 D xlog: DELETE FROM Person WHERE id = 1
-  From(Person).dump();
+  SingleTable(Person).dump();
   // [no output]
 
   lite.close();

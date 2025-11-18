@@ -14,7 +14,7 @@ void main() {
   // address TEXT,
   // age TEXT
   // )
-  SingleTable tab = From(Person);
+  SingleTable tab = SingleTable(Person);
 
   tab.insert([Person.name >> "yang1", Person.add >> "jinan1"]);
   tab.insert([Person.name >> "yang2", Person.add >> "jinan2"]);

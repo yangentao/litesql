@@ -9,7 +9,7 @@ class TableModel<E> {
 
   SingleTable mtable() {
     if (E == Object) errorSQL("TableModel<T>, generic type parameter MUST be set");
-    return SingleTable.of(E);
+    return SingleTable(E);
   }
 
   void clearModifyFlag() {
@@ -53,7 +53,7 @@ class TableModel<E> {
     List<ColumnValue> values = [];
     for (String k in _modifiedKeys) {
       TableColumn f = tab.proto.columns.firstWhere((e) => e.columnName == k);
-      if (!f.column.primaryKey) {
+      if (!f.proto.primaryKey) {
         values.add(f >> get(k));
       }
     }
@@ -80,7 +80,7 @@ class TableModel<E> {
       wherePks.add(f.EQ(v));
     }
     List<ColumnValue> values = fieldValues(columns: columns, names: names, excludeColumns: excludeColumns, excludeNames: excludeNames);
-    values.removeWhere((e) => e.column.column.primaryKey);
+    values.removeWhere((e) => e.column.proto.primaryKey);
     if (values.isEmpty) return 0;
     Returning ret = Returning.ALL;
     int n = tab.update(values, where: wherePks.and(), returning: ret);

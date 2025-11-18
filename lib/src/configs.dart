@@ -6,10 +6,10 @@ enum Configs with TableColumn<Configs> {
   fValue(REAL()),
   sValue(TEXT());
 
-  const Configs(this.column);
+  const Configs(this.proto);
 
   @override
-  final ColumnAttributes column;
+  final ColumnProto proto;
 
   @override
   List<Configs> get columns => Configs.values;
@@ -35,26 +35,26 @@ class MConfigs extends TableModel<Configs> {
   set fValue(double? value) => Configs.fValue.set(this, value);
 
   static void putString(String name, String value) {
-    From(Configs).upsert([Configs.name >> name, Configs.sValue >> value]);
+    SingleTable(Configs).upsert([Configs.name >> name, Configs.sValue >> value]);
   }
 
   static void putInt(String name, int value) {
-    From(Configs).upsert([Configs.name >> name, Configs.nValue >> value]);
+    SingleTable(Configs).upsert([Configs.name >> name, Configs.nValue >> value]);
   }
 
   static void putDouble(String name, double value) {
-    From(Configs).upsert([Configs.name >> name, Configs.fValue >> value]);
+    SingleTable(Configs).upsert([Configs.name >> name, Configs.fValue >> value]);
   }
 
   static String? getString(String name) {
-    return From(Configs).oneValue(Configs.sValue, where: Configs.name.EQ(name));
+    return SingleTable(Configs).oneValue(Configs.sValue, where: Configs.name.EQ(name));
   }
 
   static int? getInt(String name) {
-    return From(Configs).oneValue(Configs.nValue, where: Configs.name.EQ(name));
+    return SingleTable(Configs).oneValue(Configs.nValue, where: Configs.name.EQ(name));
   }
 
   static double? getDouble(String name) {
-    return From(Configs).oneValue(Configs.fValue, where: Configs.name.EQ(name));
+    return SingleTable(Configs).oneValue(Configs.fValue, where: Configs.name.EQ(name));
   }
 }

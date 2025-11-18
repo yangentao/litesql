@@ -7,7 +7,7 @@ void main() {
   LiteSQL lite = LiteSQL.openMemory();
   // create/migrate table 'person', and attach 'lite' database to 'Person'
   lite.migrate(Person.values);
-  From(Person).insertAll([
+  SingleTable(Person).insertAll([
     [Person.name >> "yang"],
     [Person.name >> "entao"],
     [Person.name >> "yangentao"],

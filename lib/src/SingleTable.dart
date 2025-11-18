@@ -1,25 +1,17 @@
 part of 'sql.dart';
 
-/// From(Person)
-SingleTable From(Type type) {
-  return SingleTable.of(type);
-}
-
-SingleTable FromTable(Type type) {
-  return SingleTable.of(type);
-}
-
 class SingleTable {
   LiteSQL lite;
   TableProto proto;
 
-  SingleTable(this.proto, {LiteSQL? lite}) : lite = lite ?? proto.liteSQL;
+  SingleTable._(this.proto, {LiteSQL? lite}) : lite = lite ?? proto.liteSQL;
 
-  static SingleTable of(Type type, {LiteSQL? lite}) => SingleTable(TableProto.of(type), lite: lite);
+  /// SingleTable(Person)
+  SingleTable(Type type, {LiteSQL? lite}) : this._(TableProto.of(type), lite: lite);
 
   String get tableName => proto.name;
 
-  List<TableColumn> primaryKeys() => proto.columns.filter((e) => e.column.primaryKey);
+  List<TableColumn> primaryKeys() => proto.columns.filter((e) => e.proto.primaryKey);
 
   T? oneByKey<T>(
     T Function(AnyMap) creator, {
@@ -169,13 +161,13 @@ class SingleTable {
   }
 
   Where keyEQ(dynamic keyValue) {
-    var keyList = proto.columns.filter((e) => e.column.primaryKey);
+    var keyList = proto.columns.filter((e) => e.proto.primaryKey);
     if (keyList.length != 1) errorSQL("Primary Key count MULST is ONE");
     return keyList.first.EQ(keyValue);
   }
 
   Where keysEQ(List<dynamic> keyValues) {
-    var keyList = proto.columns.filter((e) => e.column.primaryKey);
+    var keyList = proto.columns.filter((e) => e.proto.primaryKey);
     if (keyList.isEmpty) errorSQL("No Primary Key defined");
     if (keyList.length > keyValues.length) errorSQL("Primary Key Great than key value length");
     List<Where> ws = keyList.mapIndex((n, e) => e.EQ(keyValues[n]));

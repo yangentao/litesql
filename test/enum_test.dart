@@ -17,7 +17,7 @@ void main() {
   // int rowid2 = lite.insertRow("Person", ["name" >> "entao2", "age" >> 42, "add" >> "Jinan2"]);
   // int rowid3 = lite.insertRow("Person", ["name" >> "entao3", "age" >> 43, "add" >> "Jinan3"]);
 
-  SingleTable e = SingleTable.of(Person);
+  SingleTable e = SingleTable(Person);
 
   PersonModel p = PersonModel({});
   p.Name = "entao";
@@ -71,7 +71,7 @@ void main() {
 class PersonModel extends TableModel<Person> {
   PersonModel(super.model);
 
-  static SingleTable table() => From(Person);
+  static SingleTable table() => SingleTable(Person);
 
   int get id => Person.id.get(this);
 
@@ -96,13 +96,13 @@ enum Person with TableColumn<Person> {
   add(TEXT()),
   age(INTEGER());
 
-  const Person(this.column);
+  const Person(this.proto);
 
   @override
-  final ColumnAttributes column;
+  final ColumnProto proto;
 
   @override
   List<Person> get columns => Person.values;
 
-  static SingleTable table() => From(Person);
+  static SingleTable table() => SingleTable(Person);
 }

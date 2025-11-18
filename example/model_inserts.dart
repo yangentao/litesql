@@ -14,6 +14,6 @@ void main() {
   // int id = p.upsert(names: ['name', 'age']);
   println(p);
 
-  From(Person).dump();
+  SingleTable(Person).dump();
   lite.close();
 }

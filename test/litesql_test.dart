@@ -12,7 +12,7 @@ void main() {
     MConfigs.putString("addr", "Jinan");
     MConfigs.putInt("age", 44);
     MConfigs.putDouble("score", 33.33);
-    SingleTable tab = From(Configs);
+    SingleTable tab = SingleTable(Configs);
     tab.dump();
 
     String? addr = MConfigs.getString("addr");

@@ -26,13 +26,13 @@ enum Person with TableColumn<Person> {
   add(TEXT()),
   age(INTEGER());
 
-  const Person(this.column);
+  const Person(this.proto);
 
   @override
-  final ColumnAttributes column;
+  final ColumnProto proto;
 
   @override
   List<Person> get columns => Person.values;
 
-  static SingleTable table() => From(Person);
+  static SingleTable table() => SingleTable(Person);
 }
