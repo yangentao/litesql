@@ -1,7 +1,5 @@
 part of 'sql.dart';
 
-typedef ColumnValue = ({TableColumn column, dynamic value});
-
 /// don't use 'name', use 'columnName',  enum's name maybe renamed.
 mixin TableColumn<T extends Enum> on Enum {
   Type get tableType => T;
@@ -50,7 +48,7 @@ mixin TableColumn<T extends Enum> on Enum {
   }
 
   ColumnValue operator >>(dynamic value) {
-    return (column: this, value: value);
+    return ColumnValue(this, value);
   }
 
   String defineField(bool multiKey) {

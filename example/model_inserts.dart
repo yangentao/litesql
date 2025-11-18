@@ -10,7 +10,7 @@ void main() {
   p.name = "entao";
   p.age = 33;
   p.addr = "jinan";
-  p.upsert(columns: [Person.name, Person.age]);
+  // p.upsert(columns: [Person.name, Person.age]);
   // int id = p.upsert(names: ['name', 'age']);
   println(p);
 

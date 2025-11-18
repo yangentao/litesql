@@ -7,72 +7,63 @@ extension LiteSqlInsertExt on LiteSQL {
   /// 利用这特特性, 可以实现postgresql distinct on 的特性
   /// //https://sqlite.org/lang_select.html#bareagg
   /// https://sqlite.org/lang_select.html
+  /// query([], from:Person)
+  /// query(["*"], from:Person)
+  /// query([Person.values], from:Person)
   ResultSet query(
-    List<String>? columns, {
-    required String from,
-    String? where,
-    String? groupBy,
-    String? having,
-    String? window,
-    String? orderBy,
-    List<String>? orders,
+    List<Object> columns, {
+    required Object from,
+    Object? where,
+    Object? groupBy,
+    Object? having,
+    Object? window,
+    Object? orderBy,
     int? limit,
     int? offset,
     List<dynamic>? args,
   }) {
-    String sels = columns?.filter((e) => e.trim().isNotEmpty).map((e) => e.escapeSQL).join(", ") ?? "";
-    if (sels.trim().isEmpty) {
-      sels = "*";
-    }
-    SpaceBuffer buf = SpaceBuffer("SELECT");
-    buf << sels << "FROM" << from.escapeSQL;
-    if (where.notBlank) {
-      buf << "WHERE" << where!;
-    }
-    if (groupBy.notBlank) {
-      buf << "GROUP BY" << groupBy!;
-      if (having.notBlank) {
-        buf << "HAVING" << having!;
-      }
-    }
-    if (window.notBlank) {
-      buf << "WINDOW" << window!;
-    }
-    List<String> os = [?orderBy, ...?orders].filter((e) => e.trim().isNotEmpty);
-    if (os.isNotEmpty) {
-      buf << "ORDER BY" << os.join(", ");
-    }
+    Express e = SELECT(columns).FROM(from);
+    if (where != null) e = e.WHERE(where);
+    if (groupBy != null) e = e.GROUP_BY(groupBy);
+    if (having != null) e = e.HAVING(having);
+    if (window != null) e = e.WINDOWS(window);
+    if (orderBy != null) e = e.ORDER_BY(orderBy);
     if (limit != null) {
-      buf << "LIMIT" << limit.toString();
-      if (offset != null) {
-        buf << "OFFSET" << offset.toString();
-      }
+      e = e.LIMIT(limit);
+      if (offset != null) e = e.OFFSET(offset);
     }
-    return rawQuery(buf.toString(), args);
+    e.addArgs(args);
+    return e.query(this);
   }
 
-  ///  Returning ret = Returning.ALL;
-  ///  int id = lite.insertPairs("stu", ["name" >> "tom"], returning: ret ); // INSERT  INTO stu (name) VALUES (?)  RETURNING *
-  ///  println("insert id: ", id); // 4
-  ///  println(ret.returnRows); // [{id: 4, name: tom}]
-  int insert(String table, List<LabelValue<dynamic>> values, {InsertOption? conflict, Returning? returning}) {
+  int insertMap(Object table, Map<Object, dynamic> values, {InsertOption? conflict, Returning? returning}) {
+    return insertValues(table, values.entries, conflict: conflict, returning: returning);
+  }
+
+  int insertValues(Object table, Iterable<ColumnValue> values, {InsertOption? conflict, Returning? returning}) {
     assert(values.isNotEmpty);
-    String cs = conflict == null ? "" : "OR ${conflict.conflict}";
-    String sql = "INSERT $cs INTO ${table.escapeSQL} (${values.map((e) => e.label.escapeSQL).join(",")}) VALUES (${values.map((e) => '?').join(",")})";
+    String tableName = _tableNameOf(table);
+    SpaceBuffer buf = SpaceBuffer("INSERT");
+    if (conflict != null) {
+      buf << "OR" << conflict.conflict;
+    }
+    buf << "INTO" << tableName.escapeSQL;
+    buf << "(";
+    buf << values.map((e) => e.keyName.escapeSQL).join(",");
+    buf << ")";
+    buf << "VALUES(";
+    buf << values.map((e) => '?').join(",");
+    buf << ")";
     var args = values.mapList((e) => e.value);
-    lastInsertRowId = 0;
+    this.lastInsertRowId = 0;
     if (LiteSQL._supportReturning && returning != null) {
-      sql += returning.clause;
-      ResultSet rs = rawQuery(sql, args);
+      buf << returning.clause;
+      ResultSet rs = this.rawQuery(buf.toString(), args);
       returning.returnRows.addAll(rs.allRows());
     } else {
-      execute(sql, args);
+      this.execute(buf.toString(), args);
     }
-    return lastInsertRowId;
-  }
-
-  int insertBy(String table, List<(String, dynamic)> values, {InsertOption? conflict, Returning? returning}) {
-    return insert(table, values.mapList((e) => LabelValue(e.$1, e.$2)), conflict: conflict, returning: returning);
+    return this.lastInsertRowId;
   }
 
   ///   Returning rr = Returning(["*"]);
@@ -136,15 +127,15 @@ extension LiteSqlInsertExt on LiteSQL {
     return idList;
   }
 
-  int upsertFields(String table, List<ColumnValue> row, {Returning? returning}) {
-    return upsert(
-      table,
-      values: row.mapList((e) => e.column.columnName >> e.value),
-      constraints: row.filter((e) => e.column.proto.primaryKey || e.column.proto.unique).mapList((e) => e.column.columnName),
-      returning: returning,
-    );
-    // return upsertRows(table, [row]).firstOrNull ?? 0;
-  }
+  // int upsertFields(String table, List<KeyValue> row, {Returning? returning}) {
+  //   return upsert(
+  //     table,
+  //     values: row.mapList((e) => e.keyName >> e.value),
+  //     constraints: row.filter((e) => e.column.proto.primaryKey || e.column.proto.unique).mapList((e) => e.column.columnName),
+  //     returning: returning,
+  //   );
+  //   // return upsertRows(table, [row]).firstOrNull ?? 0;
+  // }
 
   /// constraints can empty.
   int upsertBy(String table, {required List<(String, dynamic)> values, required List<String> constraints, InsertOption? conflict, Returning? returning}) {
@@ -181,17 +172,17 @@ extension LiteSqlInsertExt on LiteSQL {
     return lastInsertRowId;
   }
 
-  List<int> upsertRows(String table, List<List<ColumnValue>> rows, {Returning? returning}) {
-    assert(rows.isNotEmpty);
-    var firstRow = rows.first;
-    return upsertMulti(
-      table,
-      columns: firstRow.mapList((e) => e.column.columnName),
-      values: rows.mapList((e) => e.mapList((x) => x.value)),
-      constraints: firstRow.filter((e) => e.column.proto.primaryKey || e.column.proto.unique).mapList((e) => e.column.columnName),
-      returning: returning,
-    );
-  }
+  // List<int> upsertRows(String table, List<List<ColumnValue>> rows, {Returning? returning}) {
+  //   assert(rows.isNotEmpty);
+  //   var firstRow = rows.first;
+  //   return upsertMulti(
+  //     table,
+  //     columns: firstRow.mapList((e) => e.column.columnName),
+  //     values: rows.mapList((e) => e.mapList((x) => x.value)),
+  //     constraints: firstRow.filter((e) => e.column.proto.primaryKey || e.column.proto.unique).mapList((e) => e.column.columnName),
+  //     returning: returning,
+  //   );
+  // }
 
   List<int> upsertMulti(
     String table, {
@@ -277,4 +268,27 @@ extension LiteSqlInsertExt on LiteSQL {
     }
     return updatedRows;
   }
+}
+
+extension on ColumnValue {
+  String get keyName {
+    switch (key) {
+      case String s:
+        return s;
+      case TableColumn c:
+        return c.columnName;
+    }
+    errorSQL("Unknown key: $key ");
+  }
+}
+
+String _tableNameOf(Object table) {
+  switch (table) {
+    case String s:
+      return s;
+    case Type t:
+      if (t == Object) errorSQL("NO table name");
+      return "$t";
+  }
+  errorSQL("Unknown table: $table ");
 }

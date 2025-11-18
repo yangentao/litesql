@@ -8,10 +8,10 @@ void main() {
     LiteSQL lite = LiteSQL.openMemory();
     lite.migrate(Configs.values);
 
-    MConfigs.putString("name", "Entao");
-    MConfigs.putString("addr", "Jinan");
-    MConfigs.putInt("age", 44);
-    MConfigs.putDouble("score", 33.33);
+    // MConfigs.putString("name", "Entao");
+    // MConfigs.putString("addr", "Jinan");
+    // MConfigs.putInt("age", 44);
+    // MConfigs.putDouble("score", 33.33);
     SingleTable tab = SingleTable(Configs);
     tab.dump();
 

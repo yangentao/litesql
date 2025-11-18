@@ -48,7 +48,7 @@ class SingleTable {
     String? orderBy,
     List<String>? orders,
   }) {
-    return this.query(columns: [column], where: where, groupBy: groupBy, having: having, window: window, orderBy: orderBy, orders: orders, limit: 1).firstValue();
+    return this.query(columns: [column], where: where, groupBy: groupBy, having: having, window: window, orderBy: orderBy, limit: 1).firstValue();
   }
 
   T? one<T>(
@@ -96,7 +96,6 @@ class SingleTable {
       having: having,
       window: window,
       orderBy: orderBy,
-      orders: orders,
       limit: limit,
       offset: offset,
     ).allValues();
@@ -116,18 +115,7 @@ class SingleTable {
     int? offset,
   }) {
     return this
-        .query(
-          columns: columns,
-          where: where,
-          wheres: wheres,
-          groupBy: groupBy,
-          having: having,
-          window: window,
-          orderBy: orderBy,
-          orders: orders,
-          limit: limit,
-          offset: offset,
-        )
+        .query(columns: columns, where: where, wheres: wheres, groupBy: groupBy, having: having, window: window, orderBy: orderBy, limit: limit, offset: offset)
         .allModels(creator);
   }
 
@@ -139,21 +127,19 @@ class SingleTable {
     String? having,
     String? window,
     String? orderBy,
-    List<String>? orders,
     int? limit,
     int? offset,
   }) {
     List<Where> wList = [where, ...?wheres].nonNullList;
     var w = AND_ALL(wList);
     return lite.query(
-      columns?.mapList((e) => e is TableColumn ? e.nameSQL : e.toString()),
+      columns?.mapList((e) => e is TableColumn ? e.nameSQL : e.toString()) ?? [],
       from: tableName,
       where: w.sql,
       groupBy: groupBy,
       having: having,
       window: window,
       orderBy: orderBy,
-      orders: orders,
       limit: limit,
       offset: offset,
       args: w.args,
@@ -179,50 +165,46 @@ class SingleTable {
     return lite.delete(tableName, where: w.sql, args: w.args, returning: returning);
   }
 
-  int updateBy<T extends TableColumn<T>>(List<(TableColumn<T>, dynamic value)> row, {Where? where, Returning? returning}) {
-    return update(row.mapList((e) => e.$1 >> e.$2), where: where, returning: returning);
-  }
+  // int updateBy<T extends TableColumn<T>>(List<(TableColumn<T>, dynamic value)> row, {Where? where, Returning? returning}) {
+  //   return update(row.mapList((e) => e.$1 >> e.$2), where: where, returning: returning);
+  // }
 
-  /// From(Configs).upsert([Configs.name >> name, Configs.sValue >> value]);
-  int update(List<ColumnValue> values, {Where? where, Returning? returning}) {
-    return lite.update(proto.name, values.mapList((e) => LabelValue(e.column.columnName, e.value)), where: where?.sql, args: where?.args, returning: returning);
-  }
+  // /// From(Configs).upsert([Configs.name >> name, Configs.sValue >> value]);
+  // int update(List<ColumnValue> values, {Where? where, Returning? returning}) {
+  //   return lite.update(proto.name, values.mapList((e) => LabelValue(e.column.columnName, e.value)), where: where?.sql, args: where?.args, returning: returning);
+  // }
+  //
+  // List<int> upsertAll(List<List<ColumnValue>> rows, {Returning? returning}) {
+  //   if (rows.isEmpty) return [];
+  //   return lite.upsertRows(proto.name, rows, returning: returning);
+  // }
 
-  List<int> upsertAll(List<List<ColumnValue>> rows, {Returning? returning}) {
-    if (rows.isEmpty) return [];
-    return lite.upsertRows(proto.name, rows, returning: returning);
-  }
+  // int upsert(List<ColumnValue> row, {Returning? returning}) {
+  //   return lite.upsertFields(tableName, row, returning: returning);
+  // }
+  //
+  // int upsertBy<T extends TableColumn<T>>(List<(TableColumn<T>, dynamic value)> row, {Returning? returning}) {
+  //   return lite.upsertFields(tableName, row.mapList((e) => e.$1 >> e.$2), returning: returning);
+  // }
+  //
+  // List<int> insertAll(List<List<ColumnValue>> rows, {InsertOption? conflict, Returning? returning}) {
+  //   if (rows.isEmpty) return [];
+  //   return lite.insertRows(proto.name, rows.mapList((r) => r.mapList((e) => LabelValue(e.column.columnName, e.value))), conflict: conflict, returning: returning);
+  // }
 
-  int upsert(List<ColumnValue> row, {Returning? returning}) {
-    return lite.upsertFields(tableName, row, returning: returning);
-  }
-
-  int upsertBy<T extends TableColumn<T>>(List<(TableColumn<T>, dynamic value)> row, {Returning? returning}) {
-    return lite.upsertFields(tableName, row.mapList((e) => e.$1 >> e.$2), returning: returning);
-  }
-
-  List<int> insertAll(List<List<ColumnValue>> rows, {InsertOption? conflict, Returning? returning}) {
-    if (rows.isEmpty) return [];
-    return lite.insertRows(proto.name, rows.mapList((r) => r.mapList((e) => LabelValue(e.column.columnName, e.value))), conflict: conflict, returning: returning);
-  }
-
-  int insert(List<ColumnValue> row, {InsertOption? conflict, Returning? returning}) {
-    return lite.insert(proto.name, row.mapList((e) => LabelValue(e.column.columnName, e.value)), conflict: conflict, returning: returning);
-  }
-
-  int save(dynamic item) {
-    if (item == null) return 0;
-    if (_canSave(item)) {
-      return upsert(proto.columns.mapList((e) => e >> e.get(item)));
-    }
-    errorSQL("Unkonwn object to save: $item");
-  }
-
-  List<int> saveAll(List<dynamic> items) {
-    if (items.isEmpty) return [];
-    var ls = items.filter((item) => _canSave(item));
-    return upsertAll(ls.mapList((item) => proto.columns.mapList((e) => e >> e.get(item))));
-  }
+  // int save(dynamic item) {
+  //   if (item == null) return 0;
+  //   if (_canSave(item)) {
+  //     return upsert(proto.columns.mapList((e) => e >> e.get(item)));
+  //   }
+  //   errorSQL("Unkonwn object to save: $item");
+  // }
+  //
+  // List<int> saveAll(List<dynamic> items) {
+  //   if (items.isEmpty) return [];
+  //   var ls = items.filter((item) => _canSave(item));
+  //   return upsertAll(ls.mapList((item) => proto.columns.mapList((e) => e >> e.get(item))));
+  // }
 
   void dump() {
     lite.dumpTable(tableName);

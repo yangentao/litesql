@@ -14,6 +14,7 @@ extension type SpaceBuffer.buf(StringBuffer buffer) implements StringBuffer {
   }
 
   SpaceBuffer operator <<(String s) {
+    if (s.isEmpty) return this;
     if (s == "," || s == " ") {
       buffer.write(s);
     } else {

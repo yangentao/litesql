@@ -28,11 +28,14 @@ part 'clause/where.dart';
 part 'configs.dart';
 part 'sql_utils.dart';
 
+TagLog logSQL = TagLog("SQL");
+
 typedef BlobSQL = Uint8List;
 
 typedef ModelCreator<T> = T Function(AnyMap);
+typedef ColumnValue = MapEntry<Object, dynamic>;
 
-TagLog logSQL = TagLog("SQL");
+
 
 final class Returning {
   final List<String> columns;

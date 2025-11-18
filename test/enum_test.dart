@@ -25,8 +25,8 @@ void main() {
   p.name = "entao";
   p.age = 33;
   p.addr = "jinan";
-  int id = p.insert();
-  println("id: ", id);
+  // int id = p.insert();
+  // println("id: ", id);
   println(p);
 
   int r = p.update(() {
@@ -38,7 +38,7 @@ void main() {
   MPerson p2 = MPerson({});
   p2.id = 1;
   p2.name = "yang";
-  p2.upsert();
+  // p2.upsert();
   e.dump();
 
   p2.delete();

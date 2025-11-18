@@ -16,11 +16,6 @@ void main() {
   // )
   SingleTable tab = SingleTable(Person);
 
-  tab.insert([Person.name >> "yang1", Person.add >> "jinan1"]);
-  tab.insert([Person.name >> "yang2", Person.add >> "jinan2"]);
-  // 2025-10-31 14:33:25.781 D xlog: INSERT  INTO Person (name,"add") VALUES (?,?)
-  // 2025-10-31 14:33:25.785 D xlog: INSERT  INTO Person (name,"add") VALUES (?,?)
-  tab.dump();
   // {id: 1, name: yang1, add: jinan1, age: null}
   // {id: 2, name: yang2, add: jinan2, age: null}
 
@@ -33,7 +28,6 @@ void main() {
   // 2025-10-31 14:33:25.787 D xlog: DELETE FROM Person WHERE name = ?
   tab.dump();
   // {id: 1, name: yang1, add: jinan1, age: null}
-
 
   lite.close();
 }
