@@ -33,6 +33,4 @@ enum Person with TableColumn<Person> {
 
   @override
   List<Person> get columns => Person.values;
-
-  static SingleTable table() => SingleTable(Person);
 }

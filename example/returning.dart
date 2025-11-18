@@ -14,19 +14,8 @@ void main() async {
   lite.execute("CREATE TABLE stu(id INTEGER PRIMARY KEY , name text)");
 
   Returning rr = Returning(["*"]);
-  lite.insertAllValues(
-    "stu",
-    ["name"],
-    [
-      ['yang'],
-      ['en'],
-      ['tao'],
-    ],
-    returning: rr,
-  );
 
   Returning ur = Returning.ALL;
-
 
   println("returning: ", ur.returnRows); //  [{id: 1, name: entao}]
 

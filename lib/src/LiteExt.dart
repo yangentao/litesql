@@ -36,16 +36,16 @@ extension LiteSqlInsertExt on LiteSQL {
     return e.query(this);
   }
 
-  int insert(Object table, Iterable<ColumnValue> values, {InsertOption? conflict, Returning? returning}) {
+  int insert(Object table, {required Iterable<ColumnValue> values, InsertOption? conflict, Returning? returning}) {
     assert(values.isNotEmpty);
-    return insertValues(table, values.map((e) => e.key), values.map((e) => e.value), conflict: conflict, returning: returning);
+    return insertValues(table, columns: values.map((e) => e.key), values: values.map((e) => e.value), conflict: conflict, returning: returning);
   }
 
-  int insertMap(Object table, Map<Object, dynamic> map, {InsertOption? conflict, Returning? returning}) {
-    return insert(table, map.entries, conflict: conflict, returning: returning);
+  int insertMap(Object table, {required Map<Object, dynamic> values, InsertOption? conflict, Returning? returning}) {
+    return insert(table, values: values.entries, conflict: conflict, returning: returning);
   }
 
-  int insertValues(Object table, Iterable<Object> columns, Iterable<dynamic> values, {InsertOption? conflict, Returning? returning}) {
+  int insertValues(Object table, {required Iterable<Object> columns, required Iterable<dynamic> values, InsertOption? conflict, Returning? returning}) {
     assert(columns.isNotEmpty && values.isNotEmpty && columns.length == values.length);
     SpaceBuffer buf = _insertBuffer(table, columns);
     this.lastInsertRowId = 0;
@@ -59,17 +59,29 @@ extension LiteSqlInsertExt on LiteSQL {
     return this.lastInsertRowId;
   }
 
-  List<int> insertAll(Object table, Iterable<Iterable<ColumnValue>> allValues, {InsertOption? conflict, Returning? returning}) {
-    assert(allValues.isNotEmpty);
-    return insertAllValues(table, allValues.first.map((e) => e.key), allValues.map((row) => row.map((e) => e.value)), conflict: conflict, returning: returning);
+  List<int> insertAll(Object table, {required Iterable<Iterable<ColumnValue>> rows, InsertOption? conflict, Returning? returning}) {
+    assert(rows.isNotEmpty);
+    return insertAllValues(
+      table,
+      columns: rows.first.map((e) => e.key),
+      rows: rows.map((row) => row.map((e) => e.value)),
+      conflict: conflict,
+      returning: returning,
+    );
   }
 
-  List<int> insertAllMap(Object table, Iterable<Map<Object, dynamic>> allMap, {InsertOption? conflict, Returning? returning}) {
-    return insertAll(table, allMap.map((e) => e.entries), conflict: conflict, returning: returning);
+  List<int> insertAllMap(Object table, {required Iterable<Map<Object, dynamic>> rows, InsertOption? conflict, Returning? returning}) {
+    return insertAll(table, rows: rows.map((e) => e.entries), conflict: conflict, returning: returning);
   }
 
-  List<int> insertAllValues(Object table, Iterable<Object> columns, Iterable<Iterable<dynamic>> allValues, {InsertOption? conflict, Returning? returning}) {
-    assert(columns.isNotEmpty && allValues.isNotEmpty);
+  List<int> insertAllValues(
+    Object table, {
+    required Iterable<Object> columns,
+    required Iterable<Iterable<dynamic>> rows,
+    InsertOption? conflict,
+    Returning? returning,
+  }) {
+    assert(columns.isNotEmpty && rows.isNotEmpty);
     SpaceBuffer buf = _insertBuffer(table, columns);
     bool needReturn = LiteSQL._supportReturning && returning != null;
     if (needReturn) {
@@ -77,7 +89,7 @@ extension LiteSqlInsertExt on LiteSQL {
     }
     PreparedStatement ps = prepareSQL(buf.toString());
     List<int> idList = [];
-    for (Iterable<dynamic> values in allValues) {
+    for (Iterable<dynamic> values in rows) {
       this.lastInsertRowId = 0;
       if (needReturn) {
         ResultSet rs = ps.select(values.toList());
@@ -96,8 +108,8 @@ extension LiteSqlInsertExt on LiteSQL {
     return upsertValues(table, columns: values.map((e) => e.key), constraints: constraints, values: values.map((e) => e.value), conflict: conflict, returning: returning);
   }
 
-  int upsertMap(Object table, {required Map<Object, dynamic> map, required Iterable<Object> constraints, InsertOption? conflict, Returning? returning}) {
-    return upsert(table, values: map.entries, constraints: constraints, conflict: conflict, returning: returning);
+  int upsertMap(Object table, {required Map<Object, dynamic> values, required Iterable<Object> constraints, InsertOption? conflict, Returning? returning}) {
+    return upsert(table, values: values.entries, constraints: constraints, conflict: conflict, returning: returning);
   }
 
   int upsertValues(
@@ -138,19 +150,19 @@ extension LiteSqlInsertExt on LiteSQL {
     return lastInsertRowId;
   }
 
-  List<int> upsertAll(Object table, {required List<List<ColumnValue>> values, required Iterable<Object> constraints, InsertOption? conflict, Returning? returning}) {
+  List<int> upsertAll(Object table, {required List<List<ColumnValue>> rows, required Iterable<Object> constraints, InsertOption? conflict, Returning? returning}) {
     return upsertAllValues(
       table,
-      columns: values.first.map((e) => e.key),
+      columns: rows.first.map((e) => e.key),
       constraints: constraints,
-      rows: values.mapList((e) => e.mapList((x) => x.value)),
+      rows: rows.mapList((e) => e.mapList((x) => x.value)),
       conflict: conflict,
       returning: returning,
     );
   }
 
-  List<int> upsertAllMap(Object table, {required List<Map<Object, dynamic>> maps, required Iterable<Object> constraints, InsertOption? conflict, Returning? returning}) {
-    return upsertAll(table, values: maps.mapList((e) => e.entries.toList()), constraints: constraints, conflict: conflict, returning: returning);
+  List<int> upsertAllMap(Object table, {required List<Map<Object, dynamic>> rows, required Iterable<Object> constraints, InsertOption? conflict, Returning? returning}) {
+    return upsertAll(table, rows: rows.mapList((e) => e.entries.toList()), constraints: constraints, conflict: conflict, returning: returning);
   }
 
   List<int> upsertAllValues(
@@ -218,8 +230,8 @@ extension LiteSqlInsertExt on LiteSQL {
     return updateValues(table, columns: values.map((e) => e.key), values: values.map((e) => e.value), where: where, returning: returning);
   }
 
-  int updateMap(Object table, {required Map<Object, dynamic> map, required Where where, Returning? returning}) {
-    return update(table, values: map.entries, where: where, returning: returning);
+  int updateMap(Object table, {required Map<Object, dynamic> values, required Where where, Returning? returning}) {
+    return update(table, values: values.entries, where: where, returning: returning);
   }
 
   int updateValues(Object table, {required Iterable<Object> columns, required Iterable<dynamic> values, required Where where, Returning? returning}) {
@@ -240,6 +252,10 @@ extension LiteSqlInsertExt on LiteSQL {
       execute(buf.toString(), argList);
     }
     return updatedRows;
+  }
+
+  void dump(Type table){
+    dumpTable(_tableNameOf(table));
   }
 }
 

@@ -15,10 +15,6 @@ void main() {
   // address TEXT,
   // age TEXT
   // )
-  lite.insertMap("Person", {"name": "entao1", "age": 21, "add": "Jinan1"});
-  lite.insertMap("Person", {"name": "entao2", "age": 31, "add": "Jinan2"});
-  lite.insertMap("Person", {"name": "entao3", "age": 41, "add": "Jinan3"});
-  lite.insertMap("Person", {"name": "entao4", "age": 41, "add": "Jinan4"});
   // 2025-10-31 14:19:53.214 D xlog: INSERT  INTO Person (name,age,"add") VALUES (?,?,?)
   // 2025-10-31 14:19:53.217 D xlog: INSERT  INTO Person (name,age,"add") VALUES (?,?,?)
   // 2025-10-31 14:19:53.217 D xlog: INSERT  INTO Person (name,age,"add") VALUES (?,?,?)
