@@ -52,7 +52,7 @@ class TableModel<E> {
 
     List<ColumnValue> values = [];
     for (String k in _modifiedKeys) {
-      TableColumn f = tab.proto.fields.firstWhere((e) => e.columnName == k);
+      TableColumn f = tab.proto.columns.firstWhere((e) => e.columnName == k);
       if (!f.column.primaryKey) {
         values.add(f >> get(k));
       }
@@ -139,7 +139,7 @@ class TableModel<E> {
         ls.add(tab.proto.find(f)! >> get(f));
       }
     } else {
-      for (TableColumn f in tab.proto.fields) {
+      for (TableColumn f in tab.proto.columns) {
         ls.add(f >> get(f));
       }
     }

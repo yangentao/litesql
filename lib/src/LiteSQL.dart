@@ -226,18 +226,18 @@ class SqliteTableInfo extends SimpleModel {
 
 class TableProto {
   final String name;
-  final List<TableColumn> fields;
+  final List<TableColumn> columns;
   final String nameSQL;
   final LiteSQL liteSQL;
 
-  TableProto(this.name, this.fields, {required this.liteSQL}) : nameSQL = name.escapeSQL {
-    for (var e in fields) {
+  TableProto(this.name, this.columns, {required this.liteSQL}) : nameSQL = name.escapeSQL {
+    for (var e in columns) {
       e.tableProto = this;
     }
   }
 
   TableColumn? find(String fieldName) {
-    return fields.firstWhere((e) => e.columnName == fieldName);
+    return columns.firstWhere((e) => e.columnName == fieldName);
   }
 
   // after migrate
@@ -263,7 +263,7 @@ void _migrateEnumTable<T extends TableColumn<T>>(LiteSQL lite, List<T> fields) {
 
   TableProto tab = TableProto(first.tableName, fields, liteSQL: lite);
   TableProto._enumTypeMap[first.tableType] = tab;
-  _migrateTable(lite, tab.name, tab.fields);
+  _migrateTable(lite, tab.name, tab.columns);
 }
 
 void _migrateTable(LiteSQL lite, String tableName, List<TableColumn> fields) {

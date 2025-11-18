@@ -19,7 +19,7 @@ class EnumTable {
 
   String get tableName => proto.name;
 
-  List<TableColumn> primaryKeys() => proto.fields.filter((e) => e.column.primaryKey);
+  List<TableColumn> primaryKeys() => proto.columns.filter((e) => e.column.primaryKey);
 
   T? oneByKey<T>(
     T Function(AnyMap) creator, {
@@ -171,13 +171,13 @@ class EnumTable {
   }
 
   Where keyEQ(dynamic keyValue) {
-    var keyList = proto.fields.filter((e) => e.column.primaryKey);
+    var keyList = proto.columns.filter((e) => e.column.primaryKey);
     if (keyList.length != 1) errorSQL("Primary Key count MULST is ONE");
     return keyList.first.EQ(keyValue);
   }
 
   Where keysEQ(List<dynamic> keyValues) {
-    var keyList = proto.fields.filter((e) => e.column.primaryKey);
+    var keyList = proto.columns.filter((e) => e.column.primaryKey);
     if (keyList.isEmpty) errorSQL("No Primary Key defined");
     if (keyList.length > keyValues.length) errorSQL("Primary Key Great than key value length");
     List<Where> ws = keyList.mapIndex((n, e) => e.EQ(keyValues[n]));
@@ -223,7 +223,7 @@ class EnumTable {
   int save(dynamic item) {
     if (item == null) return 0;
     if (_canSave(item)) {
-      return upsert(proto.fields.mapList((e) => e >> e.get(item)));
+      return upsert(proto.columns.mapList((e) => e >> e.get(item)));
     }
     errorSQL("Unkonwn object to save: $item");
   }
@@ -231,7 +231,7 @@ class EnumTable {
   List<int> saveAll(List<dynamic> items) {
     if (items.isEmpty) return [];
     var ls = items.filter((item) => _canSave(item));
-    return upsertAll(ls.mapList((item) => proto.fields.mapList((e) => e >> e.get(item))));
+    return upsertAll(ls.mapList((item) => proto.columns.mapList((e) => e >> e.get(item))));
   }
 
   void dump() {
