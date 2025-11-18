@@ -15,6 +15,8 @@ class Express {
 
   bool get isNotEmpty => buffer.isNotEmpty;
 
+  Express get braced => Express("($sql)", args: this.args);
+
   @override
   String toString() {
     return sql;
@@ -46,6 +48,8 @@ class Express {
         return this.addText(t.proto.nameSQL);
       case FieldProto f:
         return this.addText(f.fullname);
+      case TableProto t:
+        return this.addText(t.nameSQL);
       case AnyList ls:
         for (int i = 0; i < ls.length; ++i) {
           if (i != 0) this << ",";

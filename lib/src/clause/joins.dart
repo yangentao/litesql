@@ -16,7 +16,7 @@ class JoinExpress extends Express {
   }
 }
 
-extension TypeTableExt on Type {
+extension TypeTableExt on TableProto {
   JoinExpress JOIN(Object other) {
     return JoinExpress(this, "JOIN", other);
   }

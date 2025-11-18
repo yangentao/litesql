@@ -8,6 +8,8 @@ extension StringExpressExt on String {
   String get ASC => "${this.escapeSQL} ASC";
 
   String get DESC => "${this.escapeSQL} DESC";
+
+  String get braced => "($this)";
 }
 
 extension TableColumnExpresExt<T extends TableColumn<T>> on TableColumn<T> {
@@ -18,11 +20,9 @@ extension TableColumnExpresExt<T extends TableColumn<T>> on TableColumn<T> {
   String get DESC => "$fullname DESC";
 }
 
-extension  on Type {
+extension on Type {
   TableProto get proto => _requireTableProto(this);
 }
-
-
 
 extension ListJoinMapEx<T> on List<T> {
   String joinMap(String sep, [String Function(T)? tranform]) {

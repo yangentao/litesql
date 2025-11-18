@@ -10,6 +10,8 @@ TableProto _requireTableProto(Type type) {
   return p;
 }
 
+TableProto TABLE(Type type) => _requireTableProto(type);
+
 EnumTable From(Type type) {
   return _tableOfType(type);
 }

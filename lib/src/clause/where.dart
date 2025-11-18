@@ -3,11 +3,22 @@ part of '../sql.dart';
 class Where extends Express {
   Where(super.express, {super.args});
 
+  @override
+  Where get braced => Where("($sql)", args: this.args);
+
   Where AND(Where w) {
     return _WhereAnd(this, w);
   }
 
   Where OR(Where w) {
+    return _WhereOr(this, w);
+  }
+
+  Where operator &(Where w) {
+    return _WhereAnd(this, w);
+  }
+
+  Where operator |(Where w) {
     return _WhereOr(this, w);
   }
 }
