@@ -14,7 +14,7 @@ void main() async {
   lite.execute("CREATE TABLE stu(id INTEGER PRIMARY KEY , name text)");
 
   Returning rr = Returning(["*"]);
-  lite.insertMulti(
+  lite.insertAll(
     "stu",
     ["name"],
     [

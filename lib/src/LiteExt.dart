@@ -36,94 +36,57 @@ extension LiteSqlInsertExt on LiteSQL {
     return e.query(this);
   }
 
-  int insertMap(Object table, Map<Object, dynamic> values, {InsertOption? conflict, Returning? returning}) {
-    return insertValues(table, values.entries, conflict: conflict, returning: returning);
+  int insertMap(Object table, Map<Object, dynamic> map, {InsertOption? conflict, Returning? returning}) {
+    return insertValues(table, map.entries, conflict: conflict, returning: returning);
   }
 
   int insertValues(Object table, Iterable<ColumnValue> values, {InsertOption? conflict, Returning? returning}) {
     assert(values.isNotEmpty);
-    String tableName = _tableNameOf(table);
-    SpaceBuffer buf = SpaceBuffer("INSERT");
-    if (conflict != null) {
-      buf << "OR" << conflict.conflict;
-    }
-    buf << "INTO" << tableName.escapeSQL;
-    buf << "(";
-    buf << values.map((e) => e.keyName.escapeSQL).join(",");
-    buf << ")";
-    buf << "VALUES(";
-    buf << values.map((e) => '?').join(",");
-    buf << ")";
-    var args = values.mapList((e) => e.value);
+    return insert(table, values.map((e) => e.key), values.map((e) => e.value), conflict: conflict, returning: returning);
+  }
+
+  int insert(Object table, Iterable<Object> columns, Iterable<dynamic> values, {InsertOption? conflict, Returning? returning}) {
+    assert(columns.isNotEmpty && values.isNotEmpty && columns.length == values.length);
+    SpaceBuffer buf = _insertBuffer(table, columns);
     this.lastInsertRowId = 0;
     if (LiteSQL._supportReturning && returning != null) {
       buf << returning.clause;
-      ResultSet rs = this.rawQuery(buf.toString(), args);
+      ResultSet rs = this.rawQuery(buf.toString(), values.toList());
       returning.returnRows.addAll(rs.allRows());
     } else {
-      this.execute(buf.toString(), args);
+      this.execute(buf.toString(), values.toList());
     }
     return this.lastInsertRowId;
   }
 
-  ///   Returning rr = Returning(["*"]);
-  ///   List < int > idList = lite.insertRows("stu", [
-  ///     ["name" >> 'yang'],
-  ///     ["name" >> 'en'],
-  ///     ["name" >> 'tao'],
-  ///   ], returning: rr);
-  ///
-  ///   println("idList: ", idList); // [1, 2, 3]
-  ///   println("returning: ", rr.returnRows); // [{id: 1, name: yang}, {id: 2, name: en}, {id: 3, name: tao}]
-  List<int> insertRows(String table, List<List<LabelValue<dynamic>>> rows, {InsertOption? conflict, Returning? returning}) {
-    if (rows.isEmpty) return List.empty();
-    var firstRow = rows.first;
-    String cs = conflict == null ? "" : "OR ${conflict.conflict}";
-    String sql = "INSERT $cs INTO ${table.escapeSQL} (${firstRow.map((e) => e.label.escapeSQL).join(",")}) VALUES (${firstRow.map((e) => '?').join(",")})";
-    if (LiteSQL._supportReturning && returning != null) {
-      sql += returning.clause;
-    }
-    PreparedStatement st = prepareSQL(sql);
-    List<int> idList = [];
-    for (var oneRow in rows) {
-      var argList = oneRow.mapList((e) => e.value);
-      lastInsertRowId = 0;
-      if (LiteSQL._supportReturning && returning != null) {
-        ResultSet rs = st.select(argList);
-        returning.returnRows.addAll(rs.allRows());
-      } else {
-        st.execute(argList);
-      }
-      idList.add(lastInsertRowId);
-    }
-    st.close();
-    return idList;
+  List<int> insertAllMap(Object table, Iterable<Map<Object, dynamic>> allMap, {InsertOption? conflict, Returning? returning}) {
+    return insertAllValues(table, allMap.map((e) => e.entries), conflict: conflict, returning: returning);
   }
 
-  ///   Returning rr = Returning(["*"]);
-  ///   List< int > idList = lite.insertMulti("stu", ["name"], [['yang'], ['en'], ['tao']], returning: rr);
-  ///
-  ///   println("idList: ", idList); // [1, 2, 3]
-  ///   println("returning: ", rr.returnRows); // [{id: 1, name: yang}, {id: 2, name: en}, {id: 3, name: tao}]
-  List<int> insertMulti(String table, List<String> columns, List<List<dynamic>> rows, {InsertOption? conflict, Returning? returning}) {
-    String cs = conflict == null ? "" : "OR ${conflict.conflict}";
-    String sql = "INSERT $cs INTO ${table.escapeSQL} (${columns.map((e) => e.escapeSQL).join(",")}) VALUES (${columns.map((e) => '?').join(",")})";
-    if (LiteSQL._supportReturning && returning != null) {
-      sql += returning.clause;
+  List<int> insertAllValues(Object table, Iterable<Iterable<ColumnValue>> allValues, {InsertOption? conflict, Returning? returning}) {
+    assert(allValues.isNotEmpty);
+    return insertAll(table, allValues.first.map((e) => e.key), allValues.map((row) => row.map((e) => e.value)), conflict: conflict, returning: returning);
+  }
+
+  List<int> insertAll(Object table, Iterable<Object> columns, Iterable<Iterable<dynamic>> allValues, {InsertOption? conflict, Returning? returning}) {
+    assert(columns.isNotEmpty && allValues.isNotEmpty);
+    SpaceBuffer buf = _insertBuffer(table, columns);
+    bool needReturn = LiteSQL._supportReturning && returning != null;
+    if (needReturn) {
+      buf << returning.clause;
     }
-    PreparedStatement st = prepareSQL(sql);
+    PreparedStatement ps = prepareSQL(buf.toString());
     List<int> idList = [];
-    for (var row in rows) {
-      lastInsertRowId = 0;
-      if (LiteSQL._supportReturning && returning != null) {
-        ResultSet rs = st.select(row);
+    for (Iterable<dynamic> values in allValues) {
+      this.lastInsertRowId = 0;
+      if (needReturn) {
+        ResultSet rs = ps.select(values.toList());
         returning.returnRows.addAll(rs.allRows());
       } else {
-        st.execute(row);
+        ps.execute(values.toList());
       }
-      idList.add(lastInsertRowId);
+      idList.add(this.lastInsertRowId);
     }
-    st.close();
     return idList;
   }
 
@@ -271,15 +234,17 @@ extension LiteSqlInsertExt on LiteSQL {
 }
 
 extension on ColumnValue {
-  String get keyName {
-    switch (key) {
-      case String s:
-        return s;
-      case TableColumn c:
-        return c.columnName;
-    }
-    errorSQL("Unknown key: $key ");
+  String get keyName => _columnNameOf(key);
+}
+
+String _columnNameOf(Object col) {
+  switch (col) {
+    case String s:
+      return s;
+    case TableColumn c:
+      return c.columnName;
   }
+  errorSQL("Unknown key: $col ");
 }
 
 String _tableNameOf(Object table) {
@@ -291,4 +256,19 @@ String _tableNameOf(Object table) {
       return "$t";
   }
   errorSQL("Unknown table: $table ");
+}
+
+SpaceBuffer _insertBuffer(Object table, Iterable<Object> columns, {InsertOption? conflict}) {
+  String tableName = _tableNameOf(table);
+  SpaceBuffer buf = SpaceBuffer("INSERT");
+  if (conflict != null) {
+    buf << "OR" << conflict.conflict;
+  }
+  buf << "INTO" << tableName.escapeSQL;
+  buf << "(";
+  buf << columns.map((e) => _columnNameOf(e).escapeSQL).join(",");
+  buf << ") VALUES(";
+  buf << columns.map((e) => '?').join(",");
+  buf << ")";
+  return buf;
 }
