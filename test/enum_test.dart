@@ -3,6 +3,8 @@
 import 'package:litesql/litesql.dart';
 import 'package:println/println.dart';
 
+import '../example/model.dart';
+
 void main() {
   LiteSQL lite = LiteSQL.openMemory();
 
@@ -19,8 +21,8 @@ void main() {
 
   SingleTable e = SingleTable(Person);
 
-  PersonModel p = PersonModel({});
-  p.Name = "entao";
+  MPerson p = MPerson({});
+  p.name = "entao";
   p.age = 33;
   p.addr = "jinan";
   int id = p.insert();
@@ -33,9 +35,9 @@ void main() {
   });
   println("update return: ", r);
 
-  PersonModel p2 = PersonModel({});
+  MPerson p2 = MPerson({});
   p2.id = 1;
-  p2.Name = "yang";
+  p2.name = "yang";
   p2.upsert();
   e.dump();
 
@@ -66,43 +68,4 @@ void main() {
 
   e.dump();
   lite.close();
-}
-
-class PersonModel extends TableModel<Person> {
-  PersonModel(super.model);
-
-  static SingleTable table() => SingleTable(Person);
-
-  int get id => Person.id.get(this);
-
-  set id(int value) => this[Person.id] = value;
-
-  String? get Name => get(Person.name);
-
-  set Name(String? value) => set(Person.name, value);
-
-  String? get addr => get(Person.add);
-
-  set addr(String? value) => set(Person.add, value);
-
-  int? get age => Person.age.get(this);
-
-  set age(int? value) => Person.age.set(this, value);
-}
-
-enum Person with TableColumn<Person> {
-  id(INTEGER(primaryKey: true)),
-  name(TEXT()),
-  add(TEXT()),
-  age(INTEGER());
-
-  const Person(this.proto);
-
-  @override
-  final ColumnProto proto;
-
-  @override
-  List<Person> get columns => Person.values;
-
-  static SingleTable table() => SingleTable(Person);
 }

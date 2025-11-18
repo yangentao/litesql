@@ -12,6 +12,7 @@ import 'sqlite3_ffi.dart' as xsql;
 
 part 'LiteExt.dart';
 part 'LiteSQL.dart';
+part 'LiteX.dart';
 part 'ResultSetEx.dart';
 part 'SingleTable.dart';
 part 'SpaceBuffer.dart';

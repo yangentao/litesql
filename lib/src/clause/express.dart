@@ -69,8 +69,13 @@ class Express {
     return this;
   }
 
-  Express addArgs(AnyList args) {
-    this.args.addAll(args);
+  Express addArgs(AnyList? args) {
+    if (args != null) this.args.addAll(args);
+    return this;
+  }
+
+  Express addArg(Object? arg) {
+    this.args.add(arg);
     return this;
   }
 }
