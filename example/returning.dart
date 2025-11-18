@@ -26,18 +26,8 @@ void main() async {
   );
 
   Returning ur = Returning.ALL;
-  List<int> ids = lite.upsertMulti(
-    "stu",
-    columns: ["id", "name"],
-    values: [
-      [1, "entao"],
-      [2, "enen"],
-    ],
-    constraints: ["id"],
-    returning: ur,
-  );
 
-  println("ids: ", ids); // 0
+
   println("returning: ", ur.returnRows); //  [{id: 1, name: entao}]
 
   ResultSet rs = lite.rawQuery("SELECT * FROM stu");

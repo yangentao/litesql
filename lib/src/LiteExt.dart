@@ -198,46 +198,42 @@ extension LiteSqlInsertExt on LiteSQL {
     return idList;
   }
 
-  /// Returning ret = Returning.ALL;
-  /// int n = lite.delete("stu", where: "id=1", returning: ret);
-  /// println("del count: ", n); // 1
-  /// println(ret.returnRows); // [{id: 1, name: yang}]
-  int delete(String table, {required String where, AnyList? args, Returning? returning}) {
+  int delete(Object table, {required Where where, Returning? returning}) {
     assert(where.isNotEmpty);
-    String sql = "DELETE FROM ${table.escapeSQL} WHERE $where";
+    SpaceBuffer buf = SpaceBuffer("DELETE FROM");
+    buf << _tableNameOf(table).escapeSQL;
+    buf << "WHERE";
+    buf << where.sql;
     if (LiteSQL._supportReturning && returning != null) {
-      sql += returning.clause;
-      ResultSet rs = rawQuery(sql, args);
+      buf << returning.clause;
+      ResultSet rs = rawQuery(buf.toString(), where.args);
       returning.returnRows.addAll(rs.allRows());
     } else {
-      execute(sql, args);
+      execute(buf.toString(), where.args);
     }
     return updatedRows;
   }
 
-  ///  Returning ret = Returning(["name"]);
-  ///  int n  = lite.update("stu", ["name" >> "yangentao"], where: "id=1", returning: ret);
-  ///  println("update count: ", n ); // 1
-  ///  println(ret.returnRows); // [{name: yangentao}]
-  int update(String table, List<LabelValue<dynamic>> values, {String? where, AnyList? args, Returning? returning}) {
-    return updateBy(table, values.mapList((e) => (e.label, e.value)), where: where, args: args, returning: returning);
+  int update(Object table, {required Iterable<ColumnValue> values, required Where where, Returning? returning}) {
+    return updateValues(table, columns: values.map((e) => e.key), values: values.map((e) => e.value), where: where, returning: returning);
   }
 
-  /// int n = update("person", [("name", "entao"), ("addr", "Peiking")]);
-  int updateBy(String table, List<(String, dynamic)> values, {String? where, AnyList? args, Returning? returning}) {
-    assert(values.isNotEmpty);
-    var argList = <dynamic>[...values.mapList((e) => e.$2), ...?args];
+  int updateValues(Object table, {required Iterable<Object> columns, required Iterable<dynamic> values, required Where where, Returning? returning}) {
+    assert(columns.isNotEmpty && columns.length == values.length);
 
-    String sql = "UPDATE ${table.escapeSQL} SET ${values.map((e) => "${e.$1.escapeSQL} = ?").join(", ")}";
-    if (notBlank(where)) {
-      sql += " WHERE $where";
-    }
+    SpaceBuffer buf = SpaceBuffer("UPDATE");
+    buf << _tableNameOf(table).escapeSQL;
+    buf << "SET";
+    buf << columns.map((e) => "${_columnNameOf(e)}=?").join(", ");
+    buf << "WHERE";
+    buf << where.sql;
+    var argList = <dynamic>[...values, ...(where.args)];
     if (LiteSQL._supportReturning && returning != null) {
-      sql += returning.clause;
-      ResultSet rs = rawQuery(sql, argList);
+      buf << returning.clause;
+      ResultSet rs = rawQuery(buf.toString(), argList);
       returning.returnRows.addAll(rs.allRows());
     } else {
-      execute(sql, argList);
+      execute(buf.toString(), argList);
     }
     return updatedRows;
   }
