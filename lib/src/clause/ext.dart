@@ -29,7 +29,7 @@ extension TableColumnExpresExt<T extends TableColumn<T>> on TableColumn<T> {
 }
 
 extension on Type {
-  TableProto get proto => _requireTableProto(this);
+  TableProto get proto => TableProto.of(this);
 }
 
 extension ListJoinMapEx<T> on List<T> {

@@ -47,7 +47,7 @@ class Express {
       case TableColumn c:
         return this.addText(c.fullname);
       case Type t:
-        return this.addText(t.proto.nameSQL);
+        return this.addText(TableProto.of(t).nameSQL);
       case TableProto t:
         return this.addText(t.nameSQL);
       case AnyList ls:

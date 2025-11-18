@@ -60,7 +60,8 @@ extension ExpressExt on Express {
       case Express ex:
         return this << ex;
       case Type t:
-        return this << t.proto.nameSQL;
+        var p = TableProto.of(t);
+        return this << p.nameSQL;
       case TableProto p:
         return this << p.nameSQL;
     }
@@ -153,7 +154,7 @@ Object _clause(dynamic value) {
     case TableColumn c:
       return c.fullname;
     case Type t:
-      return t.proto.nameSQL;
+      return TableProto.of(t).nameSQL;
     case AnyList ls:
       AnyList args = [];
       String s = ls.joinMap(", ", (e) {

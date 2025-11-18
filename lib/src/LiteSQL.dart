@@ -97,11 +97,6 @@ class LiteSQL {
     _migrateEnumTable(this, fields);
   }
 
-  /// liteSQL.from(Person)
-  EnumTable from(Type table) {
-    return EnumTable(lite: this, tableType: table);
-  }
-
   List<TableInfoItem> tableInfo(String tableName) {
     String sql = "PRAGMA table_info(${tableName.escapeSQL})";
     ResultSet rs = database.select(sql);
@@ -265,43 +260,28 @@ class TableProto {
   }
 
   // after migrate
-  static TableProto of(Type type) => _requireTableProto(type);
-}
-
-Map<Type, TableProto> _enumTypeMap = {};
-
-TableProto _requireTableProto(Type type) {
-  TableProto? p = _enumTypeMap[type];
-  if (p == null) {
-    errorSQL("NO table proto of $type  found, migrate it first. ");
+  static TableProto of(Type type) {
+    TableProto? p = _enumTypeMap[type];
+    if (p == null) {
+      errorSQL("NO table proto of $type  found, migrate it first. ");
+    }
+    return p;
   }
-  return p;
+
+  static final Map<Type, TableProto> _enumTypeMap = {};
 }
 
-TableProto $(Type type) => _requireTableProto(type);
+TableProto $(Type type) => TableProto.of(type);
 
-TableProto TABLE(Type type) => _requireTableProto(type);
-
-EnumTable From(Type type) {
-  return _tableOfType(type);
-}
-
-EnumTable FromTable(Type type) {
-  return _tableOfType(type);
-}
-
-EnumTable _tableOfType(Type type) {
-  var info = _requireTableProto(type);
-  return info.liteSQL!.from(type);
-}
+TableProto TABLE(Type type) => TableProto.of(type);
 
 void _migrateEnumTable<T extends TableColumn<T>>(LiteSQL lite, List<T> fields) {
   assert(fields.isNotEmpty);
   T first = fields.first;
-  if (_enumTypeMap.containsKey(first.tableType)) return;
+  if (TableProto._enumTypeMap.containsKey(first.tableType)) return;
 
   TableProto tab = TableProto(first.tableName, fields);
-  _enumTypeMap[first.tableType] = tab;
+  TableProto._enumTypeMap[first.tableType] = tab;
   tab.liteSQL = lite;
   _migrateTable(lite, tab.name, tab.fields);
 }
