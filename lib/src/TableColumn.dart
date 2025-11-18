@@ -4,7 +4,7 @@ typedef ColumnValue = ({TableColumn column, dynamic value});
 mixin TableColumn<T extends Enum> on Enum {
   Type get tableType => T;
 
-  String get tableName => exPropGetOrPut("tableName", () {
+  String get tableName => exGetOrPut("tableName", () {
     String a = "$T";
     if (a == "Object") errorSQL("TableColumn MUST has a generic type parameter. forexample:  enum Person with TableColumn<Person> ");
     return a;
@@ -14,29 +14,29 @@ mixin TableColumn<T extends Enum> on Enum {
 
   ColumnProperties get column;
 
-  String get nameColumn => exPropGetOrPut("nameColumn", () => (column.rename ?? this.name));
+  String get nameColumn => exGetOrPut("nameColumn", () => (column.rename ?? this.name));
 
-  String get nameSQL => exPropGetOrPut("nameSQL", () => nameColumn.escapeSQL);
+  String get nameSQL => exGetOrPut("nameSQL", () => nameColumn.escapeSQL);
 
-  String get fullname => exPropGetOrPut("fullname", () => "${tableName.escapeSQL}.$nameSQL");
+  String get fullname => exGetOrPut("fullname", () => "${tableName.escapeSQL}.$nameSQL");
 
-  TableProto get tableProto => exPropGet("tableProto");
+  TableProto get tableProto => exGet("tableProto");
 
   set tableProto(TableProto p) {
-    exPropSet("tableProto", p);
+    exSet("tableProto", p);
   }
 
   Map<String, dynamic> get _propMap => _columnPropMap.getOrPut(this, () => <String, dynamic>{});
 
-  V exPropGetOrPut<V>(String key, V Function() onMiss) {
+  V exGetOrPut<V>(String key, V Function() onMiss) {
     return _propMap.getOrPut(key, onMiss);
   }
 
-  V? exPropGet<V>(String key) {
+  V? exGet<V>(String key) {
     return _propMap[key];
   }
 
-  void exPropSet(String key, dynamic value) => _propMap[key] = value;
+  void exSet(String key, dynamic value) => _propMap[key] = value;
 
   V? get<V>(Object? container) {
     if (container == null) return null;
