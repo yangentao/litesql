@@ -3,13 +3,9 @@ part of 'sql.dart';
 class TableModel<E> {
   AnyMap model;
   Type tableType = E;
-
-  // DType<T> dtype = DType<T>();
   final Set<String> _modifiedKeys = {};
 
   TableModel(this.model);
-
-  // TableModel.empty() : this({});
 
   EnumTable mtable() {
     if (E == Object) errorSQL("TableModel<T>, generic type parameter MUST be set");
