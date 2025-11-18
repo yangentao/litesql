@@ -32,6 +32,7 @@ Express SELECT_DISTINCT(AnyList columns) {
 }
 
 extension ExpressExt on Express {
+  // String OR Express OR Type
   Express FROM(Object express) {
     this << "FROM";
     switch (express) {
@@ -45,22 +46,23 @@ extension ExpressExt on Express {
     errorSQL("FROM not support parameter: $express");
   }
 
+  // String OR Express
   Express WHERE(Object express) {
     switch (express) {
       case String s:
-        return this << s;
+        return this << "WHERE" << s;
       case Express ex:
-        return this << ex;
+        return this << "WHERE" << ex;
     }
     errorSQL("WHERE not support parameter: $express");
   }
 
   Express GROUP_BY(Object express) {
-    return this << _clause(express);
+    return this << "GROUP_BY" << _clause(express);
   }
 
   Express HAVING(Object express) {
-    return this << _clause(express);
+    return this << "HAVING" << _clause(express);
   }
 
   Express WINDOW(String name, Object express) {
