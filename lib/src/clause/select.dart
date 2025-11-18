@@ -12,7 +12,7 @@ Express SELECT(AnyList columns) {
   if (columns.isEmpty) {
     e << "*";
   } else {
-    e << _clause(columns);
+    e << columns;
   }
   return e;
 }
@@ -26,7 +26,7 @@ Express SELECT_DISTINCT(AnyList columns) {
   if (columns.isEmpty) {
     e << "*";
   } else {
-    e << _clause(columns);
+    e << columns;
   }
   return e;
 }
@@ -58,21 +58,21 @@ extension ExpressExt on Express {
   }
 
   Express GROUP_BY(Object express) {
-    return this << "GROUP_BY" << _clause(express);
+    return this << "GROUP_BY" << express;
   }
 
   Express HAVING(Object express) {
-    return this << "HAVING" << _clause(express);
+    return this << "HAVING" << express;
   }
 
   Express WINDOW(String name, Object express) {
-    return this << "WINDOW" << name << "AS" << "(" << _clause(express) << ")";
+    return this << "WINDOW" << name << "AS" << "(" << express << ")";
   }
 
   /// ORDER_BY("name".ASC)
   /// ORDER_BY(["name".ASC, Configs.name.DESC])
   Express ORDER_BY(Object express) {
-    this << "ORDER BY" << _clause(express);
+    this << "ORDER BY" << express;
     return this;
   }
 
@@ -88,13 +88,13 @@ extension ExpressExt on Express {
 
 Express PARTITION_BY(Object express) {
   var e = Express("PARTITION BY");
-  e << _clause(express);
+  e << express;
   return e;
 }
 
 Express ORDER_BY(Object express) {
   var e = Express("ORDER BY");
-  e << _clause(express);
+  e << express;
   return e;
 }
 

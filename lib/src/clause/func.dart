@@ -8,4 +8,8 @@ extension ETableSQLExt<T extends TableColumn<T>> on TableColumn<T> {
   String MIN() {
     return "MIN($fullname)";
   }
+
+  String AVG() {
+    return "AVG($fullname)";
+  }
 }

@@ -38,8 +38,20 @@ class Express {
         return this.addText(s);
       case Express ex:
         return this.addExpress(ex);
+      case TableColumn c:
+        return this.addText(c.fullname);
+      case Type t:
+        return this.addText(t.proto.nameSQL);
+      case FieldProto f:
+        return this.addText(f.fullname);
+      case AnyList ls:
+        for (int i = 0; i < ls.length; ++i) {
+          if (i != 0) this << ",";
+          this << ls[i];
+        }
+        return this;
     }
-    errorSQL("Operator '+' only support Express OR String");
+    errorSQL("Operator '<<' only support String/Express/TableColumn/Type/FieldProto/List<dynamic>");
   }
 
   Express addExpress(Express other) {

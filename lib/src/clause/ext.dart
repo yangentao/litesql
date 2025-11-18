@@ -18,16 +18,11 @@ extension TableColumnExpresExt<T extends TableColumn<T>> on TableColumn<T> {
   String get DESC => "$fullname DESC";
 }
 
-extension _TypeTableProtoExt on Type {
+extension  on Type {
   TableProto get proto => _requireTableProto(this);
 }
 
-extension TypeTableExt on Type {
-  Express JOIN(Object other) {
-    From(this).proto;
-    return Express("");
-  }
-}
+
 
 extension ListJoinMapEx<T> on List<T> {
   String joinMap(String sep, [String Function(T)? tranform]) {
