@@ -11,9 +11,9 @@ class MPerson extends TableModel<Person> {
 
   set name(String? value) => set(Person.name, value);
 
-  String? get addr => get(Person.add);
+  String? get addr => get(Person.addr);
 
-  set addr(String? value) => set(Person.add, value);
+  set addr(String? value) => set(Person.addr, value);
 
   int? get age => Person.age.get(this);
 
@@ -23,7 +23,7 @@ class MPerson extends TableModel<Person> {
 enum Person with TableColumn<Person> {
   id(INTEGER(primaryKey: true)),
   name(TEXT()),
-  add(TEXT()),
+  addr(TEXT()),
   age(INTEGER());
 
   const Person(this.proto);

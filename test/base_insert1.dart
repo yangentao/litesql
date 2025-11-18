@@ -15,7 +15,7 @@ void main() async {
     lite.insertMap("Person", {Person.name: "yang", Person.age: 22, "add": "Peiking"});
 
     List<MPerson> ps = lite
-        .query(Person.values, from: Person, where: Person.age.GE(42) & Person.add.GLOB("*an2"), orderBy: [Person.age.ASC, Person.name.DESC])
+        .query(Person.values, from: Person, where: Person.age.GE(42) & Person.addr.GLOB("*an2"), orderBy: [Person.age.ASC, Person.name.DESC])
         .allModels(MPerson.new);
     println(ps);
 
