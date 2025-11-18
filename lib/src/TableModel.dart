@@ -23,10 +23,10 @@ class TableModel<E> {
   /// delete by key
   int delete() {
     EnumTable tab = mtable();
-    List<FieldProto> pks = tab.primaryKeys();
+    List<ColumnProto> pks = tab.primaryKeys();
     if (pks.isEmpty) errorSQL("NO primary key defined.");
     List<Where> wherePks = [];
-    for (FieldProto f in pks) {
+    for (ColumnProto f in pks) {
       dynamic v = get(f.name);
       if (v == null) errorSQL("Primary key is null: ${f.name}");
       wherePks.add(f.EQ(v));
@@ -42,13 +42,13 @@ class TableModel<E> {
   /// ONLY update columns changed in callback.
   int update(VoidCallback callback) {
     EnumTable tab = mtable();
-    List<FieldProto> pks = tab.primaryKeys();
+    List<ColumnProto> pks = tab.primaryKeys();
     if (pks.isEmpty) errorSQL("NO primary key defined.");
     _modifiedKeys.clear();
     callback();
     if (_modifiedKeys.isEmpty) return 0;
     List<Where> wherePks = [];
-    for (FieldProto f in pks) {
+    for (ColumnProto f in pks) {
       dynamic v = get(f.name);
       if (v == null) errorSQL("Primary key is null: ${f.name}");
       wherePks.add(f.EQ(v));
@@ -56,7 +56,7 @@ class TableModel<E> {
 
     List<FieldValue> values = [];
     for (String k in _modifiedKeys) {
-      FieldProto f = tab.proto.fields.firstWhere((e) => e.name == k);
+      ColumnProto f = tab.proto.fields.firstWhere((e) => e.name == k);
       if (!f.primaryKey) {
         values.add(f >> get(k));
       }
@@ -75,10 +75,10 @@ class TableModel<E> {
   int updateBy({List<TableColumn>? columns, List<String>? names, List<TableColumn>? excludeColumns, List<String>? excludeNames}) {
     EnumTable tab = mtable();
 
-    List<FieldProto> pks = tab.primaryKeys();
+    List<ColumnProto> pks = tab.primaryKeys();
     if (pks.isEmpty) errorSQL("NO primary key defined.");
     List<Where> wherePks = [];
-    for (FieldProto f in pks) {
+    for (ColumnProto f in pks) {
       dynamic v = get(f.name);
       if (v == null) errorSQL("Primary key is null: ${f.name}");
       wherePks.add(f.EQ(v));
@@ -143,7 +143,7 @@ class TableModel<E> {
         ls.add(tab.proto.find(f)! >> get(f));
       }
     } else {
-      for (FieldProto f in tab.proto.fields) {
+      for (ColumnProto f in tab.proto.fields) {
         ls.add(f >> get(f));
       }
     }
@@ -193,7 +193,7 @@ class TableModel<E> {
 String _nameOfKey(Object key) {
   return switch (key) {
     TableColumn c => c.nameColumn,
-    FieldProto fp => fp.name,
+    ColumnProto fp => fp.name,
     Symbol sy => sy.stringValue,
     _ => key.toString(),
   };

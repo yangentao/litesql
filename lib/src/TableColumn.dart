@@ -3,7 +3,7 @@ part of 'sql.dart';
 mixin TableColumn<T extends Enum> on Enum {
   Type get tableType => T;
 
-  String get tableName => exGetOrPut("tableName", () {
+  String get tableName => exPropGetOrPut("tableName", () {
     String a = "$T";
     if (a == "Object") errorSQL("TableColumn MUST has a generic type parameter. forexample:  enum Person with TableColumn<Person> ");
     return a;
@@ -11,18 +11,34 @@ mixin TableColumn<T extends Enum> on Enum {
 
   List<T> get columns;
 
-  ColumnSQL get column;
+  ColumnProperties get column;
 
-  String get nameColumn => exGetOrPut("nameColumn", () => (column.rename ?? this.name));
+  String get nameColumn => exPropGetOrPut("nameColumn", () => (column.rename ?? this.name));
 
-  String get nameSQL => exGetOrPut("nameSQL", () => nameColumn.escapeSQL);
+  String get nameSQL => exPropGetOrPut("nameSQL", () => nameColumn.escapeSQL);
 
-  String get fullname => exGetOrPut("fullname", () => "${tableName.escapeSQL}.$nameSQL");
+  String get fullname => exPropGetOrPut("fullname", () => "${tableName.escapeSQL}.$nameSQL");
 
-  FieldProto get proto => exGetOrPut("proto", () => _toFieldSqL());
-}
+  ColumnProto get _proto => exPropGetOrPut("proto", () => _toFieldSqL());
 
-extension TableColumnGetSetEx<T extends Enum> on TableColumn<T> {
+  ColumnProto _toFieldSqL() {
+    ColumnProperties col = column;
+    ColumnProto field = ColumnProto(this.nameColumn, col);
+    return field;
+  }
+
+  Map<String, dynamic> get _propMap => _columnPropMap.getOrPut(this, () => <String, dynamic>{});
+
+  V exPropGetOrPut<V>(String key, V Function() onMiss) {
+    return _propMap.getOrPut(key, onMiss);
+  }
+
+  V? exPropGet<V>(String key) {
+    return _propMap[key];
+  }
+
+  void exPropSet(String key, dynamic value) => _propMap[key] = value;
+
   V? get<V>(Object? container) {
     if (container == null) return null;
     return _getModelValue(container, this.nameColumn);
@@ -32,20 +48,9 @@ extension TableColumnGetSetEx<T extends Enum> on TableColumn<T> {
     _setModelValue(model, this.nameColumn, value);
   }
 
-  FieldProto _toFieldSqL() {
-    ColumnSQL col = column;
-    FieldProto field = FieldProto(
-      name: this.nameColumn,
-      type: col.type ?? "TEXT",
-      primaryKey: col.primaryKey,
-      autoInc: col.autoInc,
-      unique: col.unique,
-      notNull: col.notNull,
-      defaultValue: col.defaultValue,
-      check: col.check,
-      uniqueName: col.uniqueName,
-      index: col.index,
-    );
-    return field;
+  FieldValue operator >>(dynamic value) {
+    return FieldValue(this._proto, value);
   }
 }
+
+final Map<Enum, Map<String, dynamic>> _columnPropMap = {};

@@ -13,7 +13,7 @@ class EnumTable {
 
   String get tableName => proto.name;
 
-  List<FieldProto> primaryKeys() => proto.fields.filter((e) => e.primaryKey);
+  List<ColumnProto> primaryKeys() => proto.fields.filter((e) => e.primaryKey);
 
   T? oneByKey<T>(
     T Function(AnyMap) creator, {
@@ -234,11 +234,7 @@ class EnumTable {
 }
 
 
-extension ETableFieldValueEx<T extends TableColumn<T>> on TableColumn<T> {
-  FieldValue operator >>(dynamic value) {
-    return FieldValue(this.proto, value);
-  }
-}
+
 
 extension ResultSetExtResult on ResultSet {
   QueryResult get result => QueryResult(this);

@@ -11,18 +11,16 @@ import 'package:sqlite3/sqlite3.dart';
 
 import 'sqlite3_x.dart' as xsql;
 
-part 'ColumnSQL.dart';
 part 'EnumTable.dart';
-part 'FieldProto.dart';
 part 'LiteInserts.dart';
 part 'LiteQuery.dart';
 part 'LiteSQL.dart';
 part 'LiteUpdate.dart';
+part 'Proto.dart';
 part 'SingleTable.dart';
 part 'TableColumn.dart';
 part 'TableColumnExt.dart';
 part 'TableModel.dart';
-part 'TableProto.dart';
 part 'clause/clauses.dart';
 part 'clause/express.dart';
 part 'clause/ext.dart';

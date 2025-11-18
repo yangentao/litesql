@@ -154,7 +154,7 @@ Object _clause(dynamic value) {
       return c.fullname;
     case Type t:
       return t.proto.nameSQL;
-    case FieldProto f:
+    case ColumnProto f:
       return f.fullname;
     case AnyList ls:
       AnyList args = [];

@@ -99,7 +99,7 @@ enum Person with TableColumn<Person> {
   const Person(this.column);
 
   @override
-  final ColumnSQL column;
+  final ColumnProperties column;
 
   @override
   List<Person> get columns => Person.values;

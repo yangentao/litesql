@@ -21,7 +21,7 @@ class SingleTable {
     return AND_ALL(ws);
   }
 
-  dynamic oneValue(FieldProto column, {Where? where, String? groupBy, String? having, String? window, String? order, List<String>? orderBy}) {
+  dynamic oneValue(ColumnProto column, {Where? where, String? groupBy, String? having, String? window, String? order, List<String>? orderBy}) {
     var w = where;
     return lite
         .query([column.name], from: table.name, where: w?.sql, groupBy: groupBy, having: having, window: window, orderBy: order, orders: orderBy, limit: 1, args: w?.args)
@@ -32,7 +32,7 @@ class SingleTable {
     T Function(AnyMap) creator, {
     required dynamic key,
     List<String>? selections,
-    List<FieldProto>? columns,
+    List<ColumnProto>? columns,
     String? groupBy,
     String? having,
     String? window,
@@ -46,7 +46,7 @@ class SingleTable {
     T Function(AnyMap) creator, {
     required List<dynamic> keys,
     List<String>? selections,
-    List<FieldProto>? columns,
+    List<ColumnProto>? columns,
     String? groupBy,
     String? having,
     String? window,
@@ -69,7 +69,7 @@ class SingleTable {
   T? one<T>(
     T Function(AnyMap) creator, {
     List<String>? selections,
-    List<FieldProto>? columns,
+    List<ColumnProto>? columns,
     Where? where,
     List<Where>? wheres,
     String? groupBy,
@@ -123,7 +123,7 @@ class SingleTable {
   List<T> list<T>(
     T Function(AnyMap) creator, {
     List<String>? selections,
-    List<FieldProto>? columns,
+    List<ColumnProto>? columns,
     Where? where,
     List<Where>? wheres,
     String? groupBy,
@@ -152,7 +152,7 @@ class SingleTable {
 
   ResultSet query({
     List<String>? selections,
-    List<FieldProto>? columns,
+    List<ColumnProto>? columns,
     Where? where,
     List<Where>? wheres,
     String? groupBy,

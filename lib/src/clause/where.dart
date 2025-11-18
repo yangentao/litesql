@@ -326,7 +326,7 @@ extension WhereEnum<T extends TableColumn<T>> on TableColumn<T> {
   }
 }
 
-extension on FieldProto {
+extension on ColumnProto {
   Where IN(AnyList values) {
     return _WhereIn(this, values);
   }

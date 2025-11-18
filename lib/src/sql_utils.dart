@@ -1,13 +1,13 @@
 part of 'sql.dart';
 
-extension FieldSQLValue on FieldProto {
+extension FieldSQLValue on ColumnProto {
   FieldValue operator >>(dynamic value) {
     return FieldValue(this, value);
   }
 }
 
 class FieldValue {
-  FieldProto field;
+  ColumnProto field;
   dynamic value;
   bool express;
 
