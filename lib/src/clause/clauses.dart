@@ -61,6 +61,8 @@ extension ExpressExt on Express {
         return this << ex;
       case Type t:
         return this << t.proto.nameSQL;
+      case TableProto p:
+        return this << p.nameSQL;
     }
     errorSQL("FROM not support parameter: $express");
   }

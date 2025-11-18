@@ -233,17 +233,6 @@ class EnumTable {
   }
 }
 
-extension LiteSQLEnum on LiteSQL {
-  /// liteSQL.migrateEnumTable(Person.values)
-  void migrateEnumTable<T extends TableColumn<T>>(List<T> fields) {
-    MigrateEnumTable(this, fields);
-  }
-
-  /// liteSQL.from(Person)
-  EnumTable from(Type table) {
-    return EnumTable(lite: this, tableType: table);
-  }
-}
 
 extension ETableFieldValueEx<T extends TableColumn<T>> on TableColumn<T> {
   FieldValue operator >>(dynamic value) {

@@ -6,7 +6,7 @@ import 'model.dart';
 void main() {
   LiteSQL lite = LiteSQL.openMemory();
   // create/migrate table 'person', and attach 'lite' database to 'Person'
-  lite.migrateEnumTable(Person.values);
+  lite.migrateEnum(Person.values);
   // output:
   // CREATE TABLE IF NOT EXISTS Person (
   // id INTEGER PRIMARY KEY,

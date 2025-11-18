@@ -6,7 +6,7 @@ void main() {
   //
   test("configs", () async {
     LiteSQL lite = LiteSQL.openMemory();
-    lite.migrateEnumTable(Configs.values);
+    lite.migrateEnum(Configs.values);
 
     MConfigs.putString("name", "Entao");
     MConfigs.putString("addr", "Jinan");

@@ -6,25 +6,15 @@ import 'model.dart';
 void main() {
   LiteSQL lite = LiteSQL.openMemory();
   // create/migrate table 'person', and attach 'lite' database to 'Person'
-  lite.migrateEnumTable(Person.values);
+  lite.migrateEnum(Person.values);
   From(Person).insertAll([
     [Person.name >> "yang"],
     [Person.name >> "entao"],
     [Person.name >> "yangentao"],
   ]);
   From(Person).dump();
-  var r = SELECT([Person.values]).FROM(Person).WHERE(Person.name.NOT.GLOB("*en*")).ORDER_BY(Person.name.DESC).LIMIT(10).query(lite);
+  var r = SELECT([Person.values]).FROM($(Person)).WHERE(Person.name.NOT.GLOB("*en*")).ORDER_BY(Person.name.DESC).LIMIT(10).query(lite);
   println(r.firstModel(MPerson.new));
-}
-
-class AA {}
-
-extension AAA on Type {
-  String hello() => "Hello";
-}
-
-extension type MyInt(int value) implements int {
-  static void hello() {
-    println("Hello");
-  }
+  int a = 9;
+  var s = "$a ";
 }

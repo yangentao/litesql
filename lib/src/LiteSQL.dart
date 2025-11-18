@@ -93,11 +93,21 @@ class LiteSQL {
   }
 
   void migrate(TableProto table) {
-    MigrateTable(this, table.name, table.fields);
+    _migrateTable(this, table.name, table.fields);
   }
 
   void migrateTable(String tableName, List<FieldProto> fields) {
-    MigrateTable(this, tableName, fields);
+    _migrateTable(this, tableName, fields);
+  }
+
+  /// liteSQL.migrateEnumTable(Person.values)
+  void migrateEnum<T extends TableColumn<T>>(List<T> fields) {
+    _migrateEnumTable(this, fields);
+  }
+
+  /// liteSQL.from(Person)
+  EnumTable from(Type table) {
+    return EnumTable(lite: this, tableType: table);
   }
 
   List<TableInfoItem> tableInfo(String tableName) {
@@ -243,5 +253,76 @@ class TableInfoItem {
   @override
   String toString() {
     return "TableInfo(cid:$cid, name:$name, type:$type, pk:$pk,  notnull:$notNull, defaultValue:$defaultValue)";
+  }
+}
+
+Map<Type, TableProto> _enumTypeMap = {};
+
+TableProto _requireTableProto(Type type) {
+  TableProto? p = _enumTypeMap[type];
+  if (p == null) {
+    errorSQL("NO table proto of $type  found, migrate it first. ");
+  }
+  return p;
+}
+
+TableProto $(Type type) => _requireTableProto(type);
+
+TableProto TABLE(Type type) => _requireTableProto(type);
+
+EnumTable From(Type type) {
+  return _tableOfType(type);
+}
+
+EnumTable FromTable(Type type) {
+  return _tableOfType(type);
+}
+
+EnumTable _tableOfType(Type type) {
+  var info = _requireTableProto(type);
+  return info.liteSQL!.from(type);
+}
+
+void _migrateEnumTable<T extends TableColumn<T>>(LiteSQL lite, List<T> fields) {
+  assert(fields.isNotEmpty);
+  T first = fields.first;
+  if (_enumTypeMap.containsKey(first.tableType)) return;
+
+  List<FieldProto> fieldList = [];
+  for (T item in fields) {
+    fieldList.add(item.proto);
+  }
+
+  TableProto tab = TableProto(first.tableName, fieldList);
+  _enumTypeMap[first.tableType] = tab;
+  lite.migrate(tab);
+  tab.liteSQL = lite;
+}
+
+void _migrateTable(LiteSQL lite, String tableName, List<FieldProto> fields) {
+  if (!lite.existTable(tableName)) {
+    lite.createTable(tableName, fields);
+    return;
+  }
+
+  List<TableInfoItem> cols = lite.tableInfo(tableName);
+  Set<String> colSet = cols.map((e) => e.name).toSet();
+  for (FieldProto f in fields) {
+    if (!colSet.contains(f.name)) {
+      lite.addColumn(tableName, f);
+    }
+  }
+  Set<String> idxSet = {};
+  for (var a in lite.listIndex()) {
+    var ls = lite.indexInfo(a.index);
+    if (ls.length == 1) {
+      idxSet.add(ls.first);
+    }
+  }
+  for (FieldProto f in fields) {
+    if (f.primaryKey || f.unique || notBlank(f.uniqueName)) continue;
+    if (f.index && !idxSet.contains(f.name)) {
+      lite.createIndex(tableName, [f.name]);
+    }
   }
 }

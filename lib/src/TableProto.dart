@@ -19,21 +19,3 @@ class TableProto {
   // after migrate
   static TableProto of(Type type) => _requireTableProto(type);
 }
-
-extension FieldSQLJoinOnExt on FieldProto {
-  String JOIN(TableProto other, {required String on}) {
-    return "$nameSQL JOIN ${other.nameSQL} ON $on";
-  }
-
-  String LEFT_JOIN(TableProto other, {required String on}) {
-    return "$nameSQL LEFT JOIN ${other.nameSQL} ON $on";
-  }
-
-  String RIGHT_JOIN(TableProto other, {required String on}) {
-    return "$nameSQL RIGHT JOIN ${other.nameSQL} ON $on";
-  }
-
-  String FULL_JOIN(TableProto other, {required String on}) {
-    return "$nameSQL FULL JOIN ${other.nameSQL} ON $on";
-  }
-}
