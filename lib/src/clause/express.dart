@@ -36,6 +36,8 @@ class Express {
     switch (other) {
       case String s:
         return this.addText(s);
+      case num n:
+        return this.addText(n.toString());
       case Express ex:
         return this.addExpress(ex);
       case TableColumn c:
@@ -91,7 +93,15 @@ extension type SpaceBuffer(StringBuffer buffer) {
   }
 
   SpaceBuffer operator <<(String s) {
-    return add(s);
+    if (s == "," || s == " ") {
+      buffer.write(s);
+    } else {
+      if (buffer.isNotEmpty) {
+        buffer.write(" ");
+      }
+      buffer.write(s);
+    }
+    return this;
   }
 
   SpaceBuffer add(String s) {

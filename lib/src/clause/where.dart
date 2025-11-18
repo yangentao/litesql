@@ -47,11 +47,12 @@ class _WhereIn extends Where {
 
 class _WhereOp extends Where {
   _WhereOp(Object left, String op, Object right) : super("") {
+    this << left << op;
     if (right is String) {
-      this << left << op << "?";
+      this << "?";
       this.args.add(right);
     } else {
-      this << left << op << right;
+      this << right;
     }
   }
 }
