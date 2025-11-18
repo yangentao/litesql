@@ -13,7 +13,7 @@ mixin TableColumn<T extends Enum> on Enum {
 
   ColumnSQL get column;
 
-  String get nameColumn => exGetOrPut("nameColumn", () => (column.name ?? this.name));
+  String get nameColumn => exGetOrPut("nameColumn", () => (column.rename ?? this.name));
 
   String get nameSQL => exGetOrPut("nameSQL", () => nameColumn.escapeSQL);
 

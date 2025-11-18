@@ -2,7 +2,7 @@ part of 'sql.dart';
 
 class INTEGER extends ColumnSQL {
   const INTEGER({
-    super.name,
+    super.rename,
     super.type = "INTEGER",
     super.primaryKey = false,
     super.notNull = false,
@@ -17,7 +17,7 @@ class INTEGER extends ColumnSQL {
 
 class REAL extends ColumnSQL {
   const REAL({
-    super.name,
+    super.rename,
     super.type = "REAL",
     super.primaryKey = false,
     super.notNull = false,
@@ -31,7 +31,7 @@ class REAL extends ColumnSQL {
 
 class NUMERIC extends ColumnSQL {
   const NUMERIC({
-    super.name,
+    super.rename,
     super.type = "NUMERIC",
     super.primaryKey = false,
     super.notNull = false,
@@ -45,7 +45,7 @@ class NUMERIC extends ColumnSQL {
 
 class TEXT extends ColumnSQL {
   const TEXT({
-    super.name,
+    super.rename,
     super.type = "TEXT",
     super.primaryKey = false,
     super.notNull = false,
@@ -59,7 +59,7 @@ class TEXT extends ColumnSQL {
 
 class BLOB extends ColumnSQL {
   const BLOB({
-    super.name,
+    super.rename,
     super.type = "BLOB",
     super.primaryKey = false,
     super.notNull = false,
@@ -72,8 +72,8 @@ class BLOB extends ColumnSQL {
 }
 
 class ColumnSQL {
-  final String? name;
-  final String? type;
+  final String? rename;
+  final String type;
   final bool primaryKey;
   final bool autoInc; //AUTOINCREMENT
   final bool unique;
@@ -84,8 +84,8 @@ class ColumnSQL {
   final bool index;
 
   const ColumnSQL({
-    this.name,
-    this.type,
+    required this.type,
+    this.rename,
     this.primaryKey = false,
     this.notNull = false,
     this.autoInc = false,
