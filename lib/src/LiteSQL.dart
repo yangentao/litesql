@@ -92,16 +92,8 @@ class LiteSQL {
     }
   }
 
-  void migrate(TableProto table) {
-    _migrateTable(this, table.name, table.fields);
-  }
-
-  void migrateTable(String tableName, List<TableColumn> fields) {
-    _migrateTable(this, tableName, fields);
-  }
-
   /// liteSQL.migrateEnumTable(Person.values)
-  void migrateEnum<T extends TableColumn<T>>(List<T> fields) {
+  void migrate<T extends TableColumn<T>>(List<T> fields) {
     _migrateEnumTable(this, fields);
   }
 
@@ -290,8 +282,8 @@ void _migrateEnumTable<T extends TableColumn<T>>(LiteSQL lite, List<T> fields) {
 
   TableProto tab = TableProto(first.tableName, fields);
   _enumTypeMap[first.tableType] = tab;
-  lite.migrate(tab);
   tab.liteSQL = lite;
+  _migrateTable(lite, tab.name, tab.fields);
 }
 
 void _migrateTable(LiteSQL lite, String tableName, List<TableColumn> fields) {

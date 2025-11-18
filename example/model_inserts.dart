@@ -5,7 +5,7 @@ import 'model.dart';
 
 void main() {
   LiteSQL lite = LiteSQL.openMemory();
-  lite.migrateEnum(Person.values);
+  lite.migrate(Person.values);
   MPerson p = MPerson({});
   p.name = "entao";
   p.age = 33;

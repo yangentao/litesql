@@ -6,7 +6,7 @@ import 'package:println/println.dart';
 void main() {
   LiteSQL lite = LiteSQL.openMemory();
 
-  lite.migrateEnum(Person.values);
+  lite.migrate(Person.values);
   // CREATE TABLE IF NOT EXISTS Person (
   // id INTEGER PRIMARY KEY,
   // name TEXT,

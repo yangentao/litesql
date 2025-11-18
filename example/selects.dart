@@ -6,7 +6,7 @@ import 'model.dart';
 void main() {
   LiteSQL lite = LiteSQL.openMemory();
   // create/migrate table 'person', and attach 'lite' database to 'Person'
-  lite.migrateEnum(Person.values);
+  lite.migrate(Person.values);
   From(Person).insertAll([
     [Person.name >> "yang"],
     [Person.name >> "entao"],
@@ -15,6 +15,4 @@ void main() {
   From(Person).dump();
   var r = SELECT([Person.values]).FROM($(Person)).WHERE(Person.name.NOT.GLOB("*en*")).ORDER_BY(Person.name.DESC).LIMIT(10).query(lite);
   println(r.firstModel(MPerson.new));
-  int a = 9;
-  var s = "$a ";
 }
