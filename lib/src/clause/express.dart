@@ -1,7 +1,5 @@
 part of '../sql.dart';
 
-AnyList ls = [];
-
 class Express {
   final SpaceBuffer buffer;
 
@@ -33,7 +31,6 @@ class Express {
     errorSQL("Operator '+' only support Express OR String");
   }
 
-  // Express OR String
   Express operator <<(Object other) {
     switch (other) {
       case String s:
@@ -51,7 +48,8 @@ class Express {
       case TableProto t:
         return this.addText(t.nameSQL);
       case AnyList ls:
-        for (int i = 0; i < ls.length; ++i) {
+        AnyList ls2 = ls.filter((e) => e != null);
+        for (int i = 0; i < ls2.length; ++i) {
           if (i != 0) this << ",";
           this << ls[i];
         }

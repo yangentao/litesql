@@ -3,6 +3,8 @@ part of '../sql.dart';
 class Where extends Express {
   Where(super.express, {super.args});
 
+  Where.strip(Express express) : super(express.sql, args: express.args);
+
   @override
   Where get braced => Where("($sql)", args: this.args);
 
@@ -20,18 +22,6 @@ class Where extends Express {
 
   Where operator |(Where w) {
     return _WhereOr(this, w);
-  }
-}
-
-Set<String> _likeDenyChars = {' ', '"', '\'', ';', ',', '\$', '/', '?', ':', '<', '>', '#', '(', ')', '{', '}'};
-
-// only '_' and '%' allowed
-class _WhereLike extends Where {
-  _WhereLike(Object left, String pattern) : super("") {
-    for (var a in _likeDenyChars) {
-      if (pattern.contains(a)) errorSQL("Deny Char: $a , in: $pattern");
-    }
-    this << left << "LIKE" << "'" << pattern << "'";
   }
 }
 
@@ -113,13 +103,37 @@ Where AND_ALL(List<Where> ws) {
   return ws.first.AND(AND_ALL(ws.sublist(1)));
 }
 
-extension StringWhereExt on String {
-  Where LIKE(dynamic value) {
-    return _WhereLike(this, value);
-  }
+Where EXISTS(Express express) {
+  var w = Where("EXISTS");
+  w << express;
+  return w;
+}
 
+Where NOT(Express express) {
+  var w = Where("NOT");
+  w << express;
+  return w;
+}
+
+extension ExpressWhereExt on Express {
   Where IN(AnyList values) {
     return _WhereIn(this, values);
+  }
+
+  Where LIKE(String value) {
+    return _WhereOp(this, "LIKE", value);
+  }
+
+  Where GLOB(String value) {
+    return _WhereOp(this, "GLOB", value);
+  }
+
+  Where MATCH(String value) {
+    return _WhereOp(this, "MATCH", value);
+  }
+
+  Where REGEXP(String value) {
+    return _WhereOp(this, "REGEXP", value);
   }
 
   Where EQ(dynamic value) {
@@ -144,13 +158,119 @@ extension StringWhereExt on String {
 
   Where LT(dynamic value) {
     return _WhereOp(this, "<", value);
+  }
+
+  Where BETWEEN(Object minValue, Object maxValue) {
+    Where w = this is Where ? this as Where : Where.strip(this);
+    w << "BETWEEN" << minValue << "AND" << maxValue;
+    return w;
+  }
+
+  Where get NOT {
+    Where w = this is Where ? this as Where : Where.strip(this);
+    w << "NOT";
+    return w;
+  }
+
+  Where get ISNULL {
+    Where w = this is Where ? this as Where : Where.strip(this);
+    w << "ISNULL";
+    return w;
+  }
+
+  Where get NOTNULL {
+    Where w = this is Where ? this as Where : Where.strip(this);
+    w << "NOTNULL";
+    return w;
+  }
+}
+
+extension StringWhereExt on String {
+  Where IN(AnyList values) {
+    return _WhereIn(this, values);
+  }
+
+  Where LIKE(String value) {
+    return _WhereOp(this, "LIKE", value);
+  }
+
+  Where GLOB(String value) {
+    return _WhereOp(this, "GLOB", value);
+  }
+
+  Where MATCH(String value) {
+    return _WhereOp(this, "MATCH", value);
+  }
+
+  Where REGEXP(String value) {
+    return _WhereOp(this, "REGEXP", value);
+  }
+
+  Where EQ(dynamic value) {
+    return _WhereOp(this, "=", value);
+  }
+
+  Where NE(dynamic value) {
+    return _WhereOp(this, "!=", value);
+  }
+
+  Where GE(dynamic value) {
+    return _WhereOp(this, ">=", value);
+  }
+
+  Where LE(dynamic value) {
+    return _WhereOp(this, "<=", value);
+  }
+
+  Where GT(dynamic value) {
+    return _WhereOp(this, ">", value);
+  }
+
+  Where LT(dynamic value) {
+    return _WhereOp(this, "<", value);
+  }
+
+  Where BETWEEN(Object minValue, Object maxValue) {
+    Where w = Where(this);
+    w << "BETWEEN" << minValue << "AND" << maxValue;
+    return w;
+  }
+
+  Where get NOT {
+    Where w = Where(this);
+    w << "NOT";
+    return w;
+  }
+
+  Where get ISNULL {
+    Where w = Where(this);
+    w << "ISNULL";
+    return w;
+  }
+
+  Where get NOTNULL {
+    Where w = Where(this);
+    w << "NOTNULL";
+    return w;
   }
 }
 
 // where
 extension WhereEnum<T extends TableColumn<T>> on TableColumn<T> {
-  Where LIKE(dynamic value) {
-    return _WhereLike(this, value);
+  Where LIKE(String value) {
+    return _WhereOp(this, "LIKE", value);
+  }
+
+  Where GLOB(String value) {
+    return _WhereOp(this, "GLOB", value);
+  }
+
+  Where MATCH(String value) {
+    return _WhereOp(this, "MATCH", value);
+  }
+
+  Where REGEXP(String value) {
+    return _WhereOp(this, "REGEXP", value);
   }
 
   Where IN(AnyList values) {
@@ -179,16 +299,52 @@ extension WhereEnum<T extends TableColumn<T>> on TableColumn<T> {
 
   Where LT(dynamic value) {
     return _WhereOp(this, "<", value);
+  }
+
+  Where BETWEEN(Object minValue, Object maxValue) {
+    Where w = Where(this.fullname);
+    w << "BETWEEN" << minValue << "AND" << maxValue;
+    return w;
+  }
+
+  Where get NOT {
+    Where w = Where(this.fullname);
+    w << "NOT";
+    return w;
+  }
+
+  Where get ISNULL {
+    Where w = Where(this.fullname);
+    w << "ISNULL";
+    return w;
+  }
+
+  Where get NOTNULL {
+    Where w = Where(this.fullname);
+    w << "NOTNULL";
+    return w;
   }
 }
 
 extension on FieldProto {
-  Where LIKE(dynamic value) {
-    return _WhereLike(this, value);
-  }
-
   Where IN(AnyList values) {
     return _WhereIn(this, values);
+  }
+
+  Where LIKE(String value) {
+    return _WhereOp(this, "LIKE", value);
+  }
+
+  Where GLOB(String value) {
+    return _WhereOp(this, "GLOB", value);
+  }
+
+  Where MATCH(String value) {
+    return _WhereOp(this, "MATCH", value);
+  }
+
+  Where REGEXP(String value) {
+    return _WhereOp(this, "REGEXP", value);
   }
 
   Where EQ(dynamic value) {
@@ -213,5 +369,29 @@ extension on FieldProto {
 
   Where LT(dynamic value) {
     return _WhereOp(this, "<", value);
+  }
+
+  Where BETWEEN(Object minValue, Object maxValue) {
+    Where w = Where(this.fullname);
+    w << "BETWEEN" << minValue << "AND" << maxValue;
+    return w;
+  }
+
+  Where get NOT {
+    Where w = Where(this.fullname);
+    w << "NOT";
+    return w;
+  }
+
+  Where get ISNULL {
+    Where w = Where(this.fullname);
+    w << "ISNULL";
+    return w;
+  }
+
+  Where get NOTNULL {
+    Where w = Where(this.fullname);
+    w << "NOTNULL";
+    return w;
   }
 }

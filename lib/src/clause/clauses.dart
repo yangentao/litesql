@@ -50,10 +50,6 @@ Express EXCEPT(Express left, Express right) {
   return e;
 }
 
-Express EXISTS(Express express) {
-  return Express("EXISTS") << express;
-}
-
 extension ExpressExt on Express {
   // String OR Express OR Type
   Express FROM(Object express) {
@@ -88,8 +84,12 @@ extension ExpressExt on Express {
     return this << "HAVING" << express;
   }
 
-  Express WINDOW(String name, Object express) {
+  Express WINDOW_AS(String name, Object express) {
     return this << "WINDOW" << name << "AS" << "(" << express << ")";
+  }
+
+  Express WINDOWS(Object express) {
+    return this << "WINDOW" << express;
   }
 
   /// ORDER_BY("name".ASC)
@@ -107,6 +107,26 @@ extension ExpressExt on Express {
   Express OFFSET(int offset) {
     return this << "OFFSET" << offset.toString();
   }
+
+  Express FILTER(Object express) {
+    return this << "FILTER (WHERE" << express << ")";
+  }
+
+  Express OVER(Object express) {
+    return this << "OVER (" << express << ")";
+  }
+
+  Express OVER_NAME(String name) {
+    return this << "OVER" << name;
+  }
+
+  Express AS(Object express) {
+    return this << "AS" << express;
+  }
+
+  Express get ASC => this << "ASC";
+
+  Express get DESC => this << "DESC";
 }
 
 Express PARTITION_BY(Object express) {

@@ -1,6 +1,8 @@
 part of '../sql.dart';
 
 extension StringExpressExt on String {
+  String get braced => "($this)";
+
   Express get express => Express(this);
 
   String AS(String alias) => "$this AS $alias";
@@ -9,7 +11,13 @@ extension StringExpressExt on String {
 
   String get DESC => "${this.escapeSQL} DESC";
 
-  String get braced => "($this)";
+  Express FILTER(Object express) {
+    return Express(this) << "FILTER (WHERE" << express << ")";
+  }
+
+  Express OVER(Object express) {
+    return Express(this) << "OVER" << express;
+  }
 }
 
 extension TableColumnExpresExt<T extends TableColumn<T>> on TableColumn<T> {
