@@ -19,7 +19,7 @@ part 'LiteUpdate.dart';
 part 'Proto.dart';
 part 'SingleTable.dart';
 part 'TableColumn.dart';
-part 'TableColumnExt.dart';
+part 'QueryResult.dart';
 part 'TableModel.dart';
 part 'clause/clauses.dart';
 part 'clause/express.dart';
