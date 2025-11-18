@@ -4,19 +4,19 @@ class Where extends Express {
   Where(super.express, {super.args});
 
   Where AND(Where w) {
-    return WhereAnd(this, w);
+    return _WhereAnd(this, w);
   }
 
   Where OR(Where w) {
-    return WhereOr(this, w);
+    return _WhereOr(this, w);
   }
 }
 
 Set<String> _likeDenyChars = {' ', '"', '\'', ';', ',', '\$', '/', '?', ':', '<', '>', '#', '(', ')', '{', '}'};
 
 // only '_' and '%' allowed
-class WhereLike extends Where {
-  WhereLike(Object left, String pattern) : super("") {
+class _WhereLike extends Where {
+  _WhereLike(Object left, String pattern) : super("") {
     if (left is Express) this.args.addAll(left.args);
     for (var a in _likeDenyChars) {
       if (pattern.contains(a)) errorSQL("Deny Char: $a , in: $pattern");
@@ -25,8 +25,8 @@ class WhereLike extends Where {
   }
 }
 
-class WhereIn extends Where {
-  WhereIn(Object left, Iterable<dynamic> items) : super("") {
+class _WhereIn extends Where {
+  _WhereIn(Object left, Iterable<dynamic> items) : super("") {
     if (left is Express) this.args.addAll(left.args);
     var a = items
         .map((e) {
@@ -44,8 +44,8 @@ class WhereIn extends Where {
   }
 }
 
-class WhereOp extends Where {
-  WhereOp(Object left, String op, Object right) : super("") {
+class _WhereOp extends Where {
+  _WhereOp(Object left, String op, Object right) : super("") {
     if (left is Express) this.args.addAll(left.args);
     if (right is Express) this.args.addAll(right.args);
     if (right is String) {
@@ -57,16 +57,16 @@ class WhereOp extends Where {
   }
 }
 
-class WhereAnd extends Where {
-  WhereAnd(Where left, Where right) : super("") {
+class _WhereAnd extends Where {
+  _WhereAnd(Where left, Where right) : super("") {
     this.args.addAll(left.args);
     this.args.addAll(right.args);
-    if (left is WhereOr) {
+    if (left is _WhereOr) {
       this << "(" << left.sql << ")" << "AND";
     } else {
       this << left.sql << "AND";
     }
-    if (right is WhereOr) {
+    if (right is _WhereOr) {
       this << "(" << right.sql << ")";
     } else {
       this << right.sql;
@@ -74,8 +74,8 @@ class WhereAnd extends Where {
   }
 }
 
-class WhereOr extends Where {
-  WhereOr(Where left, Where right) : super("") {
+class _WhereOr extends Where {
+  _WhereOr(Where left, Where right) : super("") {
     this.args.addAll(left.args);
     this.args.addAll(right.args);
     this << left.sql << "OR" << right.sql;
@@ -95,124 +95,116 @@ extension ListWhereExt on List<Where> {
 Where OR_ALL(List<Where> ws) {
   if (ws.isEmpty) return Where("");
   if (ws.length == 1) return ws.first;
-  if (ws.length == 2) return OR_W(ws.first, ws.second!);
-  return OR_W(ws.first, OR_ALL(ws.sublist(1)));
+  if (ws.length == 2) return ws.first.OR(ws.second!);
+  return ws.first.OR(OR_ALL(ws.sublist(1)));
 }
 
 Where AND_ALL(List<Where> ws) {
   if (ws.isEmpty) return Where("");
   if (ws.length == 1) return ws.first;
-  if (ws.length == 2) return AND_W(ws.first, ws.second!);
-  return AND_W(ws.first, AND_ALL(ws.sublist(1)));
-}
-
-Where AND_W(Where left, Where right) {
-  return WhereAnd(left, right);
-}
-
-Where OR_W(Where left, Where right) {
-  return WhereOr(left, right);
+  if (ws.length == 2) return ws.first.AND(ws.second!);
+  return ws.first.AND(AND_ALL(ws.sublist(1)));
 }
 
 extension StringWhereExt on String {
-  WhereLike LIKE(dynamic value) {
-    return WhereLike(this, value);
+  Where LIKE(dynamic value) {
+    return _WhereLike(this, value);
   }
 
   Where IN(AnyList values) {
-    return WhereIn(this, values);
+    return _WhereIn(this, values);
   }
 
   Where EQ(dynamic value) {
-    return WhereOp(this, "=", value);
+    return _WhereOp(this, "=", value);
   }
 
   Where NE(dynamic value) {
-    return WhereOp(this, "!=", value);
+    return _WhereOp(this, "!=", value);
   }
 
   Where GE(dynamic value) {
-    return WhereOp(this, ">=", value);
+    return _WhereOp(this, ">=", value);
   }
 
   Where LE(dynamic value) {
-    return WhereOp(this, "<=", value);
+    return _WhereOp(this, "<=", value);
   }
 
   Where GT(dynamic value) {
-    return WhereOp(this, ">", value);
+    return _WhereOp(this, ">", value);
   }
 
   Where LT(dynamic value) {
-    return WhereOp(this, "<", value);
+    return _WhereOp(this, "<", value);
   }
 }
 
 // where
 extension WhereEnum<T extends TableColumn<T>> on TableColumn<T> {
-  WhereLike LIKE(dynamic value) {
-    return WhereLike(this, value);
+  Where LIKE(dynamic value) {
+    return _WhereLike(this, value);
   }
 
   Where IN(AnyList values) {
-    return WhereIn(this, values);
+    return _WhereIn(this, values);
   }
 
   Where EQ(dynamic value) {
-    return WhereOp(this, "=", value);
+    return _WhereOp(this, "=", value);
   }
 
   Where NE(dynamic value) {
-    return WhereOp(this, "!=", value);
+    return _WhereOp(this, "!=", value);
   }
 
   Where GE(dynamic value) {
-    return WhereOp(this, ">=", value);
+    return _WhereOp(this, ">=", value);
   }
 
   Where LE(dynamic value) {
-    return WhereOp(this, "<=", value);
+    return _WhereOp(this, "<=", value);
   }
 
   Where GT(dynamic value) {
-    return WhereOp(this, ">", value);
+    return _WhereOp(this, ">", value);
   }
 
   Where LT(dynamic value) {
-    return WhereOp(this, "<", value);
+    return _WhereOp(this, "<", value);
   }
 }
 
 extension on FieldProto {
-  WhereLike LIKE(dynamic value) {
-    return WhereLike(this, value);
+  Where LIKE(dynamic value) {
+    return _WhereLike(this, value);
   }
 
   Where IN(AnyList values) {
-    return WhereIn(this, values);
+    return _WhereIn(this, values);
   }
 
   Where EQ(dynamic value) {
-    return WhereOp(this, "=", value);
+    return _WhereOp(this, "=", value);
   }
 
   Where NE(dynamic value) {
-    return WhereOp(this, "!=", value);
+    return _WhereOp(this, "!=", value);
   }
 
   Where GE(dynamic value) {
-    return WhereOp(this, ">=", value);
+    return _WhereOp(this, ">=", value);
   }
 
   Where LE(dynamic value) {
-    return WhereOp(this, "<=", value);
+    return _WhereOp(this, "<=", value);
   }
 
   Where GT(dynamic value) {
-    return WhereOp(this, ">", value);
+    return _WhereOp(this, ">", value);
   }
 
   Where LT(dynamic value) {
-    return WhereOp(this, "<", value);
+    return _WhereOp(this, "<", value);
   }
 }
