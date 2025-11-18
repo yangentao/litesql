@@ -31,6 +31,7 @@ part 'clause/ext.dart';
 part 'clause/joins.dart';
 part 'clause/select.dart';
 part 'clause/where.dart';
+part 'clause/func.dart';
 part 'configs.dart';
 part 'sql_utils.dart';
 part 'sqlite3_ext.dart';

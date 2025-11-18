@@ -22,19 +22,10 @@ class SingleTable {
   }
 
   dynamic oneValue(FieldProto column, {Where? where, String? groupBy, String? having, String? window, String? order, List<String>? orderBy}) {
-    var w = where?.result();
-    return lite.query(
-      [column.name],
-      from: table.name,
-      where: w?.clause,
-      groupBy: groupBy,
-      having: having,
-      window: window,
-      orderBy: order,
-      orders: orderBy,
-      limit: 1,
-      args: w?.args,
-    ).oneValue;
+    var w = where;
+    return lite
+        .query([column.name], from: table.name, where: w?.sql, groupBy: groupBy, having: having, window: window, orderBy: order, orders: orderBy, limit: 1, args: w?.args)
+        .oneValue;
   }
 
   T? oneByKey<T>(
@@ -173,12 +164,12 @@ class SingleTable {
     int? offset,
   }) {
     List<Where> wList = [where, ...?wheres].nonNullList;
-    var w = AND_ALL(wList).result();
+    var w = AND_ALL(wList);
     List<String> selList = [...?selections, ...?columns?.mapList((e) => e.nameSQL)];
     return lite.query(
       selList,
       from: table.name,
-      where: w.clause,
+      where: w.sql,
       groupBy: groupBy,
       having: having,
       window: window,
@@ -191,13 +182,12 @@ class SingleTable {
   }
 
   int delete(Where where) {
-    var w = where.result();
-    return lite.delete(table.nameSQL, where: w.clause, args: w.args);
+    var w = where;
+    return lite.delete(table.nameSQL, where: w.sql, args: w.args);
   }
 
   int update(List<FieldValue> values, {Where? where}) {
-    var w = where?.result();
-    return lite.update(table.name, values.mapList((e) => LabelValue(e.field.nameSQL, e.value)), where: w?.clause, args: w?.args);
+    return lite.update(table.name, values.mapList((e) => LabelValue(e.field.nameSQL, e.value)), where: where?.sql, args: where?.args);
   }
 
   List<int> upsertAll(List<List<FieldValue>> rows) {

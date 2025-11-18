@@ -1,100 +1,84 @@
 part of '../sql.dart';
 
-class WhereResult {
-  final String clause;
-  final AnyList args;
-
-  WhereResult(this.clause, this.args);
-
-  @override
-  String toString() {
-    return "$clause, Args: $args";
-  }
-}
-
-class Where {
-  final OpSQL op;
-  final dynamic left;
-  final dynamic right;
-
-  Where(this.left, this.op, this.right);
-
-  Where.raw(String clause, [AnyList? args]) : op = OpSQL.raw, left = clause, right = args;
+class Where extends Express {
+  Where(super.express, {super.args});
 
   Where AND(Where w) {
-    return Where(this, OpSQL.and, w);
+    return WhereAnd(this, w);
   }
 
   Where OR(Where w) {
-    return Where(this, OpSQL.or, w);
+    return WhereOr(this, w);
   }
+}
 
-  WhereResult result() {
-    AnyList ls = [];
-    return WhereResult(build(ls), ls);
+Set<String> _likeDenyChars = {' ', '"', '\'', ';', ',', '\$', '/', '?', ':', '<', '>', '#', '(', ')', '{', '}'};
+
+// only '_' and '%' allowed
+class WhereLike extends Where {
+  WhereLike(Object left, String pattern) : super("") {
+    if (left is Express) this.args.addAll(left.args);
+    for (var a in _likeDenyChars) {
+      if (pattern.contains(a)) errorSQL("Deny Char: $a , in: $pattern");
+    }
+    this << _clause(left) << "LIKE" << "'" << pattern << "'";
   }
+}
 
-  String build(AnyList args) {
-    if (op == OpSQL.raw) {
-      AnyList? ls = right;
-      if (ls != null) {
-        args.addAll(ls);
-      }
-      return left as String;
-    }
-    if (op == OpSQL.and || op == OpSQL.or) {
-      assert(left is Where);
-      assert(right is Where);
-      Where lw = left as Where;
-      Where rw = right as Where;
-      String lstr = lw.build(args);
-      String rstr = rw.build(args);
-      if (lstr.isEmpty) return rstr;
-      if (rstr.isEmpty) return lstr;
-      if (op == OpSQL.and) {
-        return "${lstr.bracedIf(lw.op == OpSQL.or)} ${op.op} ${rstr.bracedIf(rw.op == OpSQL.or)}";
-      } else {
-        return "$lstr ${op.op} $rstr";
-      }
-    }
-    if (_binaryOps.contains(op)) {
-      assert(left != null);
+class WhereIn extends Where {
+  WhereIn(Object left, Iterable<dynamic> items) : super("") {
+    if (left is Express) this.args.addAll(left.args);
+    var a = items
+        .map((e) {
+          if (e is String) {
+            this.args.add(e);
+            return "?";
+          } else if (e is num) {
+            return e.toString();
+          } else {
+            return _clause(e);
+          }
+        })
+        .join(",");
+    this << _clause(left) << "IN" << "(" << a << ")";
+  }
+}
 
-      if (left is String) {
-        if (right is FieldProto) {
-          String rightName = (right as FieldProto).nameSQL;
-          return "$left ${op.op} $rightName ";
-        }
-        if (right is num) {
-          return "$left ${op.op} $right ";
-        }
-        args.add(right);
-        return "$left ${op.op} ? ";
-      }
-      if (left is FieldProto) {
-        String leftName = (left as FieldProto).nameSQL;
-        if (right is FieldProto) {
-          String rightName = (right as FieldProto).nameSQL;
-          return "$leftName ${op.op} $rightName ";
-        }
-        if (right is num) {
-          return "$leftName ${op.op} $right ";
-        }
-        args.add(right);
-        return "$leftName ${op.op} ? ";
-      }
+class WhereOp extends Where {
+  WhereOp(Object left, String op, Object right) : super("") {
+    if (left is Express) this.args.addAll(left.args);
+    if (right is Express) this.args.addAll(right.args);
+    if (right is String) {
+      this << _clause(left) << op << "?";
+      this.args.add(right);
+    } else {
+      this << _clause(left) << op << _clause(right);
     }
-    if (op == OpSQL.like) {
-      assert(right is String);
-      String rs = right as String;
-      if (left is String) {
-        return "$left ${op.op} ${rs.braced}";
-      } else if (left is FieldProto) {
-        return "${(left as FieldProto).nameSQL} ${op.op} ${rs.braced} ";
-      }
-    }
+  }
+}
 
-    errorSQL("Where错误, op:$op, left: $left, right:$right");
+class WhereAnd extends Where {
+  WhereAnd(Where left, Where right) : super("") {
+    this.args.addAll(left.args);
+    this.args.addAll(right.args);
+    if (left is WhereOr) {
+      this << "(" << left.sql << ")" << "AND";
+    } else {
+      this << left.sql << "AND";
+    }
+    if (right is WhereOr) {
+      this << "(" << right.sql << ")";
+    } else {
+      this << right.sql;
+    }
+  }
+}
+
+class WhereOr extends Where {
+  WhereOr(Where left, Where right) : super("") {
+    this.args.addAll(left.args);
+    this.args.addAll(right.args);
+    this << left.sql << "OR" << right.sql;
   }
 }
 
@@ -109,116 +93,126 @@ extension ListWhereExt on List<Where> {
 }
 
 Where OR_ALL(List<Where> ws) {
-  if (ws.isEmpty) return Where.raw("");
+  if (ws.isEmpty) return Where("");
   if (ws.length == 1) return ws.first;
   if (ws.length == 2) return OR_W(ws.first, ws.second!);
   return OR_W(ws.first, OR_ALL(ws.sublist(1)));
 }
 
 Where AND_ALL(List<Where> ws) {
-  if (ws.isEmpty) return Where.raw("");
+  if (ws.isEmpty) return Where("");
   if (ws.length == 1) return ws.first;
   if (ws.length == 2) return AND_W(ws.first, ws.second!);
   return AND_W(ws.first, AND_ALL(ws.sublist(1)));
 }
 
 Where AND_W(Where left, Where right) {
-  return Where(left, OpSQL.and, right);
+  return WhereAnd(left, right);
 }
 
 Where OR_W(Where left, Where right) {
-  return Where(left, OpSQL.or, right);
+  return WhereOr(left, right);
 }
 
 extension StringWhereExt on String {
+  WhereLike LIKE(dynamic value) {
+    return WhereLike(this, value);
+  }
+
   Where IN(AnyList values) {
-    var a = values.map((e) => "?").join(",");
-    return Where.raw("$this IN ($a) ", values);
+    return WhereIn(this, values);
   }
 
   Where EQ(dynamic value) {
-    return Where(this, OpSQL.eq, value);
+    return WhereOp(this, "=", value);
   }
 
   Where NE(dynamic value) {
-    return Where(this, OpSQL.ne, value);
+    return WhereOp(this, "!=", value);
   }
 
   Where GE(dynamic value) {
-    return Where(this, OpSQL.ge, value);
+    return WhereOp(this, ">=", value);
   }
 
   Where LE(dynamic value) {
-    return Where(this, OpSQL.le, value);
+    return WhereOp(this, "<=", value);
   }
 
   Where GT(dynamic value) {
-    return Where(this, OpSQL.gt, value);
+    return WhereOp(this, ">", value);
   }
 
   Where LT(dynamic value) {
-    return Where(this, OpSQL.lt, value);
-  }
-
-  Where LIKE(dynamic value) {
-    return Where(this, OpSQL.like, value);
+    return WhereOp(this, "<", value);
   }
 }
 
-extension FieldWhereExt on FieldProto {
+// where
+extension WhereEnum<T extends TableColumn<T>> on TableColumn<T> {
+  WhereLike LIKE(dynamic value) {
+    return WhereLike(this, value);
+  }
+
   Where IN(AnyList values) {
-    var a = values.map((e) => "?").join(",");
-    return Where.raw("${this.nameSQL} IN ($a) ", values);
+    return WhereIn(this, values);
   }
 
   Where EQ(dynamic value) {
-    return Where(this, OpSQL.eq, value);
+    return WhereOp(this, "=", value);
   }
 
   Where NE(dynamic value) {
-    return Where(this, OpSQL.ne, value);
+    return WhereOp(this, "!=", value);
   }
 
   Where GE(dynamic value) {
-    return Where(this, OpSQL.ge, value);
+    return WhereOp(this, ">=", value);
   }
 
   Where LE(dynamic value) {
-    return Where(this, OpSQL.le, value);
+    return WhereOp(this, "<=", value);
   }
 
   Where GT(dynamic value) {
-    return Where(this, OpSQL.gt, value);
+    return WhereOp(this, ">", value);
   }
 
   Where LT(dynamic value) {
-    return Where(this, OpSQL.lt, value);
+    return WhereOp(this, "<", value);
   }
-
-  Where LIKE(dynamic value) {
-    return Where(this, OpSQL.like, value);
-  }
-
-  String get ASC => "${this.nameSQL} ASC";
-
-  String get DESC => "${this.nameSQL} DESC";
 }
 
-enum OpSQL {
-  raw("RAW"),
-  and("AND"),
-  or("OR"),
-  eq("="),
-  ne("!="),
-  ge(">"),
-  le("<"),
-  gt(">="),
-  lt("<="),
-  like("LIKE");
+extension on FieldProto {
+  WhereLike LIKE(dynamic value) {
+    return WhereLike(this, value);
+  }
 
-  const OpSQL(this.op);
+  Where IN(AnyList values) {
+    return WhereIn(this, values);
+  }
 
-  final String op;
+  Where EQ(dynamic value) {
+    return WhereOp(this, "=", value);
+  }
+
+  Where NE(dynamic value) {
+    return WhereOp(this, "!=", value);
+  }
+
+  Where GE(dynamic value) {
+    return WhereOp(this, ">=", value);
+  }
+
+  Where LE(dynamic value) {
+    return WhereOp(this, "<=", value);
+  }
+
+  Where GT(dynamic value) {
+    return WhereOp(this, ">", value);
+  }
+
+  Where LT(dynamic value) {
+    return WhereOp(this, "<", value);
+  }
 }
-
-List<OpSQL> _binaryOps = [OpSQL.eq, OpSQL.ne, OpSQL.ge, OpSQL.le, OpSQL.gt, OpSQL.lt];

@@ -146,12 +146,12 @@ class EnumTable {
     int? offset,
   }) {
     List<Where> wList = [where, ...?wheres].nonNullList;
-    var w = AND_ALL(wList).result();
+    var w = AND_ALL(wList);
     return lite
         .query(
           columns?.mapList((e) => e is TableColumn ? e.nameSQL : e.toString()),
           from: tableName,
-          where: w.clause,
+          where: w.sql,
           groupBy: groupBy,
           having: having,
           window: window,
@@ -179,8 +179,8 @@ class EnumTable {
   }
 
   int delete(Where where, {Returning? returning}) {
-    var w = where.result();
-    return lite.delete(tableName, where: w.clause, args: w.args, returning: returning);
+    var w = where;
+    return lite.delete(tableName, where: w.sql, args: w.args, returning: returning);
   }
 
   int updateBy<T extends TableColumn<T>>(List<(TableColumn<T>, dynamic value)> row, {Where? where, Returning? returning}) {
@@ -189,8 +189,7 @@ class EnumTable {
 
   /// From(Configs).upsert([Configs.name >> name, Configs.sValue >> value]);
   int update(List<FieldValue> values, {Where? where, Returning? returning}) {
-    var w = where?.result();
-    return lite.update(proto.name, values.mapList((e) => LabelValue(e.field.nameSQL, e.value)), where: w?.clause, args: w?.args, returning: returning);
+    return lite.update(proto.name, values.mapList((e) => LabelValue(e.field.nameSQL, e.value)), where: where?.sql, args: where?.args, returning: returning);
   }
 
   List<int> upsertAll(List<List<FieldValue>> rows, {Returning? returning}) {
