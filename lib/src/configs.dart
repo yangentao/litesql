@@ -9,7 +9,7 @@ enum Configs with TableColumn<Configs> {
   const Configs(this.column);
 
   @override
-  final ColumnProperties column;
+  final ColumnAttributes column;
 
   @override
   List<Configs> get columns => Configs.values;

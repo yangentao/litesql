@@ -1,4 +1,3 @@
-import 'dart:collection';
 import 'dart:convert';
 import 'dart:core';
 import 'dart:ffi' as ffi;
@@ -7,17 +6,15 @@ import 'dart:typed_data';
 
 import 'package:entao_dutil/entao_dutil.dart';
 import 'package:entao_log/entao_log.dart';
-import 'package:println/println.dart';
 import 'package:sqlite3/sqlite3.dart';
 
 import 'sqlite3_ffi.dart' as xsql;
 
-part 'EnumTable.dart';
-part 'LiteInserts.dart';
-part 'LiteQuery.dart';
+part 'LiteExt.dart';
 part 'LiteSQL.dart';
-part 'LiteUpdate.dart';
 part 'ResultSetEx.dart';
+part 'SingleTable.dart';
+part 'SpaceBuffer.dart';
 part 'TableColumn.dart';
 part 'TableModel.dart';
 part 'clause/clauses.dart';
@@ -29,7 +26,6 @@ part 'clause/joins.dart';
 part 'clause/where.dart';
 part 'configs.dart';
 part 'sql_utils.dart';
-part 'SpaceBuffer.dart';
 
 typedef BlobSQL = Uint8List;
 

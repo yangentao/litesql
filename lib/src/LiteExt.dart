@@ -1,6 +1,56 @@
 part of 'sql.dart';
 
 extension LiteSqlInsertExt on LiteSQL {
+  /// distinct on
+  /// SELECT a, b, max(c) FROM tab1 GROUP BY a;
+  /// min/max 在聚合查询时,  会返回包含min/max值的行.
+  /// 利用这特特性, 可以实现postgresql distinct on 的特性
+  /// //https://sqlite.org/lang_select.html#bareagg
+  /// https://sqlite.org/lang_select.html
+  ResultSet query(
+    List<String>? columns, {
+    required String from,
+    String? where,
+    String? groupBy,
+    String? having,
+    String? window,
+    String? orderBy,
+    List<String>? orders,
+    int? limit,
+    int? offset,
+    List<dynamic>? args,
+  }) {
+    String sels = columns?.filter((e) => e.trim().isNotEmpty).map((e) => e.escapeSQL).join(", ") ?? "";
+    if (sels.trim().isEmpty) {
+      sels = "*";
+    }
+    SpaceBuffer buf = SpaceBuffer("SELECT");
+    buf << sels << "FROM" << from.escapeSQL;
+    if (where.notBlank) {
+      buf << "WHERE" << where!;
+    }
+    if (groupBy.notBlank) {
+      buf << "GROUP BY" << groupBy!;
+      if (having.notBlank) {
+        buf << "HAVING" << having!;
+      }
+    }
+    if (window.notBlank) {
+      buf << "WINDOW" << window!;
+    }
+    List<String> os = [?orderBy, ...?orders].filter((e) => e.trim().isNotEmpty);
+    if (os.isNotEmpty) {
+      buf << "ORDER BY" << os.join(", ");
+    }
+    if (limit != null) {
+      buf << "LIMIT" << limit.toString();
+      if (offset != null) {
+        buf << "OFFSET" << offset.toString();
+      }
+    }
+    return rawQuery(buf.toString(), args);
+  }
+
   ///  Returning ret = Returning.ALL;
   ///  int id = lite.insertPairs("stu", ["name" >> "tom"], returning: ret ); // INSERT  INTO stu (name) VALUES (?)  RETURNING *
   ///  println("insert id: ", id); // 4
@@ -182,5 +232,49 @@ extension LiteSqlInsertExt on LiteSQL {
     }
     ps.close();
     return idList;
+  }
+
+  /// Returning ret = Returning.ALL;
+  /// int n = lite.delete("stu", where: "id=1", returning: ret);
+  /// println("del count: ", n); // 1
+  /// println(ret.returnRows); // [{id: 1, name: yang}]
+  int delete(String table, {required String where, AnyList? args, Returning? returning}) {
+    assert(where.isNotEmpty);
+    String sql = "DELETE FROM ${table.escapeSQL} WHERE $where";
+    if (LiteSQL._supportReturning && returning != null) {
+      sql += returning.clause;
+      ResultSet rs = rawQuery(sql, args);
+      returning.returnRows.addAll(rs.allRows());
+    } else {
+      execute(sql, args);
+    }
+    return updatedRows;
+  }
+
+  ///  Returning ret = Returning(["name"]);
+  ///  int n  = lite.update("stu", ["name" >> "yangentao"], where: "id=1", returning: ret);
+  ///  println("update count: ", n ); // 1
+  ///  println(ret.returnRows); // [{name: yangentao}]
+  int update(String table, List<LabelValue<dynamic>> values, {String? where, AnyList? args, Returning? returning}) {
+    return updateBy(table, values.mapList((e) => (e.label, e.value)), where: where, args: args, returning: returning);
+  }
+
+  /// int n = update("person", [("name", "entao"), ("addr", "Peiking")]);
+  int updateBy(String table, List<(String, dynamic)> values, {String? where, AnyList? args, Returning? returning}) {
+    assert(values.isNotEmpty);
+    var argList = <dynamic>[...values.mapList((e) => e.$2), ...?args];
+
+    String sql = "UPDATE ${table.escapeSQL} SET ${values.map((e) => "${e.$1.escapeSQL} = ?").join(", ")}";
+    if (notBlank(where)) {
+      sql += " WHERE $where";
+    }
+    if (LiteSQL._supportReturning && returning != null) {
+      sql += returning.clause;
+      ResultSet rs = rawQuery(sql, argList);
+      returning.returnRows.addAll(rs.allRows());
+    } else {
+      execute(sql, argList);
+    }
+    return updatedRows;
   }
 }

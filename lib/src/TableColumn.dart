@@ -14,7 +14,7 @@ mixin TableColumn<T extends Enum> on Enum {
 
   List<T> get columns;
 
-  ColumnProperties get column;
+  ColumnAttributes get column;
 
   String get columnName => exGetOrPut("nameColumn", () => (column.rename ?? this.name));
 
@@ -83,7 +83,7 @@ mixin TableColumn<T extends Enum> on Enum {
 final Map<Enum, Map<String, dynamic>> _columnPropMap = {};
 
 /// https://sqlite.org/datatype3.html
-class INTEGER extends ColumnProperties {
+class INTEGER extends ColumnAttributes {
   const INTEGER({
     super.rename,
     super.type = "INTEGER",
@@ -98,7 +98,7 @@ class INTEGER extends ColumnProperties {
   });
 }
 
-class REAL extends ColumnProperties {
+class REAL extends ColumnAttributes {
   const REAL({
     super.rename,
     super.type = "REAL",
@@ -112,7 +112,7 @@ class REAL extends ColumnProperties {
   });
 }
 
-class NUMERIC extends ColumnProperties {
+class NUMERIC extends ColumnAttributes {
   const NUMERIC({
     super.rename,
     super.type = "NUMERIC",
@@ -126,7 +126,7 @@ class NUMERIC extends ColumnProperties {
   });
 }
 
-class TEXT extends ColumnProperties {
+class TEXT extends ColumnAttributes {
   const TEXT({
     super.rename,
     super.type = "TEXT",
@@ -140,7 +140,7 @@ class TEXT extends ColumnProperties {
   });
 }
 
-class BLOB extends ColumnProperties {
+class BLOB extends ColumnAttributes {
   const BLOB({
     super.rename,
     super.type = "BLOB",
@@ -154,7 +154,7 @@ class BLOB extends ColumnProperties {
   });
 }
 
-class ColumnProperties {
+class ColumnAttributes {
   final String type;
   final String? rename;
   final bool primaryKey;
@@ -166,7 +166,7 @@ class ColumnProperties {
   final String? uniqueName;
   final bool index;
 
-  const ColumnProperties({
+  const ColumnAttributes({
     required this.type,
     this.rename,
     this.primaryKey = false,

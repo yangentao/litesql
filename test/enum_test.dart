@@ -17,7 +17,7 @@ void main() {
   // int rowid2 = lite.insertRow("Person", ["name" >> "entao2", "age" >> 42, "add" >> "Jinan2"]);
   // int rowid3 = lite.insertRow("Person", ["name" >> "entao3", "age" >> 43, "add" >> "Jinan3"]);
 
-  EnumTable e = EnumTable.of(Person);
+  SingleTable e = SingleTable.of(Person);
 
   PersonModel p = PersonModel({});
   p.Name = "entao";
@@ -71,7 +71,7 @@ void main() {
 class PersonModel extends TableModel<Person> {
   PersonModel(super.model);
 
-  static EnumTable table() => From(Person);
+  static SingleTable table() => From(Person);
 
   int get id => Person.id.get(this);
 
@@ -99,10 +99,10 @@ enum Person with TableColumn<Person> {
   const Person(this.column);
 
   @override
-  final ColumnProperties column;
+  final ColumnAttributes column;
 
   @override
   List<Person> get columns => Person.values;
 
-  static EnumTable table() => From(Person);
+  static SingleTable table() => From(Person);
 }

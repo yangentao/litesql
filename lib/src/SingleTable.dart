@@ -1,21 +1,21 @@
 part of 'sql.dart';
 
 /// From(Person)
-EnumTable From(Type type) {
-  return EnumTable.of(type);
+SingleTable From(Type type) {
+  return SingleTable.of(type);
 }
 
-EnumTable FromTable(Type type) {
-  return EnumTable.of(type);
+SingleTable FromTable(Type type) {
+  return SingleTable.of(type);
 }
 
-class EnumTable {
+class SingleTable {
   LiteSQL lite;
   TableProto proto;
 
-  EnumTable(this.proto, {LiteSQL? lite}) : lite = lite ?? proto.liteSQL;
+  SingleTable(this.proto, {LiteSQL? lite}) : lite = lite ?? proto.liteSQL;
 
-  static EnumTable of(Type type, {LiteSQL? lite}) => EnumTable(TableProto.of(type), lite: lite);
+  static SingleTable of(Type type, {LiteSQL? lite}) => SingleTable(TableProto.of(type), lite: lite);
 
   String get tableName => proto.name;
 

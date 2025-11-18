@@ -29,10 +29,10 @@ enum Person with TableColumn<Person> {
   const Person(this.column);
 
   @override
-  final ColumnProperties column;
+  final ColumnAttributes column;
 
   @override
   List<Person> get columns => Person.values;
 
-  static EnumTable table() => From(Person);
+  static SingleTable table() => From(Person);
 }

@@ -7,9 +7,9 @@ class TableModel<E> {
 
   TableModel(this.model);
 
-  EnumTable mtable() {
+  SingleTable mtable() {
     if (E == Object) errorSQL("TableModel<T>, generic type parameter MUST be set");
-    return EnumTable.of(E);
+    return SingleTable.of(E);
   }
 
   void clearModifyFlag() {
@@ -18,7 +18,7 @@ class TableModel<E> {
 
   /// delete by key
   int delete() {
-    EnumTable tab = mtable();
+    SingleTable tab = mtable();
     List<TableColumn> pks = tab.primaryKeys();
     if (pks.isEmpty) errorSQL("NO primary key defined.");
     List<Where> wherePks = [];
@@ -37,7 +37,7 @@ class TableModel<E> {
   /// });
   /// ONLY update columns changed in callback.
   int update(VoidCallback callback) {
-    EnumTable tab = mtable();
+    SingleTable tab = mtable();
     List<TableColumn> pks = tab.primaryKeys();
     if (pks.isEmpty) errorSQL("NO primary key defined.");
     _modifiedKeys.clear();
@@ -69,7 +69,7 @@ class TableModel<E> {
   }
 
   int updateBy({List<TableColumn>? columns, List<String>? names, List<TableColumn>? excludeColumns, List<String>? excludeNames}) {
-    EnumTable tab = mtable();
+    SingleTable tab = mtable();
 
     List<TableColumn> pks = tab.primaryKeys();
     if (pks.isEmpty) errorSQL("NO primary key defined.");
@@ -91,7 +91,7 @@ class TableModel<E> {
   }
 
   int insert({InsertOption? conflict, List<TableColumn>? columns, List<String>? names, List<TableColumn>? excludeColumns, List<String>? excludeNames}) {
-    EnumTable tab = mtable();
+    SingleTable tab = mtable();
     List<ColumnValue> ls = fieldValues(columns: columns, names: names, excludeColumns: excludeColumns, excludeNames: excludeNames);
     if (ls.isEmpty) return 0;
     Returning ret = Returning.ALL;
@@ -109,7 +109,7 @@ class TableModel<E> {
   }
 
   int upsert({List<TableColumn>? columns, List<String>? names, List<TableColumn>? excludeColumns, List<String>? excludeNames}) {
-    EnumTable tab = mtable();
+    SingleTable tab = mtable();
     List<ColumnValue> ls = fieldValues(columns: columns, names: names, excludeColumns: excludeColumns, excludeNames: excludeNames);
     if (ls.isEmpty) return 0;
     Returning ret = Returning.ALL;
@@ -128,7 +128,7 @@ class TableModel<E> {
   }
 
   List<ColumnValue> fieldValues({List<TableColumn>? columns, List<String>? names, List<TableColumn>? excludeColumns, List<String>? excludeNames}) {
-    EnumTable tab = mtable();
+    SingleTable tab = mtable();
     List<ColumnValue> ls = [];
     if (columns != null && columns.isNotEmpty) {
       for (TableColumn f in columns) {
