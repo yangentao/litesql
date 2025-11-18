@@ -1,10 +1,5 @@
 part of '../sql.dart';
 
-void main() {
-  var a = SELECT(["a", Configs.name]);
-  println(a);
-}
-
 /// SELECT("name", Person.name, "name".AS("a"))
 /// String, Express, TableColumn
 Express SELECT(AnyList columns) {

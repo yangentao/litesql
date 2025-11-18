@@ -17,7 +17,7 @@ mixin TableColumn<T extends Enum> on Enum {
 
   String get nameSQL => exGetOrPut("nameSQL", () => nameColumn.escapeSQL);
 
-  String get fullname => exGetOrPut("fullname", () => "${tableName.escapeSQL}.$nameSQL}");
+  String get fullname => exGetOrPut("fullname", () => "${tableName.escapeSQL}.$nameSQL");
 
   FieldProto get proto => exGetOrPut("proto", () => _toFieldSqL());
 }
