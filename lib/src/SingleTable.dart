@@ -161,8 +161,9 @@ class SingleTable {
   }
 
   int delete(Where where, {Returning? returning}) {
-    var w = where;
-    return lite.delete(tableName, where: w.sql, args: w.args, returning: returning);
+    // var w = where;
+    // return lite.delete(tableName, where: w.sql, args: w.args, returning: returning);
+    return 0;
   }
 
   // int updateBy<T extends TableColumn<T>>(List<(TableColumn<T>, dynamic value)> row, {Where? where, Returning? returning}) {

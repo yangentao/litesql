@@ -218,6 +218,10 @@ extension LiteSqlInsertExt on LiteSQL {
     return updateValues(table, columns: values.map((e) => e.key), values: values.map((e) => e.value), where: where, returning: returning);
   }
 
+  int updateMap(Object table, {required Map<Object, dynamic> map, required Where where, Returning? returning}) {
+    return update(table, values: map.entries, where: where, returning: returning);
+  }
+
   int updateValues(Object table, {required Iterable<Object> columns, required Iterable<dynamic> values, required Where where, Returning? returning}) {
     assert(columns.isNotEmpty && columns.length == values.length);
 
