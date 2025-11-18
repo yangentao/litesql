@@ -1,13 +1,7 @@
 part of 'sql.dart';
 
-void main() {
-  SpaceBuffer buf = SpaceBuffer.text();
-  buf << "Helo";
-  println(buf);
-}
-
-extension type SpaceBuffer(StringBuffer buffer) implements StringBuffer {
-  SpaceBuffer.text([String s = ""]) : this(StringBuffer(s));
+extension type SpaceBuffer.buf(StringBuffer buffer) implements StringBuffer {
+  SpaceBuffer([String s = ""]) : this.buf(StringBuffer(s));
 
   SpaceBuffer get space {
     buffer.write(" ");

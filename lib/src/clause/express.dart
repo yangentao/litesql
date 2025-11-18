@@ -5,7 +5,7 @@ class Express {
 
   final AnyList args;
 
-  Express(String express, {AnyList? args}) : buffer = SpaceBuffer.text(express), this.args = args ?? [];
+  Express(String express, {AnyList? args}) : buffer = SpaceBuffer(express), this.args = args ?? [];
 
   String get sql => buffer.toString();
 

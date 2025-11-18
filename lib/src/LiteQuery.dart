@@ -24,29 +24,30 @@ extension LiteQueryExt on LiteSQL {
     if (sels.trim().isEmpty) {
       sels = "*";
     }
-    String sql = "SELECT $sels FROM ${from.escapeSQL}";
-    if (notBlank(where?.trim())) {
-      sql += " WHERE $where";
+    SpaceBuffer buf = SpaceBuffer("SELECT");
+    buf << sels << "FROM" << from.escapeSQL;
+    if (where.notBlank) {
+      buf << "WHERE" << where!;
     }
-    if (notBlank(groupBy)) {
-      sql += " GROUP BY $groupBy";
-      if (notBlank(having)) {
-        sql += " HAVING $having";
+    if (groupBy.notBlank) {
+      buf << "GROUP BY" << groupBy!;
+      if (having.notBlank) {
+        buf << "HAVING" << having!;
       }
     }
-    if (notBlank(window)) {
-      sql += " WINDOW $window";
+    if (window.notBlank) {
+      buf << "WINDOW" << window!;
     }
     List<String> os = [?orderBy, ...?orders].filter((e) => e.trim().isNotEmpty);
     if (os.isNotEmpty) {
-      sql += " ORDER BY ${os.join(", ")}";
+      buf << "ORDER BY" << os.join(", ");
     }
     if (limit != null) {
-      sql += " LIMIT $limit";
+      buf << "LIMIT" << limit.toString();
       if (offset != null) {
-        sql += " OFFSET $offset";
+        buf << "OFFSET" << offset.toString();
       }
     }
-    return rawQuery(sql, args);
+    return rawQuery(buf.toString(), args);
   }
 }

@@ -1,5 +1,15 @@
 part of 'sql.dart';
 
+extension on String? {
+  bool get nullOrEmpty => this == null || this!.isEmpty;
+
+  bool get nullOrBlank => this == null || this!.trim().isEmpty;
+
+  bool get notBlank => this != null && this!.trim().isNotEmpty;
+
+  bool get notEmpty => this != null && this!.isNotEmpty;
+}
+
 // https://sqlite.org/lang_keywords.html
 extension StringSQLExt on String {
   String get braced {
