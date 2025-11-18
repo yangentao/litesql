@@ -1,6 +1,8 @@
 part of 'sql.dart';
 
 typedef ColumnValue = ({TableColumn column, dynamic value});
+
+/// don't use 'name', use 'columnName',  enum's name maybe renamed.
 mixin TableColumn<T extends Enum> on Enum {
   Type get tableType => T;
 
@@ -14,9 +16,9 @@ mixin TableColumn<T extends Enum> on Enum {
 
   ColumnProperties get column;
 
-  String get nameColumn => exGetOrPut("nameColumn", () => (column.rename ?? this.name));
+  String get columnName => exGetOrPut("nameColumn", () => (column.rename ?? this.name));
 
-  String get nameSQL => exGetOrPut("nameSQL", () => nameColumn.escapeSQL);
+  String get nameSQL => exGetOrPut("nameSQL", () => columnName.escapeSQL);
 
   String get fullname => exGetOrPut("fullname", () => "${tableName.escapeSQL}.$nameSQL");
 
@@ -40,11 +42,11 @@ mixin TableColumn<T extends Enum> on Enum {
 
   V? get<V>(Object? container) {
     if (container == null) return null;
-    return _getModelValue(container, this.nameColumn);
+    return _getModelValue(container, this.columnName);
   }
 
   void set(Object model, dynamic value) {
-    _setModelValue(model, this.nameColumn, value);
+    _setModelValue(model, this.columnName, value);
   }
 
   ColumnValue operator >>(dynamic value) {

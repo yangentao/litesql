@@ -23,8 +23,8 @@ class TableModel<E> {
     if (pks.isEmpty) errorSQL("NO primary key defined.");
     List<Where> wherePks = [];
     for (TableColumn f in pks) {
-      dynamic v = get(f.name);
-      if (v == null) errorSQL("Primary key is null: ${f.name}");
+      dynamic v = get(f.columnName);
+      if (v == null) errorSQL("Primary key is null: ${f.columnName}");
       wherePks.add(f.EQ(v));
     }
     if (wherePks.isEmpty) errorSQL("NO primary key condition(s).");
@@ -45,14 +45,14 @@ class TableModel<E> {
     if (_modifiedKeys.isEmpty) return 0;
     List<Where> wherePks = [];
     for (TableColumn f in pks) {
-      dynamic v = get(f.name);
-      if (v == null) errorSQL("Primary key is null: ${f.name}");
+      dynamic v = get(f.columnName);
+      if (v == null) errorSQL("Primary key is null: ${f.columnName}");
       wherePks.add(f.EQ(v));
     }
 
     List<ColumnValue> values = [];
     for (String k in _modifiedKeys) {
-      TableColumn f = tab.proto.fields.firstWhere((e) => e.name == k);
+      TableColumn f = tab.proto.fields.firstWhere((e) => e.columnName == k);
       if (!f.column.primaryKey) {
         values.add(f >> get(k));
       }
@@ -75,8 +75,8 @@ class TableModel<E> {
     if (pks.isEmpty) errorSQL("NO primary key defined.");
     List<Where> wherePks = [];
     for (TableColumn f in pks) {
-      dynamic v = get(f.name);
-      if (v == null) errorSQL("Primary key is null: ${f.name}");
+      dynamic v = get(f.columnName);
+      if (v == null) errorSQL("Primary key is null: ${f.columnName}");
       wherePks.add(f.EQ(v));
     }
     List<ColumnValue> values = fieldValues(columns: columns, names: names, excludeColumns: excludeColumns, excludeNames: excludeNames);
@@ -132,7 +132,7 @@ class TableModel<E> {
     List<ColumnValue> ls = [];
     if (columns != null && columns.isNotEmpty) {
       for (TableColumn f in columns) {
-        ls.add(tab.proto.find(f.nameColumn)! >> get(f));
+        ls.add(tab.proto.find(f.columnName)! >> get(f));
       }
     } else if (names != null && names.isNotEmpty) {
       for (String f in names) {
@@ -145,12 +145,12 @@ class TableModel<E> {
     }
     if (excludeColumns != null && excludeColumns.isNotEmpty) {
       for (TableColumn c in excludeColumns) {
-        ls.removeWhere((e) => e.column.nameColumn == c.nameColumn);
+        ls.removeWhere((e) => e.column.columnName == c.columnName);
       }
     }
     if (excludeNames != null && excludeNames.isNotEmpty) {
       for (String n in excludeNames) {
-        ls.removeWhere((e) => e.column.nameColumn == n);
+        ls.removeWhere((e) => e.column.columnName == n);
       }
     }
     return ls;
@@ -167,7 +167,7 @@ class TableModel<E> {
   T? get<T>(Object key) {
     String k = _nameOfKey(key);
     var v = model[k];
-    return _checkNum(v);
+    return _checkNum<T>(v);
   }
 
   void set<T>(Object key, T? value) {
@@ -188,7 +188,7 @@ class TableModel<E> {
 
 String _nameOfKey(Object key) {
   return switch (key) {
-    TableColumn c => c.nameColumn,
+    TableColumn c => c.columnName,
     Symbol sy => sy.stringValue,
     _ => key.toString(),
   };

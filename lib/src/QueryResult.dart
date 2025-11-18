@@ -21,8 +21,7 @@ extension ResultSetExt on ResultSet {
       return;
     }
     for (Row r in this) {
-      String s = r.entries.map((e) => "${e.key}: ${e.value}").join(", ");
-      logSQL.d(s);
+      logSQL.d(r.mapSQL);
     }
   }
 }

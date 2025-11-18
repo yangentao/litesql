@@ -13,7 +13,7 @@ class EnumTable {
   LiteSQL lite;
   TableProto proto;
 
-  EnumTable(this.proto, {LiteSQL? lite}) : lite = (lite ?? proto.liteSQL)!;
+  EnumTable(this.proto, {LiteSQL? lite}) : lite = lite ?? proto.liteSQL!;
 
   static EnumTable of(Type type, {LiteSQL? lite}) => EnumTable(TableProto.of(type), lite: lite);
 
@@ -195,7 +195,7 @@ class EnumTable {
 
   /// From(Configs).upsert([Configs.name >> name, Configs.sValue >> value]);
   int update(List<ColumnValue> values, {Where? where, Returning? returning}) {
-    return lite.update(proto.name, values.mapList((e) => LabelValue(e.column.nameColumn, e.value)), where: where?.sql, args: where?.args, returning: returning);
+    return lite.update(proto.name, values.mapList((e) => LabelValue(e.column.columnName, e.value)), where: where?.sql, args: where?.args, returning: returning);
   }
 
   List<int> upsertAll(List<List<ColumnValue>> rows, {Returning? returning}) {
@@ -213,11 +213,11 @@ class EnumTable {
 
   List<int> insertAll(List<List<ColumnValue>> rows, {InsertOption? conflict, Returning? returning}) {
     if (rows.isEmpty) return [];
-    return lite.insertRows(proto.name, rows.mapList((r) => r.mapList((e) => LabelValue(e.column.nameColumn, e.value))), conflict: conflict, returning: returning);
+    return lite.insertRows(proto.name, rows.mapList((r) => r.mapList((e) => LabelValue(e.column.columnName, e.value))), conflict: conflict, returning: returning);
   }
 
   int insert(List<ColumnValue> row, {InsertOption? conflict, Returning? returning}) {
-    return lite.insert(proto.name, row.mapList((e) => LabelValue(e.column.nameColumn, e.value)), conflict: conflict, returning: returning);
+    return lite.insert(proto.name, row.mapList((e) => LabelValue(e.column.columnName, e.value)), conflict: conflict, returning: returning);
   }
 
   int save(dynamic item) {
