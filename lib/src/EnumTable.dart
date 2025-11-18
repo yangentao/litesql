@@ -16,7 +16,7 @@ class EnumTable {
   List<FieldProto> primaryKeys() => proto.fields.filter((e) => e.primaryKey);
 
   T? oneByKey<T>(
-    T Function(MapSQL) creator, {
+    T Function(AnyMap) creator, {
     required dynamic key,
     List<dynamic>? columns,
     String? groupBy,
@@ -29,7 +29,7 @@ class EnumTable {
   }
 
   T? oneByKeys<T>(
-    T Function(MapSQL) creator, {
+    T Function(AnyMap) creator, {
     required List<dynamic> keys,
     List<dynamic>? columns,
     String? groupBy,
@@ -54,7 +54,7 @@ class EnumTable {
   }
 
   T? one<T>(
-    T Function(MapSQL) creator, {
+    T Function(AnyMap) creator, {
     List<dynamic>? columns,
     Where? where,
     List<Where>? wheres,
@@ -105,7 +105,7 @@ class EnumTable {
   }
 
   List<T> list<T>(
-    T Function(MapSQL) creator, {
+    T Function(AnyMap) creator, {
     List<dynamic>? columns,
     Where? where,
     List<Where>? wheres,
@@ -256,7 +256,7 @@ extension ResultSetExtResult on ResultSet {
   QueryResult get result => QueryResult(this);
 }
 
-class QueryResult with ListMixin<MapSQL> {
+class QueryResult with ListMixin<AnyMap> {
   ResultSet resultSet;
 
   QueryResult(this.resultSet);
@@ -269,11 +269,11 @@ class QueryResult with ListMixin<MapSQL> {
 
   Object? valueNamed(int row, String name) => resultSet[row][name];
 
-  MapSQL rowAt(int index) => resultSet[index].mapSQL;
+  AnyMap rowAt(int index) => resultSet[index].mapSQL;
 
-  MapSQL? get firstRow => resultSet.firstOrNull?.mapSQL;
+  AnyMap? get firstRow => resultSet.firstOrNull?.mapSQL;
 
-  List<MapSQL> get listRows => resultSet.mapList((e) => e.mapSQL);
+  List<AnyMap> get listRows => resultSet.mapList((e) => e.mapSQL);
 
   dynamic get firstValue => resultSet.firstOrNull?.columnAt(0);
 
@@ -289,12 +289,12 @@ class QueryResult with ListMixin<MapSQL> {
   int get length => resultSet.length;
 
   @override
-  MapSQL operator [](int index) {
+  AnyMap operator [](int index) {
     return rowAt(index);
   }
 
   @override
-  void operator []=(int index, MapSQL value) {
+  void operator []=(int index, AnyMap value) {
     errorSQL("QueryResult is inmutable");
   }
 
@@ -308,7 +308,7 @@ class QueryResult with ListMixin<MapSQL> {
       logSQL.d("[empty]");
       return;
     }
-    for (MapSQL r in this) {
+    for (AnyMap r in this) {
       logSQL.d(json.encode(r));
     }
   }

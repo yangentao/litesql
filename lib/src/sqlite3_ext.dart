@@ -5,11 +5,11 @@ extension ResultSetExt on ResultSet {
     return this.firstOrNull?.firstColumn;
   }
 
-  MapSQL? get firstRow {
+  AnyMap? get firstRow {
     return this.firstOrNull?.mapSQL;
   }
 
-  List<MapSQL> get listRows {
+  List<AnyMap> get listRows {
     return this.mapList((e) => e.mapSQL);
   }
 
@@ -26,8 +26,8 @@ extension ResultSetExt on ResultSet {
 }
 
 extension RowExt on Row {
-  MapSQL get mapSQL {
-    MapSQL map = {};
+  AnyMap get mapSQL {
+    AnyMap map = {};
     for (String k in this.keys) {
       map[k] = this[k];
     }

@@ -41,7 +41,7 @@ extension WhereEnum<T extends Enum> on TableColumn<T> {
     return Where(this.nameSQL, OpSQL.eq, value);
   }
 
-  Where IN(ArgSQL values) {
+  Where IN(AnyList values) {
     var a = values.map((e) => "?").join(",");
     return Where.raw("${this.nameSQL} IN ($a) ", values);
   }
@@ -69,5 +69,4 @@ extension WhereEnum<T extends Enum> on TableColumn<T> {
   Where LIKE(dynamic value) {
     return Where(nameSQL, OpSQL.like, value);
   }
-
 }

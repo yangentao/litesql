@@ -14,7 +14,7 @@ class FieldValue {
   FieldValue(this.field, this.value, {this.express = false});
 }
 
-ArgSQL? _mergeArgs(ArgSQL? a, ArgSQL? b) {
+AnyList? _mergeArgs(AnyList? a, AnyList? b) {
   if (a == null) return b;
   if (b == null) return a;
   return a + b;

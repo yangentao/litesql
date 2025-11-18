@@ -27,30 +27,30 @@ part 'TableColumnExt.dart';
 part 'TableModel.dart';
 part 'TableProto.dart';
 part 'clause/express.dart';
+part 'clause/ext.dart';
+part 'clause/joins.dart';
 part 'clause/select.dart';
+part 'clause/where.dart';
 part 'configs.dart';
 part 'sql_utils.dart';
 part 'sqlite3_ext.dart';
 part 'wheres.dart';
-part 'clause/ext.dart';
-part 'clause/joins.dart';
 
-typedef MapSQL = Map<String, dynamic>;
 typedef BlobSQL = Uint8List;
 
-typedef ModelCreator<T> = T Function(MapSQL);
+typedef ModelCreator<T> = T Function(AnyMap);
 
 TagLog logSQL = TagLog("SQL");
 
 final class Returning {
   final List<String> columns;
-  List<MapSQL> returnRows = [];
+  List<AnyMap> returnRows = [];
 
   Returning(this.columns) {
     assert(columns.isNotEmpty);
   }
 
-  MapSQL get firstRow => returnRows.first;
+  AnyMap get firstRow => returnRows.first;
 
   String get clause => " RETURNING ${columns.join(", ")}";
 

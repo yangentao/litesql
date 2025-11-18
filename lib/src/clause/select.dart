@@ -74,12 +74,13 @@ extension ExpressExt on Express {
     return this;
   }
 
-  Express LIMIT(int n) {
-    return this << "LIMIT" << n.toString();
+  Express LIMIT(int limit, [int? offset]) {
+    if (offset == null) return this << "LIMIT" << limit.toString();
+    return this << "LIMIT" << limit.toString() << "," << offset.toString();
   }
 
-  Express OFFSET(int n) {
-    return this << "OFFSET" << n.toString();
+  Express OFFSET(int offset) {
+    return this << "OFFSET" << offset.toString();
   }
 }
 
@@ -89,18 +90,38 @@ Express PARTITION_BY(Object express) {
   return e;
 }
 
+Express ORDER_BY(Object express) {
+  var e = Express("ORDER BY");
+  e << _clause(express);
+  return e;
+}
+
+/// return String OR Express
 Object _clause(dynamic value) {
   switch (value) {
     case String s:
       return s;
     case Express e:
-      return e.sql;
+      return e;
     case TableColumn c:
       return c.fullname;
     case Type t:
       return t.proto.nameSQL;
     case AnyList ls:
-      return ls.joinMap(", ", _clause);
+      AnyList args = [];
+      String s = ls.joinMap(", ", (e) {
+        var r = _clause(e);
+        switch (r) {
+          case String a:
+            return a;
+          case Express x1:
+            args.addAll(x1.args);
+            return x1.sql;
+          default:
+            errorSQL("BAD result");
+        }
+      });
+      return args.isEmpty ? s : Express(s, args: args);
   }
   errorSQL("Unknown value: $value ");
 }

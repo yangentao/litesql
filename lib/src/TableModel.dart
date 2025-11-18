@@ -1,7 +1,7 @@
 part of 'sql.dart';
 
 class TableModel<E> {
-  MapSQL model;
+  AnyMap model;
   Type tableType = E;
 
   // DType<T> dtype = DType<T>();

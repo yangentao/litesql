@@ -38,7 +38,7 @@ class SingleTable {
   }
 
   T? oneByKey<T>(
-    T Function(MapSQL) creator, {
+    T Function(AnyMap) creator, {
     required dynamic key,
     List<String>? selections,
     List<FieldProto>? columns,
@@ -52,7 +52,7 @@ class SingleTable {
   }
 
   T? oneByKeys<T>(
-    T Function(MapSQL) creator, {
+    T Function(AnyMap) creator, {
     required List<dynamic> keys,
     List<String>? selections,
     List<FieldProto>? columns,
@@ -76,7 +76,7 @@ class SingleTable {
   }
 
   T? one<T>(
-    T Function(MapSQL) creator, {
+    T Function(AnyMap) creator, {
     List<String>? selections,
     List<FieldProto>? columns,
     Where? where,
@@ -130,7 +130,7 @@ class SingleTable {
   }
 
   List<T> list<T>(
-    T Function(MapSQL) creator, {
+    T Function(AnyMap) creator, {
     List<String>? selections,
     List<FieldProto>? columns,
     Where? where,
