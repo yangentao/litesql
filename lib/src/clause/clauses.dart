@@ -26,6 +26,34 @@ Express SELECT_DISTINCT(AnyList columns) {
   return e;
 }
 
+Express UNION(Express left, Express right) {
+  Express e = Express("");
+  e << left << "UNION" << right;
+  return e;
+}
+
+Express UNION_ALL(Express left, Express right) {
+  Express e = Express("");
+  e << left << "UNION ALL" << right;
+  return e;
+}
+
+Express INTERSECT(Express left, Express right) {
+  Express e = Express("");
+  e << left << "INTERSECT" << right;
+  return e;
+}
+
+Express EXCEPT(Express left, Express right) {
+  Express e = Express("");
+  e << left << "EXCEPT" << right;
+  return e;
+}
+
+Express EXISTS(Express express) {
+  return Express("EXISTS") << express;
+}
+
 extension ExpressExt on Express {
   // String OR Express OR Type
   Express FROM(Object express) {

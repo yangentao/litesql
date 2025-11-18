@@ -29,7 +29,7 @@ part 'TableProto.dart';
 part 'clause/express.dart';
 part 'clause/ext.dart';
 part 'clause/joins.dart';
-part 'clause/select.dart';
+part 'clause/clauses.dart';
 part 'clause/where.dart';
 part 'clause/func.dart';
 part 'configs.dart';
