@@ -18,7 +18,6 @@ void main() {
   MPerson p = MPerson({});
   p.name = "entao";
   p.age = 33;
-  p.addr = "jinan";
   // int id = p.insert(columns: [Person.name, Person.age]);
   // int id = p.upsert(names: ['name', 'age']);
   // 2025-10-31 14:25:57.080 D xlog: INSERT  INTO Person (name,age,"add") VALUES (?,?,?)
@@ -29,7 +28,6 @@ void main() {
 
   int r = p.update(() {
     p.age = 99;
-    p.addr = "Peiking";
   });
   // 2025-10-31 14:28:10.793 D xlog: UPDATE Person SET age = ?, "add" = ? WHERE id = 1
   println("update : count=", r, " , person: ", p);

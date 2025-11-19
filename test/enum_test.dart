@@ -24,14 +24,12 @@ void main() {
   MPerson p = MPerson({});
   p.name = "entao";
   p.age = 33;
-  p.addr = "jinan";
   // int id = p.insert();
   // println("id: ", id);
   println(p);
 
   int r = p.update(() {
     p.age = 99;
-    p.addr = "Peiking";
   });
   println("update return: ", r);
 
