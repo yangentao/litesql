@@ -34,13 +34,11 @@ typedef BlobSQL = Uint8List;
 typedef ModelCreator<T> = T Function(AnyMap);
 typedef ColumnValue = MapEntry<Object, dynamic>;
 
-
-
 final class Returning {
   final List<String> columns;
   List<AnyMap> returnRows = [];
 
-  Returning(this.columns) {
+  Returning(Iterable<Object> columns) : columns = columns.mapList((e) => _columnNameOf(e)) {
     assert(columns.isNotEmpty);
   }
 
