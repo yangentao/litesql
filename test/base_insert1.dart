@@ -1,3 +1,4 @@
+import 'package:entao_dutil/entao_dutil.dart';
 import 'package:litesql/litesql.dart';
 import 'package:test/test.dart';
 
@@ -8,7 +9,7 @@ void main() async {
     LiteSQL lite = LiteSQL.openMemory();
     lite.migrate(Person.values);
 
-    lite.insert(Person, values: [Person.name >> "entao1", Person.age >> 31 ]);
+    lite.insert(Person, values: [Person.name >> "entao1", "age" >> 31]);
 
     lite.insertMap("Person", values: {"name": "entao2", "age": 21});
     lite.insertMap(Person, values: {Person.name: "entao3", "age": 21});
