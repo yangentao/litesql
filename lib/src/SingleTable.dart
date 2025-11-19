@@ -75,6 +75,10 @@ class SingleTable {
     return AND_ALL(ws);
   }
 
+  int deleteByKey(Object key, {Returning? returning}) {
+    return delete(keyEQ(key), returning: returning);
+  }
+
   int delete(Where where, {Returning? returning}) {
     return lite.delete(tableName, where: where, returning: returning);
   }
