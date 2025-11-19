@@ -60,6 +60,13 @@ class _WhereOp extends Where {
 
 class _WhereAnd extends Where {
   _WhereAnd(Where left, Where right) : super("") {
+    if (left.isEmpty) {
+      this << right;
+      return;
+    } else if (right.isEmpty) {
+      this << left;
+      return;
+    }
     if (left is _WhereOr) {
       this << "(" << left << ")" << "AND";
     } else {
@@ -75,6 +82,14 @@ class _WhereAnd extends Where {
 
 class _WhereOr extends Where {
   _WhereOr(Where left, Where right) : super("") {
+    if (left.isEmpty) {
+      this << right;
+      return;
+    } else if (right.isEmpty) {
+      this << left;
+      return;
+    }
+
     this << left << "OR" << right;
   }
 }
