@@ -198,3 +198,22 @@ lite.dump(Person);
 // {id: 1, name: entao1, age: 22}
 
 ```
+
+* Model update
+
+```dart  
+MPerson p = MPerson({});
+p.name = "entao1";
+p.age = 33;
+p.insert();
+// INSERT INTO Person ( name,age ) VALUES( ?,? )  RETURNING *
+println(p);
+// {"name":"entao1","age":33,"id":1}
+p.update(() {
+  p.name = "Tom";
+  p.age = 5;
+});
+// UPDATE Person SET name=?, age=? WHERE Person.id = 1  RETURNING *
+lite.dump(Person);
+// {id: 1, name: Tom, age: 5}
+```
