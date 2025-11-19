@@ -222,5 +222,5 @@ lite.dump(Person);
 * when multi-table query , use $(...) refrence table info
 * Use Express("...") or Where("...") cast string to express. this maybe used in join-on clause.
 * 'orderBy' parameter support List.
-* single table operation can use 'SingleTable.of(...)'.
+* single table operation can use 'SingleTable(...)'.
 * logSQL.off()/on() toggle log off/on.
