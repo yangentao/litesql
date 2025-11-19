@@ -19,9 +19,9 @@ void main() {
   // {id: 1, name: yang1, add: jinan1, age: null}
   // {id: 2, name: yang2, add: jinan2, age: null}
 
-  List<MPerson> ls = tab.list(MPerson.new, where: Person.name.EQ("yang2"));
+  // List<MPerson> ls = tab.list(MPerson.new, where: Person.name.EQ("yang2"));
   // SELECT * FROM Person WHERE name = ?
-  println(ls);
+  // println(ls);
   // [{"id":2,"name":"yang2","add":"jinan2","age":null}]
 
   tab.delete(Person.name.EQ("yang2"));

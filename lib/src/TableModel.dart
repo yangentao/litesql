@@ -19,7 +19,7 @@ class TableModel<E> {
   /// delete by key
   int delete() {
     SingleTable tab = mtable();
-    List<TableColumn> pks = tab.primaryKeys();
+    List<TableColumn> pks = tab.primaryKeys;
     if (pks.isEmpty) errorSQL("NO primary key defined.");
     List<Where> wherePks = [];
     for (TableColumn f in pks) {
@@ -38,7 +38,7 @@ class TableModel<E> {
   /// ONLY update columns changed in callback.
   int update(VoidCallback callback) {
     SingleTable tab = mtable();
-    List<TableColumn> pks = tab.primaryKeys();
+    List<TableColumn> pks = tab.primaryKeys;
     if (pks.isEmpty) errorSQL("NO primary key defined.");
     _modifiedKeys.clear();
     callback();

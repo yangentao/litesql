@@ -41,9 +41,9 @@ void main() {
   // p2.upsert();
   // 2025-10-31 14:30:04.384 D xlog: INSERT INTO Person (id, name) VALUES ( ?, ? ) ON CONFLICT (id) DO UPDATE SET name = ?
   // 2025-10-31 14:30:04.384 D xlog: [1, yang, yang]
-  List<MPerson> ls = SingleTable(Person).list(MPerson.new);
+  // List<MPerson> ls = SingleTable(Person).list(MPerson.new);
   // SELECT * FROM Person
-  println(ls);
+  // println(ls);
   // [{"id":1,"name":"yang","add":"Peiking","age":99}]
 
   // SingleTable(Person).update([Person.name >> "entao"], where: Person.id.EQ(1));

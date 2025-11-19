@@ -84,31 +84,33 @@ class SingleTable {
   }
 
   int upsert(List<ColumnValue> row, {Returning? returning}) {
-    return lite.upsert(tableName, values: row , constraints: primaryKeys, returning: returning);
+    return lite.upsert(tableName, values: row, constraints: primaryKeys, returning: returning);
   }
-  //
-  // int upsertBy<T extends TableColumn<T>>(List<(TableColumn<T>, dynamic value)> row, {Returning? returning}) {
-  //   return lite.upsertFields(tableName, row.mapList((e) => e.$1 >> e.$2), returning: returning);
-  // }
-  //
-  // List<int> insertAll(List<List<ColumnValue>> rows, {InsertOption? conflict, Returning? returning}) {
-  //   if (rows.isEmpty) return [];
-  //   return lite.insertRows(proto.name, rows.mapList((r) => r.mapList((e) => LabelValue(e.column.columnName, e.value))), conflict: conflict, returning: returning);
-  // }
 
-  // int save(dynamic item) {
-  //   if (item == null) return 0;
-  //   if (_canSave(item)) {
-  //     return upsert(proto.columns.mapList((e) => e >> e.get(item)));
-  //   }
-  //   errorSQL("Unkonwn object to save: $item");
-  // }
-  //
-  // List<int> saveAll(List<dynamic> items) {
-  //   if (items.isEmpty) return [];
-  //   var ls = items.filter((item) => _canSave(item));
-  //   return upsertAll(ls.mapList((item) => proto.columns.mapList((e) => e >> e.get(item))));
-  // }
+  List<int> insertAll(List<List<ColumnValue>> rows, {InsertOption? conflict, Returning? returning}) {
+    if (rows.isEmpty) return [];
+    return lite.insertAll(tableName, rows: rows, conflict: conflict, returning: returning);
+  }
+
+  int insert(List<ColumnValue> values, {InsertOption? conflict, Returning? returning}) {
+    if (values.isEmpty) return 0;
+    return lite.insert(tableName, values: values, conflict: conflict, returning: returning);
+  }
+
+  int save(dynamic item) {
+    if (item == null) return 0;
+    if (_canSave(item)) {
+      return upsert(proto.columns.mapList((e) => e >> e.get(item)));
+    }
+    errorSQL("Unkonwn object to save: $item");
+  }
+
+  List<int> saveAll(List<dynamic> items) {
+    if (items.isEmpty) return [];
+    var ls = items.filter((item) => _canSave(item));
+    var rows = ls.mapList((item) => proto.columns.mapList((e) => e >> e.get(item)));
+    return lite.upsertAll(tableName, rows: rows, constraints: primaryKeys);
+  }
 
   void dump() {
     lite.dumpTable(tableName);
