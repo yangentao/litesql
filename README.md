@@ -56,7 +56,20 @@ lite.insertValues("Person", columns: [Person.name, "age"], values: ["entao4", 11
 lite.dump(Person);
 lite.close();
 ```
+* Upsert.  
 
+```dart  
+lite.insert(Person, values: [Person.name >> "entao", Person.age >> 31]);
+lite.dump(Person);
+// {id: 1, name: entao, age: 31}
+// lite.upsert(Person, values: [Person.id >> 1, Person.name >> "Tom", Person.age >> 22], constraints: [Person.id]);
+lite.upsert(Person, values: [Person.id >> 1, Person.name >> "Tom", Person.age >> 22], constraints: []); // same as above line.
+// INSERT INTO Person ( id,name,age ) VALUES( ?,?,? ) ON CONFLICT( id ) DO UPDATE SET name=?, age=?  
+lite.dump(Person);
+// {id: 1, name: Tom, age: 22}
+```
+when parameter 'constraints' is empty, it will auto search from 'values', which column is defined in enum class 'Person'.
+  
 * Delete  
 String and Enum value has some extension method like 'EQ','GE','LE','LT'...  
 '&' means 'AND', '|' means 'OR'  
