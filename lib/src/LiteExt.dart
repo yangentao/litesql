@@ -52,7 +52,7 @@ extension LiteSqlInsertExt on LiteSQL {
     if (LiteSQL._supportReturning && returning != null) {
       buf << returning.clause;
       ResultSet rs = this.rawQuery(buf.toString(), values.toList());
-      returning.returnRows.addAll(rs.allRows());
+      returning.returnRows.addAll(rs.listRows());
     } else {
       this.execute(buf.toString(), values.toList());
     }
@@ -93,7 +93,7 @@ extension LiteSqlInsertExt on LiteSQL {
       this.lastInsertRowId = 0;
       if (needReturn) {
         ResultSet rs = ps.select(values.toList());
-        returning.returnRows.addAll(rs.allRows());
+        returning.returnRows.addAll(rs.listRows());
       } else {
         ps.execute(values.toList());
       }
@@ -143,7 +143,7 @@ extension LiteSqlInsertExt on LiteSQL {
     if (LiteSQL._supportReturning && returning != null) {
       buf << returning.clause;
       ResultSet rs = rawQuery(buf.toString(), argList);
-      returning.returnRows.addAll(rs.allRows());
+      returning.returnRows.addAll(rs.listRows());
     } else {
       execute(buf.toString(), argList);
     }
@@ -200,7 +200,7 @@ extension LiteSqlInsertExt on LiteSQL {
       lastInsertRowId = 0;
       if (needRet) {
         ResultSet rs = ps.select(argList);
-        returning.returnRows.addAll(rs.allRows());
+        returning.returnRows.addAll(rs.listRows());
       } else {
         ps.execute(argList);
       }
@@ -219,7 +219,7 @@ extension LiteSqlInsertExt on LiteSQL {
     if (LiteSQL._supportReturning && returning != null) {
       buf << returning.clause;
       ResultSet rs = rawQuery(buf.toString(), where.args);
-      returning.returnRows.addAll(rs.allRows());
+      returning.returnRows.addAll(rs.listRows());
     } else {
       execute(buf.toString(), where.args);
     }
@@ -247,7 +247,7 @@ extension LiteSqlInsertExt on LiteSQL {
     if (LiteSQL._supportReturning && returning != null) {
       buf << returning.clause;
       ResultSet rs = rawQuery(buf.toString(), argList);
-      returning.returnRows.addAll(rs.allRows());
+      returning.returnRows.addAll(rs.listRows());
     } else {
       execute(buf.toString(), argList);
     }

@@ -88,7 +88,7 @@ class LiteSQL {
   List<SqliteTableInfo> tableInfo(String tableName) {
     String sql = "PRAGMA table_info(${tableName.escapeSQL})";
     ResultSet rs = database.select(sql);
-    return rs.allModels(SqliteTableInfo.new);
+    return rs.listModels(SqliteTableInfo.new);
   }
 
   List<String> _indexInfo(String indexName) {

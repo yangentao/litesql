@@ -9,19 +9,19 @@ extension ResultSetExt on ResultSet {
 
   dynamic firstValue() => this.firstOrNull?.columnAt(0);
 
-  List<T> allValues<T>({int col = 0}) => this.mapList((e) => e.columnAt(col));
+  List<T> listValues<T>({int col = 0}) => this.mapList((e) => e.columnAt(col));
 
   AnyMap rowAt({required int index}) => this[index].mapSQL;
 
   AnyMap? firstRow() => this.firstOrNull?.mapSQL;
 
-  List<AnyMap> allRows() => this.mapList((e) => e.mapSQL);
+  List<AnyMap> listRows() => this.mapList((e) => e.mapSQL);
 
   T modelAt<T>(ModelCreator<T> creator, {required int row}) => this.elementAt(row).let((e) => creator(e));
 
   T? firstModel<T>(ModelCreator<T> creator) => firstRow()?.let((e) => creator(e));
 
-  List<T> allModels<T>(ModelCreator<T> creator) => allRows().mapList((e) => creator(e));
+  List<T> listModels<T>(ModelCreator<T> creator) => listRows().mapList((e) => creator(e));
 
   void dump() {
     if (this.isEmpty) {

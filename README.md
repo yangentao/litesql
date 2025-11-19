@@ -46,10 +46,12 @@ the `migrate` method register table and create it when need, also add column/ind
 LiteSQL lite = LiteSQL.openMemory();
 lite.migrate(Person.values);
 
-lite.insert(Person, values: [ColumnValue("name", "entao2"), Person.age >> 31 ]);
-lite.insertMap("Person", values: {"name": "entao1", "age": 21});
-lite.insertMap(Person, values: {Person.name: "entao1", "age": 21});
-lite.insertValues("Person", columns: [Person.name, "age"], values: ["yang", 11]);
+lite.insert(Person, values: [Person.name >> "entao1", Person.age >> 31 ]);
+
+lite.insertMap("Person", values: {"name": "entao2", "age": 21});
+lite.insertMap(Person, values: {Person.name: "entao3", "age": 21});
+
+lite.insertValues("Person", columns: [Person.name, "age"], values: ["entao4", 11]);
 
 lite.dump(Person);
 lite.close();
@@ -74,3 +76,25 @@ lite.update(Person, values: [Person.name >> "Tom"], where: Person.id.EQ(1));
 
 * Query
 
+```dart  
+lite.insertAllValues(
+  Person,
+  columns: [Person.name, Person.age],
+  rows: [
+    ["name1", 20],
+    ["name2", 30],
+    ["name3", 40],
+    ["name4", 50],
+  ],
+);
+// query(columns, ...), columns can be empty, means ALL column, or ["*"]
+List<MPerson> ls = lite.query([], from: Person, where: Person.age.GE(40), orderBy: Person.name.DESC).listModels(MPerson.new);
+for (var p in ls) {
+  println(p);
+}
+// {"id":4,"name":"name4","age":50}
+// {"id":3,"name":"name3","age":40}
+List<int> ids = lite.query([Person.id], from: Person, where: Person.age.GE(40), orderBy: Person.name.DESC).listValues();
+println(ids);
+// [4, 3]
+```

@@ -98,7 +98,7 @@ class SingleTable {
       orderBy: orderBy,
       limit: limit,
       offset: offset,
-    ).allValues();
+    ).listValues();
   }
 
   List<T> list<T>(
@@ -116,7 +116,7 @@ class SingleTable {
   }) {
     return this
         .query(columns: columns, where: where, wheres: wheres, groupBy: groupBy, having: having, window: window, orderBy: orderBy, limit: limit, offset: offset)
-        .allModels(creator);
+        .listModels(creator);
   }
 
   ResultSet query({
