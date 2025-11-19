@@ -40,7 +40,7 @@ class MPerson extends TableModel<Person> {
 table name can be string value 'Person' or type Person.  
 column name can be string value like 'name' or enum value like Person.name.  
 'ColumnValue' is defined as `MapEntry<Object, dynamic>`  
-`>>` operator return a `ColumnValue`    
+operator `>>`  return a `ColumnValue`    
 the `migrate` method register table and create it when need, also add column/index when need if table is exist, but never delete them.  
 ```dart  
 LiteSQL lite = LiteSQL.openMemory();
@@ -74,8 +74,9 @@ lite.delete("Person", where: "id".EQ(2) & Person.name.EQ("entao2") | Person.id.E
 lite.update(Person, values: [Person.name >> "Tom"], where: Person.id.EQ(1));
 ```
 
-* Query
-
+* Query  
+`query` method can used for multi table query.  
+the `from` parameter can be a 'join-on/using' clause.  
 ```dart  
 lite.insertAllValues(
   Person,
@@ -97,4 +98,42 @@ for (var p in ls) {
 List<int> ids = lite.query([Person.id], from: Person, where: Person.age.GE(40), orderBy: Person.name.DESC).listValues();
 println(ids);
 // [4, 3]
+```
+
+* Query, multi tables.
+
+```dart  
+// SELECT Person.id, Person.name, Salary.total FROM Person 
+// JOIN Salary ON Person.id = Salary.personId WHERE Salary.total >= 500
+List<AnyMap> ls = lite.query([Person.id, Person.name, Salary.total],
+    from: $(Person).JOIN(Salary).ON(Person.id.EQ(Salary.personId)),
+    where: Salary.total.GE(500),
+).listRows();
+for (var r in ls) {
+  println(r);
+}
+// {id: 3, name: name3, total: 500.0}
+// {id: 4, name: name4, total: 600.0}
+```
+
+'ON' clause is 'Where' express. but 'Where' will pass String value as parameter to sqlite.  
+so, sometimes we need change String value to 'Express'.  
+
+`ON(Person.id.EQ(Salary.personId) & Person.name.NE(Salary.leaderName))`  OK.  
+`ON(Person.id.EQ(Salary.personId) & Person.name.NE("Salary.leaderName"))`  BAD.  
+`ON(Person.id.EQ(Salary.personId) & Person.name.NE("Salary.leaderName".express))`  OK.  
+`ON(Person.id.EQ(Salary.personId) & Person.name.NE(Express("Salary.leaderName")))`  OK.
+
+* Select.  
+
+```dart  
+// SELECT Person.id, Person.name, Person.age FROM Person WHERE Person.age >= 40
+List<MPerson> ps = SELECT([Person.id, Person.name, Person.age]).FROM(Person)
+    .WHERE(Person.age.GE(40))
+    .query(lite).listModels(MPerson.new );
+for(var p in ps ){
+  println(p);
+}
+// {"id":3,"name":"name3","age":40}
+// {"id":4,"name":"name4","age":50}
 ```
