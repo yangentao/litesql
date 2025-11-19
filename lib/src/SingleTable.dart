@@ -1,8 +1,8 @@
 part of 'sql.dart';
 
 class SingleTable {
-  LiteSQL lite;
-  TableProto proto;
+  final LiteSQL lite;
+  final TableProto proto;
 
   SingleTable._(this.proto, {LiteSQL? lite}) : lite = lite ?? proto.liteSQL;
 
@@ -13,137 +13,52 @@ class SingleTable {
 
   List<TableColumn> primaryKeys() => proto.columns.filter((e) => e.proto.primaryKey);
 
-  T? oneByKey<T>(
-    T Function(AnyMap) creator, {
-    required dynamic key,
-    List<dynamic>? columns,
-    String? groupBy,
-    String? having,
-    String? window,
-    String? orderBy,
-    List<String>? orders,
-  }) {
-    return one<T>(creator, columns: columns, where: keyEQ(key), groupBy: groupBy, having: having, window: window, orderBy: orderBy, orders: orders);
+  T? oneByKey<T>({required T Function(AnyMap) creator, required Object key, List<Object>? columns, Object? groupBy, Object? having, Object? window, Object? orderBy}) {
+    return oneModel<T>(creator: creator, columns: columns, where: keyEQ(key), groupBy: groupBy, having: having, window: window, orderBy: orderBy);
   }
 
-  T? oneByKeys<T>(
-    T Function(AnyMap) creator, {
-    required List<dynamic> keys,
-    List<dynamic>? columns,
-    String? groupBy,
-    String? having,
-    String? window,
-    String? orderBy,
-    List<String>? orders,
+  T? oneByKeys<T>({
+    required T Function(AnyMap) creator,
+    required List<Object> keys,
+    List<Object>? columns,
+    Object? groupBy,
+    Object? having,
+    Object? window,
+    Object? orderBy,
   }) {
-    return one<T>(creator, columns: columns, where: keysEQ(keys), groupBy: groupBy, having: having, window: window, orderBy: orderBy, orders: orders);
+    return oneModel<T>(creator: creator, columns: columns, where: keysEQ(keys), groupBy: groupBy, having: having, window: window, orderBy: orderBy);
   }
 
-  V? oneValue<E extends TableColumn<E>, V>(
-    TableColumn<E> column, {
-    Where? where,
-    String? groupBy,
-    String? having,
-    String? window,
-    String? orderBy,
-    List<String>? orders,
-  }) {
+  V? oneValue<V>(Object column, {Where? where, Object? groupBy, Object? having, Object? window, Object? orderBy}) {
     return this.query(columns: [column], where: where, groupBy: groupBy, having: having, window: window, orderBy: orderBy, limit: 1).firstValue();
   }
 
-  T? one<T>(
-    T Function(AnyMap) creator, {
-    List<dynamic>? columns,
-    Where? where,
-    List<Where>? wheres,
-    String? groupBy,
-    String? having,
-    String? window,
-    String? orderBy,
-    List<String>? orders,
-  }) {
-    return list<T>(
-      creator,
-      columns: columns,
-      where: where,
-      wheres: wheres,
-      groupBy: groupBy,
-      having: having,
-      window: window,
-      orderBy: orderBy,
-      orders: orders,
-      limit: 1,
-    ).firstOrNull;
+  List<T> listColumn<T>(Object column, {Where? where, Object? groupBy, Object? having, Object? window, Object? orderBy, int? limit, int? offset}) {
+    return query(columns: [column], where: where, groupBy: groupBy, having: having, window: window, orderBy: orderBy, limit: limit, offset: offset).listValues();
   }
 
-  List<T> listColumn<E extends TableColumn<E>, T>(
-    TableColumn<E> column, {
-    Where? where,
-    List<Where>? wheres,
-    String? groupBy,
-    String? having,
-    String? window,
-    String? orderBy,
-    List<String>? orders,
-    int? limit,
-    int? offset,
-  }) {
-    return query(
-      columns: [column],
-      where: where,
-      wheres: wheres,
-      groupBy: groupBy,
-      having: having,
-      window: window,
-      orderBy: orderBy,
-      limit: limit,
-      offset: offset,
-    ).listValues();
+  T? oneModel<T>({required T Function(AnyMap) creator, List<Object>? columns, Where? where, Object? groupBy, Object? having, Object? window, Object? orderBy}) {
+    return listModel<T>(creator: creator, columns: columns, where: where, groupBy: groupBy, having: having, window: window, orderBy: orderBy, limit: 1).firstOrNull;
   }
 
-  List<T> list<T>(
-    T Function(AnyMap) creator, {
-    List<dynamic>? columns,
+  List<T> listModel<T>({
+    required T Function(AnyMap) creator,
+    List<Object>? columns,
     Where? where,
-    List<Where>? wheres,
-    String? groupBy,
-    String? having,
-    String? window,
-    String? orderBy,
-    List<String>? orders,
+    Object? groupBy,
+    Object? having,
+    Object? window,
+    Object? orderBy,
     int? limit,
     int? offset,
   }) {
     return this
-        .query(columns: columns, where: where, wheres: wheres, groupBy: groupBy, having: having, window: window, orderBy: orderBy, limit: limit, offset: offset)
+        .query(columns: columns, where: where, groupBy: groupBy, having: having, window: window, orderBy: orderBy, limit: limit, offset: offset)
         .listModels(creator);
   }
 
-  ResultSet query({
-    List<dynamic>? columns,
-    Where? where,
-    List<Where>? wheres,
-    String? groupBy,
-    String? having,
-    String? window,
-    String? orderBy,
-    int? limit,
-    int? offset,
-  }) {
-    List<Where> wList = [where, ...?wheres].nonNullList;
-    var w = AND_ALL(wList);
-    return lite.query(
-      columns?.mapList((e) => e is TableColumn ? e.nameSQL : e.toString()) ?? [],
-      from: tableName,
-      where: w.sql,
-      groupBy: groupBy,
-      having: having,
-      window: window,
-      orderBy: orderBy,
-      limit: limit,
-      offset: offset,
-      args: w.args,
-    );
+  ResultSet query({List<Object>? columns, Where? where, Object? groupBy, Object? having, Object? window, Object? orderBy, int? limit, int? offset}) {
+    return lite.query(columns ?? [], from: tableName, where: where, groupBy: groupBy, having: having, window: window, orderBy: orderBy, limit: limit, offset: offset);
   }
 
   Where keyEQ(dynamic keyValue) {
@@ -161,9 +76,7 @@ class SingleTable {
   }
 
   int delete(Where where, {Returning? returning}) {
-    // var w = where;
-    // return lite.delete(tableName, where: w.sql, args: w.args, returning: returning);
-    return 0;
+    return lite.delete(tableName, where: where, returning: returning);
   }
 
   // int updateBy<T extends TableColumn<T>>(List<(TableColumn<T>, dynamic value)> row, {Where? where, Returning? returning}) {
