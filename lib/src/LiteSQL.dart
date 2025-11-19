@@ -208,7 +208,7 @@ class _IndexName {
   }
 }
 
-class SqliteTableInfo extends SimpleModel {
+class SqliteTableInfo extends MapModel {
   SqliteTableInfo(super.model);
 
   int get cid => get("cid");

@@ -99,33 +99,3 @@ void _setModelValue(Object model, String key, dynamic value) {
     errorSQL("set value failed, unknown container:$model, tableColumn:$key.");
   }
 }
-
-class SimpleModel {
-  final AnyMap model;
-
-  SimpleModel(this.model);
-
-  dynamic operator [](Object key) => get(key);
-
-  void operator []=(Object key, dynamic value) => set(key, value);
-
-  T? get<T>(Object key) {
-    String k = _nameOfKey(key);
-    var v = model[k];
-    return _checkNum<T>(v);
-  }
-
-  void set<T>(Object key, T? value) {
-    String k = _nameOfKey(key);
-    model[k] = value;
-  }
-
-  String toJson() {
-    return json.encode(model);
-  }
-
-  @override
-  String toString() {
-    return model.toString();
-  }
-}
