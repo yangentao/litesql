@@ -3,6 +3,7 @@ part of 'sql.dart';
 class SingleTable {
   final LiteSQL lite;
   final TableProto proto;
+  late final List<TableColumn> primaryKeys = proto.columns.filter((e) => e.proto.primaryKey);
 
   SingleTable._(this.proto, {LiteSQL? lite}) : lite = lite ?? proto.liteSQL;
 
@@ -10,8 +11,6 @@ class SingleTable {
   SingleTable(Type type, {LiteSQL? lite}) : this._(TableProto.of(type), lite: lite);
 
   String get tableName => proto.name;
-
-  List<TableColumn> primaryKeys() => proto.columns.filter((e) => e.proto.primaryKey);
 
   T? oneByKey<T>({required T Function(AnyMap) creator, required Object key, List<Object>? columns, Object? groupBy, Object? having, Object? window, Object? orderBy}) {
     return oneModel<T>(creator: creator, columns: columns, where: keyEQ(key), groupBy: groupBy, having: having, window: window, orderBy: orderBy);
@@ -61,16 +60,17 @@ class SingleTable {
     return lite.query(columns ?? [], from: tableName, where: where, groupBy: groupBy, having: having, window: window, orderBy: orderBy, limit: limit, offset: offset);
   }
 
-  Where keyEQ(dynamic keyValue) {
-    var keyList = proto.columns.filter((e) => e.proto.primaryKey);
-    if (keyList.length != 1) errorSQL("Primary Key count MULST is ONE");
+  Where keyEQ(Object keyValue) {
+    if (keyValue is Where) return keyValue;
+    var keyList = primaryKeys;
+    if (keyList.length != 1) errorSQL("Primary Key count MUST be one");
     return keyList.first.EQ(keyValue);
   }
 
-  Where keysEQ(List<dynamic> keyValues) {
-    var keyList = proto.columns.filter((e) => e.proto.primaryKey);
+  Where keysEQ(List<Object> keyValues) {
+    var keyList = primaryKeys;
     if (keyList.isEmpty) errorSQL("No Primary Key defined");
-    if (keyList.length > keyValues.length) errorSQL("Primary Key Great than key value length");
+    if (keyList.length != keyValues.length) errorSQL("Primary Keys has different size of given values");
     List<Where> ws = keyList.mapIndex((n, e) => e.EQ(keyValues[n]));
     return AND_ALL(ws);
   }
