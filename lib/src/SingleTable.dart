@@ -79,23 +79,13 @@ class SingleTable {
     return lite.delete(tableName, where: where, returning: returning);
   }
 
-  // int updateBy<T extends TableColumn<T>>(List<(TableColumn<T>, dynamic value)> row, {Where? where, Returning? returning}) {
-  //   return update(row.mapList((e) => e.$1 >> e.$2), where: where, returning: returning);
-  // }
+  int update({required List<ColumnValue> values, required Where where, Returning? returning}) {
+    return lite.update(tableName, values: values, where: where, returning: returning);
+  }
 
-  // /// From(Configs).upsert([Configs.name >> name, Configs.sValue >> value]);
-  // int update(List<ColumnValue> values, {Where? where, Returning? returning}) {
-  //   return lite.update(proto.name, values.mapList((e) => LabelValue(e.column.columnName, e.value)), where: where?.sql, args: where?.args, returning: returning);
-  // }
-  //
-  // List<int> upsertAll(List<List<ColumnValue>> rows, {Returning? returning}) {
-  //   if (rows.isEmpty) return [];
-  //   return lite.upsertRows(proto.name, rows, returning: returning);
-  // }
-
-  // int upsert(List<ColumnValue> row, {Returning? returning}) {
-  //   return lite.upsertFields(tableName, row, returning: returning);
-  // }
+  int upsert(List<ColumnValue> row, {Returning? returning}) {
+    return lite.upsert(tableName, values: row , constraints: primaryKeys, returning: returning);
+  }
   //
   // int upsertBy<T extends TableColumn<T>>(List<(TableColumn<T>, dynamic value)> row, {Returning? returning}) {
   //   return lite.upsertFields(tableName, row.mapList((e) => e.$1 >> e.$2), returning: returning);
