@@ -229,6 +229,7 @@ class TableProto {
   final List<TableColumn> columns;
   final String nameSQL;
   final LiteSQL liteSQL;
+  late final List<TableColumn> primaryKeys = columns.filter((e) => e.proto.primaryKey);
 
   TableProto(this.name, this.columns, {required this.liteSQL}) : nameSQL = name.escapeSQL {
     for (var e in columns) {
