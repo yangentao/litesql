@@ -163,3 +163,38 @@ for(var p in ps ){
 // {"id":3,"name":"name3","age":40}
 // {"id":4,"name":"name4","age":50}
 ```
+
+* Model insert
+
+```dart  
+MPerson p = MPerson({});
+p.name = "entao1";
+p.age = 33;
+p.insert();
+println(p);
+// {"name":"entao1","age":33,"id":1}
+
+// p.removeProperty(Person.id);
+p.insert(columns: [Person.name]); // ONLY name be insert
+// INSERT INTO Person ( name ) VALUES( ? )  RETURNING *
+
+lite.dump(Person);
+// {id: 1, name: entao1, age: 33}
+// {id: 2, name: entao1, age: null}
+```
+* Model upsert
+```dart  
+MPerson p = MPerson({});
+p.name = "entao1";
+p.age = 33;
+p.upsert();
+// INSERT INTO Person ( name,age ) VALUES( ?,? ) ON CONFLICT( id ) DO UPDATE SET name=?, age=?  RETURNING *
+println(p);
+// {"name":"entao1","age":33,"id":1}
+p.age = 22;
+p.upsert();
+// INSERT INTO Person ( id,name,age ) VALUES( ?,?,? ) ON CONFLICT( id ) DO UPDATE SET name=?, age=?  RETURNING *
+lite.dump(Person);
+// {id: 1, name: entao1, age: 22}
+
+```
