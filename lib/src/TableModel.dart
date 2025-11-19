@@ -13,6 +13,10 @@ class TableModel<E> {
     return SingleTable(E);
   }
 
+  void dumpTable() {
+    _proto.liteSQL.dump(_tableType);
+  }
+
   void clearModifyFlag() {
     _modifiedKeys.clear();
   }
@@ -38,28 +42,16 @@ class TableModel<E> {
     _modifiedKeys.clear();
     callback();
     if (_modifiedKeys.isEmpty) return 0;
-    List<ColumnValue> values = [];
-    for (String k in _modifiedKeys) {
-      TableColumn f = _proto.columns.firstWhere((e) => e.columnName == k);
-      if (!f.proto.primaryKey) {
-        values.add(f >> get(k));
-      }
-    }
     _modifiedKeys.clear();
-    if (values.isEmpty) return 0;
-
-    Returning ret = Returning.ALL;
-    int n = _mtable.update(values: values, where: _keyWhere, returning: ret);
-    if (n > 0) {
-      this.model.addAll(ret.firstRow);
-    }
-    return n;
+    var ls = _modifiedKeys.toList();
+    return updateByKey(columns: ls);
   }
 
   int updateByKey({List<Object>? columns, List<Object>? excludes}) {
     SingleTable tab = _mtable;
     List<MapEntry<TableColumn, dynamic>> values = _fieldValues(columns: columns, excludes: excludes);
     values.removeWhere((e) => e.key.proto.primaryKey);
+    values.retainWhere((e) => e.value != null || true == columns?.contains(e.key.columnName));
     if (values.isEmpty) return 0;
     Returning ret = Returning.ALL;
     int n = tab.update(values: values, where: _keyWhere, returning: ret);
@@ -69,8 +61,10 @@ class TableModel<E> {
     return n;
   }
 
+  // only nonull field will be insert, or 'columns' contains it
   int insert({List<Object>? columns, List<Object>? excludes, InsertOption? conflict}) {
-    List<ColumnValue> ls = _fieldValues(columns: columns, excludes: excludes);
+    List<MapEntry<TableColumn, dynamic>> ls = _fieldValues(columns: columns, excludes: excludes);
+    ls.retainWhere((e) => e.value != null || true == columns?.contains(e.key.columnName));
     if (ls.isEmpty) return 0;
     Returning ret = Returning.ALL;
     SingleTable tab = _mtable;
@@ -81,8 +75,10 @@ class TableModel<E> {
     return id;
   }
 
+  // only nonull field will be insert, or 'columns' contains it
   int upsert({List<Object>? columns, List<Object>? excludes, InsertOption? conflict}) {
-    List<ColumnValue> ls = _fieldValues(columns: columns, excludes: excludes);
+    List<MapEntry<TableColumn, dynamic>> ls = _fieldValues(columns: columns, excludes: excludes);
+    ls.retainWhere((e) => e.value != null || true == columns?.contains(e.key.columnName));
     if (ls.isEmpty) return 0;
     Returning ret = Returning.ALL;
     var tab = _mtable;
@@ -133,6 +129,11 @@ class TableModel<E> {
     String k = _columnNameOf(key);
     model[k] = value;
     _modifiedKeys.add(k);
+  }
+
+  Object? removeProperty(Object key) {
+    String k = _columnNameOf(key);
+    return model.remove(k);
   }
 
   String toJson() {
