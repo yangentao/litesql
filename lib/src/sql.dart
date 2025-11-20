@@ -10,6 +10,7 @@ import 'package:sqlite3/sqlite3.dart';
 
 import 'sqlite3_ffi.dart' as xsql;
 
+part 'Combine.dart';
 part 'LiteExt.dart';
 part 'LiteSQL.dart';
 part 'ResultSetEx.dart';
@@ -41,6 +42,8 @@ final class Returning {
   Returning(Iterable<Object> columns) : columns = columns.mapList((e) => _columnNameOf(e)) {
     assert(columns.isNotEmpty);
   }
+
+  bool get hasReturn => returnRows.isNotEmpty;
 
   AnyMap get firstRow => returnRows.first;
 

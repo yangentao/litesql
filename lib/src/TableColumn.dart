@@ -47,8 +47,8 @@ mixin TableColumn<T extends Enum> on Enum {
     _setModelValue(model, this.columnName, value);
   }
 
-  MapEntry<TableColumn, dynamic> operator >>(dynamic value) {
-    return MapEntry<TableColumn, dynamic>(this, value);
+  MapEntry<TableColumn<T>, dynamic> operator >>(dynamic value) {
+    return MapEntry<TableColumn<T>, dynamic>(this, value);
   }
 
   String defineField(bool multiKey) {

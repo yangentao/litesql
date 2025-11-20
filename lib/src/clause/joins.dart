@@ -11,7 +11,7 @@ class JoinExpress extends Express {
   }
 
   Express USING(Object express) {
-    this << "USING" << express;
+    this << "USING(" << express << ")";
     return this;
   }
 }

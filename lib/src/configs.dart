@@ -57,4 +57,6 @@ class MConfigs extends TableModel<Configs> {
   static double? getDouble(String name) {
     return SingleTable(Configs).oneValue(Configs.fValue, where: Configs.name.EQ(name));
   }
+
+  static final table = Combine(MConfigs.new);
 }

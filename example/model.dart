@@ -14,6 +14,8 @@ class MPerson extends TableModel<Person> {
   int? get age => Person.age.get(this);
 
   set age(int? value) => Person.age.set(this, value);
+
+  static final table = Combine(MPerson.new);
 }
 
 enum Person with TableColumn<Person> {
@@ -34,8 +36,11 @@ class MSalary extends TableModel<Salary> {
   MSalary(super.model);
 
   int get personId => get(Salary.personId);
+
   double get base => get(Salary.base);
+
   double get prize => get(Salary.prize);
+
   double get total => get(Salary.total);
 }
 
@@ -46,8 +51,10 @@ enum Salary with TableColumn<Salary> {
   prize(REAL());
 
   const Salary(this.proto);
+
   @override
   final ColumnProto proto;
+
   @override
   List<Salary> get columns => Salary.values;
 }
