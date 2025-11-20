@@ -62,20 +62,20 @@ class TableOf<M extends TableModel<E>, E extends TableColumn<E>> {
     return lite.delete(tableName, where: where, returning: returning);
   }
 
-  int update({required List<MapEntry<TableColumn<E>, dynamic>> values, required Where where, Returning? returning}) {
+  int update({required List<ColumnValue> values, required Where where, Returning? returning}) {
     return lite.update(tableName, values: values, where: where, returning: returning);
   }
 
-  int upsert({required List<MapEntry<TableColumn<E>, dynamic>> values, Returning? returning}) {
+  int upsert({required List<ColumnValue> values, Returning? returning}) {
     return lite.upsert(tableName, values: values, constraints: primaryKeys, returning: returning);
   }
 
-  int insert({required List<MapEntry<TableColumn<E>, dynamic>> values, InsertOption? conflict, Returning? returning}) {
+  int insert({required List<ColumnValue> values, InsertOption? conflict, Returning? returning}) {
     if (values.isEmpty) return 0;
     return lite.insert(tableName, values: values, conflict: conflict, returning: returning);
   }
 
-  List<int> insertAll({required List<List<MapEntry<TableColumn<E>, dynamic>>> rows, InsertOption? conflict, Returning? returning}) {
+  List<int> insertAll({required List<List<ColumnValue>> rows, InsertOption? conflict, Returning? returning}) {
     if (rows.isEmpty) return [];
     return lite.insertAll(tableName, rows: rows, conflict: conflict, returning: returning);
   }

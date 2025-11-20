@@ -66,3 +66,7 @@
 * remove FieldValue
 * remove FieldProto
 * add query express
+
+## 3.0.1
+* Add 'TableOf' class. 
+* Remove 'SingleTable'.
