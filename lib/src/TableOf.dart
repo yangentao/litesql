@@ -1,12 +1,13 @@
 part of 'sql.dart';
 
-class Combine<M extends TableModel<E>, E extends TableColumn<E>> {
-  final TableProto proto = TableProto.of(E);
+class TableOf<M extends TableModel<E>, E extends TableColumn<E>> {
+  final TableProto<E> proto = TableProto<E>();
+
   late final LiteSQL lite = proto.liteSQL;
-  late final List<TableColumn> primaryKeys = proto.columns.filter((e) => e.proto.primaryKey);
+  late final List<TableColumn<E>> primaryKeys = proto.columns.filter((e) => e.proto.primaryKey);
   M Function(AnyMap) creator;
 
-  Combine(this.creator);
+  TableOf(this.creator);
 
   String get tableName => proto.name;
 
@@ -18,11 +19,11 @@ class Combine<M extends TableModel<E>, E extends TableColumn<E>> {
     return query(columns: [column], where: where, groupBy: groupBy, having: having, window: window, orderBy: orderBy, limit: limit, offset: offset).listValues();
   }
 
-  M? oneByKey({required Object key, Object? groupBy, Object? having, Object? window, Object? orderBy}) {
+  M? oneByKey(Object key, {Object? groupBy, Object? having, Object? window, Object? orderBy}) {
     return oneModel(where: keyEQ(key), groupBy: groupBy, having: having, window: window, orderBy: orderBy);
   }
 
-  M? oneByKeys({required List<Object> keys, Object? groupBy, Object? having, Object? window, Object? orderBy}) {
+  M? oneByKeys(List<Object> keys, {Object? groupBy, Object? having, Object? window, Object? orderBy}) {
     return oneModel(where: keysEQ(keys), groupBy: groupBy, having: having, window: window, orderBy: orderBy);
   }
 
@@ -65,7 +66,7 @@ class Combine<M extends TableModel<E>, E extends TableColumn<E>> {
     return lite.update(tableName, values: values, where: where, returning: returning);
   }
 
-  int upsert({required List<MapEntry<TableColumn, dynamic>> values, Returning? returning}) {
+  int upsert({required List<MapEntry<TableColumn<E>, dynamic>> values, Returning? returning}) {
     return lite.upsert(tableName, values: values, constraints: primaryKeys, returning: returning);
   }
 

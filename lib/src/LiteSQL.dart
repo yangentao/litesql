@@ -224,17 +224,26 @@ class SqliteTableInfo extends MapModel {
   bool get pk => get<int>("pk") == 1;
 }
 
-class TableProto {
+class TableProto<E extends TableColumn<E>> {
   final String name;
-  final List<TableColumn> columns;
+  final List<TableColumn<E>> columns;
   final String nameSQL;
   final LiteSQL liteSQL;
-  late final List<TableColumn> primaryKeys = columns.filter((e) => e.proto.primaryKey);
+  late final List<TableColumn<E>> primaryKeys = columns.filter((e) => e.proto.primaryKey);
 
-  TableProto(this.name, this.columns, {required this.liteSQL}) : nameSQL = name.escapeSQL {
+  TableProto._(this.name, this.columns, {required this.liteSQL}) : nameSQL = name.escapeSQL {
     for (var e in columns) {
       e.tableProto = this;
     }
+    _enumTypeMap[E] = this;
+  }
+
+  factory TableProto() {
+    TableProto? p = _enumTypeMap[E];
+    if (p == null) {
+      errorSQL("NO table proto of '$E' found, migrate it first. for example: liteSQL.migrate(Person.values) ");
+    }
+    return p as TableProto<E>;
   }
 
   TableColumn? find(String fieldName) {
@@ -250,6 +259,8 @@ class TableProto {
     return p;
   }
 
+  static bool isMigrated<T>() => _enumTypeMap.containsKey(T);
+
   static final Map<Type, TableProto> _enumTypeMap = {};
 }
 
@@ -259,11 +270,8 @@ TableProto TABLE(Type type) => TableProto.of(type);
 
 void _migrateEnumTable<T extends TableColumn<T>>(LiteSQL lite, List<T> fields) {
   assert(fields.isNotEmpty);
-  T first = fields.first;
-  if (TableProto._enumTypeMap.containsKey(first.tableType)) return;
-
-  TableProto tab = TableProto(first.tableName, fields, liteSQL: lite);
-  TableProto._enumTypeMap[first.tableType] = tab;
+  if (TableProto.isMigrated<T>()) return;
+  TableProto<T> tab = TableProto<T>._(fields.first.tableName, fields, liteSQL: lite);
   _migrateTable(lite, tab.name, tab.columns);
 }
 

@@ -15,7 +15,7 @@ class MPerson extends TableModel<Person> {
 
   set age(int? value) => Person.age.set(this, value);
 
-  static final table = Combine(MPerson.new);
+  static final table = TableOf(MPerson.new);
 }
 
 enum Person with TableColumn<Person> {

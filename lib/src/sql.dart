@@ -10,7 +10,7 @@ import 'package:sqlite3/sqlite3.dart';
 
 import 'sqlite3_ffi.dart' as xsql;
 
-part 'Combine.dart';
+part 'TableOf.dart';
 part 'LiteExt.dart';
 part 'LiteSQL.dart';
 part 'ResultSetEx.dart';

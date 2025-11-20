@@ -1,5 +1,6 @@
 part of 'sql.dart';
 
+@Deprecated("Use TableOf instead. for example: final table = TableOf(Person.new)")
 class SingleTable {
   final LiteSQL lite;
   final TableProto proto;

@@ -13,6 +13,11 @@ extension type SpaceBuffer.buf(StringBuffer buffer) implements StringBuffer {
     return this;
   }
 
+  SpaceBuffer operator <=(String s) {
+    this << s;
+    return this;
+  }
+
   SpaceBuffer operator <<(String s) {
     if (s.isEmpty) return this;
     if (s == "," || s == " ") {
