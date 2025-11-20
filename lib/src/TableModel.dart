@@ -1,20 +1,19 @@
 part of 'sql.dart';
 
-class TableModel<E> {
+class TableModel<E extends TableColumn<E>> {
   AnyMap model;
   final Type _tableType = E;
   final Set<String> _modifiedKeys = {};
-  late final TableProto _proto = TableProto.of(_tableType);
+  late final TableProto<E> _proto = TableProto<E>();
 
   TableModel(this.model);
 
-  SingleTable get _mtable {
-    if (E == Object) errorSQL("TableModel<T>, generic type parameter MUST be set");
-    return SingleTable(E);
-  }
+  LiteSQL get _lite => _proto.liteSQL;
+
+  String get _tableName => _proto.name;
 
   void dumpTable() {
-    _proto.liteSQL.dump(_tableType);
+    _lite.dump(_tableType);
   }
 
   void clearModifyFlag() {
@@ -34,7 +33,7 @@ class TableModel<E> {
   }
 
   int delete() {
-    return _mtable.delete(_keyWhere);
+    return _lite.delete(_tableName, where: _keyWhere);
   }
 
   /// update modified fields within callback by key(s),
@@ -48,13 +47,12 @@ class TableModel<E> {
   }
 
   int updateByKey({List<Object>? columns, List<Object>? excludes}) {
-    SingleTable tab = _mtable;
     List<MapEntry<TableColumn, dynamic>> values = _fieldValues(columns: columns, excludes: excludes);
     values.removeWhere((e) => e.key.proto.primaryKey);
     values.retainWhere((e) => e.value != null || true == columns?.contains(e.key.columnName));
     if (values.isEmpty) return 0;
     Returning ret = Returning.ALL;
-    int n = tab.update(values: values, where: _keyWhere, returning: ret);
+    int n = _lite.update(_tableName, values: values, where: _keyWhere, returning: ret);
     if (n > 0) {
       this.model.addAll(ret.firstRow);
     }
@@ -67,9 +65,8 @@ class TableModel<E> {
     ls.retainWhere((e) => e.value != null || true == columns?.contains(e.key.columnName));
     if (ls.isEmpty) return 0;
     Returning ret = Returning.ALL;
-    SingleTable tab = _mtable;
-    int id = tab.insert(ls, conflict: conflict, returning: ret);
-    if (tab.lite.updatedRows > 0) {
+    int id = _lite.insert(_tableName, values: ls, conflict: conflict, returning: ret);
+    if (ret.hasReturn) {
       this.model.addAll(ret.firstRow);
     }
     return id;
@@ -81,9 +78,8 @@ class TableModel<E> {
     ls.retainWhere((e) => e.value != null || true == columns?.contains(e.key.columnName));
     if (ls.isEmpty) return 0;
     Returning ret = Returning.ALL;
-    var tab = _mtable;
-    int id = tab.upsert(ls, returning: ret);
-    if (tab.lite.updatedRows > 0) {
+    int id = _lite.upsert(_tableName, values: ls, constraints: _proto.primaryKeys, returning: ret);
+    if (ret.hasReturn) {
       this.model.addAll(ret.firstRow);
     }
     _modifiedKeys.clear();

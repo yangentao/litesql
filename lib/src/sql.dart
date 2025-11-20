@@ -10,14 +10,13 @@ import 'package:sqlite3/sqlite3.dart';
 
 import 'sqlite3_ffi.dart' as xsql;
 
-part 'TableOf.dart';
 part 'LiteExt.dart';
 part 'LiteSQL.dart';
 part 'ResultSetEx.dart';
-part 'SingleTable.dart';
 part 'SpaceBuffer.dart';
 part 'TableColumn.dart';
 part 'TableModel.dart';
+part 'TableOf.dart';
 part 'clause/clauses.dart';
 part 'clause/express.dart';
 part 'clause/ext.dart';
