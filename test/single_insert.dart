@@ -14,7 +14,7 @@ void main() async {
     // MPerson.table.deleteBy(key: 1);
     List<MPerson> ls = MPerson.table.listModel();
     println(ls);
-    MPerson? p = MPerson.table.oneByKey(1);
+    MPerson? p = MPerson.table.oneBy(key: 1);
     p?.age = 33;
     MPerson.table.save(p);
     println(p);

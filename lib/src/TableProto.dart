@@ -1,6 +1,6 @@
 part of 'sql.dart';
 
-class TableProto<E extends TableColumn<E>> {
+class TableProto<E extends TableColumn> {
   final String name;
   final List<TableColumn<E>> columns;
   final String nameSQL;

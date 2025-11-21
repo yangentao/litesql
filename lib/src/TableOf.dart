@@ -1,11 +1,10 @@
 part of 'sql.dart';
 
 class TableOf<M extends TableModel<E>, E extends TableColumn> {
-  final TableProto proto = TableProto.of(E);
-
+  final M Function(AnyMap) creator;
+  late final TableProto<E> proto = TableProto<E>();
   late final LiteSQL lite = proto.liteSQL;
   late final List<TableColumn> primaryKeys = proto.columns.filter((e) => e.proto.primaryKey);
-  M Function(AnyMap) creator;
 
   TableOf(this.creator);
 
@@ -19,12 +18,11 @@ class TableOf<M extends TableModel<E>, E extends TableColumn> {
     return query(columns: [column], where: where, groupBy: groupBy, having: having, window: window, orderBy: orderBy, limit: limit, offset: offset).listValues();
   }
 
-  M? oneByKey(Object key, {Object? groupBy, Object? having, Object? window, Object? orderBy}) {
-    return oneModel(where: keyEQ(key), groupBy: groupBy, having: having, window: window, orderBy: orderBy);
-  }
-
-  M? oneByKeys(List<Object> keys, {Object? groupBy, Object? having, Object? window, Object? orderBy}) {
-    return oneModel(where: keysEQ(keys), groupBy: groupBy, having: having, window: window, orderBy: orderBy);
+  /// oneBy(key: 1, ...)
+  /// oneBy(key: [1,name],...)
+  /// support union primary key(s)
+  M? oneBy({required Object key, Object? groupBy, Object? having, Object? window, Object? orderBy}) {
+    return oneModel(where: _keyWhere(key), groupBy: groupBy, having: having, window: window, orderBy: orderBy);
   }
 
   M? oneModel({Where? where, Object? groupBy, Object? having, Object? window, Object? orderBy}) {
@@ -39,31 +37,20 @@ class TableOf<M extends TableModel<E>, E extends TableColumn> {
     return lite.query(columns ?? [], from: tableName, where: where, groupBy: groupBy, having: having, window: window, orderBy: orderBy, limit: limit, offset: offset);
   }
 
-  Where keyEQ(Object keyValue) {
-    if (keyValue is Where) return keyValue;
-    var keyList = primaryKeys;
-    if (keyList.length != 1) errorSQL("Primary Key count MUST be one");
-    return keyList.first.EQ(keyValue);
-  }
-
-  Where keysEQ(List<Object> keyValues) {
-    var keyList = primaryKeys;
-    if (keyList.isEmpty) errorSQL("No Primary Key defined");
-    if (keyList.length != keyValues.length) errorSQL("Primary Keys has different size of given values");
-    List<Where> ws = keyList.mapIndex((n, e) => e.EQ(keyValues[n]));
-    return AND_ALL(ws);
-  }
-
-  int deleteBy({required Object key, Returning? returning}) {
-    return delete(where: keyEQ(key), returning: returning);
-  }
-
   int delete({required Where where, Returning? returning}) {
     return lite.delete(tableName, where: where, returning: returning);
   }
 
+  int deleteBy({required Object key, Returning? returning}) {
+    return delete(where: _keyWhere(key), returning: returning);
+  }
+
   int update({required List<ColumnValue> values, required Where where, Returning? returning}) {
     return lite.update(tableName, values: values, where: where, returning: returning);
+  }
+
+  int updateBy({required Object key, required List<ColumnValue> values, Returning? returning}) {
+    return lite.update(tableName, values: values, where: _keyWhere(key), returning: returning);
   }
 
   int upsert({required List<ColumnValue> values, Returning? returning}) {
@@ -103,7 +90,22 @@ class TableOf<M extends TableModel<E>, E extends TableColumn> {
     return idList;
   }
 
+  Where _keyWhere(Object value) => _keyEQ(value: value, keys: primaryKeys);
+
   void dump() {
     lite.dumpTable(tableName);
+  }
+}
+
+Where _keyEQ({required Object value, required List<TableColumn> keys}) {
+  if (value is Where) return value;
+  if (keys.isEmpty) errorSQL("No Primary Key defined");
+  if (value is List<dynamic>) {
+    List<dynamic> values = value.nonNullList;
+    if (keys.length != values.length) errorSQL("Primary Keys has different size of given values");
+    return keys.mapIndex((n, e) => e.EQ(values[n])).and();
+  } else {
+    if (keys.length != 1) errorSQL("Primary Key count MUST be one");
+    return keys.first.EQ(value);
   }
 }
