@@ -73,3 +73,6 @@
 
 ## 3.0.2
 * readme
+
+## 3.0.3
+* fix multi query index info
