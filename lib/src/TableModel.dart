@@ -1,10 +1,10 @@
 part of 'sql.dart';
 
-class TableModel<E extends TableColumn<E>> {
+class TableModel<E> {
   AnyMap model;
   final Type _tableType = E;
   final Set<String> _modifiedKeys = {};
-  late final TableProto<E> _proto = TableProto<E>();
+  late final TableProto _proto = TableProto.of(E);
 
   TableModel(this.model);
 

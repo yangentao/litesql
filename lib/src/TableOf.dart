@@ -1,10 +1,10 @@
 part of 'sql.dart';
 
-class TableOf<M extends TableModel<E>, E extends TableColumn<E>> {
-  final TableProto<E> proto = TableProto<E>();
+class TableOf<M extends TableModel<E>, E extends TableColumn> {
+  final TableProto proto = TableProto.of(E);
 
   late final LiteSQL lite = proto.liteSQL;
-  late final List<TableColumn<E>> primaryKeys = proto.columns.filter((e) => e.proto.primaryKey);
+  late final List<TableColumn> primaryKeys = proto.columns.filter((e) => e.proto.primaryKey);
   M Function(AnyMap) creator;
 
   TableOf(this.creator);

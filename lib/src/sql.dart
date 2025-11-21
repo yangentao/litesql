@@ -26,6 +26,7 @@ part 'clause/joins.dart';
 part 'clause/where.dart';
 part 'configs.dart';
 part 'sql_utils.dart';
+part 'TableProto.dart';
 
 TagLog logSQL = TagLog("SQL");
 
