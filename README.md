@@ -218,9 +218,31 @@ lite.dump(Person);
 // {id: 1, name: Tom, age: 5}
 ```
 
-## notices
+## Single Table  
+
+```dart  
+var table = TableOf(MPerson.new);
+table.insert(values: [Person.name >> "entao", Person.age >> 11]);
+table.insert(values: [Person.name >> "Tom", Person.age >> 22]);
+
+List<MPerson> ls = table.listModel(where: Person.name.NOTNULL);
+println(ls);
+// [{"id":1,"name":"entao","age":11}, {"id":2,"name":"Tom","age":22}]
+MPerson? p = table.oneBy(key: 1);
+p?.age = 33;
+table.save(p);
+println(p);
+// {"id":1,"name":"entao","age":33}
+table.dump();
+// {id: 1, name: entao, age: 33}
+// {id: 2, name: Tom, age: 22}
+```
+
+
+
+## Notices
 * when multi-table query , use $(...) refrence table info
 * Use Express("...") or Where("...") cast string to express. this maybe used in join-on clause.
 * 'orderBy' parameter support List.
-* single table operation can use 'SingleTable(...)'.
+* single table operation can use 'TableOf(...)'.
 * logSQL.off()/on() toggle log off/on.

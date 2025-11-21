@@ -42,7 +42,7 @@ class TableProto<E extends TableColumn> {
 
 TableProto $(Type type) => TableProto.of(type);
 
-TableProto TABLE(Type type) => TableProto.of(type);
+TableProto PROTO(Type type) => TableProto.of(type);
 
 void _migrateEnumTable<T extends TableColumn<T>>(LiteSQL lite, List<T> fields) {
   assert(fields.isNotEmpty);

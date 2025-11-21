@@ -70,3 +70,6 @@
 ## 3.0.1
 * Add 'TableOf' class. 
 * Remove 'SingleTable'.
+
+## 3.0.2
+* readme

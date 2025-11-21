@@ -1,5 +1,6 @@
 part of 'sql.dart';
 
+// 顺序必须M在前, 这样可以推导出E的类型
 class TableOf<M extends TableModel<E>, E extends TableColumn> {
   final M Function(AnyMap) creator;
   late final TableProto<E> proto = TableProto<E>();
@@ -18,8 +19,8 @@ class TableOf<M extends TableModel<E>, E extends TableColumn> {
     return query(columns: [column], where: where, groupBy: groupBy, having: having, window: window, orderBy: orderBy, limit: limit, offset: offset).listValues();
   }
 
-  /// oneBy(key: 1, ...)
-  /// oneBy(key: [1,name],...)
+  /// xx(key: 1, ...)
+  /// xx(key: [1,name],...)
   /// support union primary key(s)
   M? oneBy({required Object key, Object? groupBy, Object? having, Object? window, Object? orderBy}) {
     return oneModel(where: _keyWhere(key), groupBy: groupBy, having: having, window: window, orderBy: orderBy);
@@ -41,6 +42,9 @@ class TableOf<M extends TableModel<E>, E extends TableColumn> {
     return lite.delete(tableName, where: where, returning: returning);
   }
 
+  /// xx(key: 1, ...)
+  /// xx(key: [1,name],...)
+  /// support union primary key(s)
   int deleteBy({required Object key, Returning? returning}) {
     return delete(where: _keyWhere(key), returning: returning);
   }
@@ -49,6 +53,9 @@ class TableOf<M extends TableModel<E>, E extends TableColumn> {
     return lite.update(tableName, values: values, where: where, returning: returning);
   }
 
+  /// xx(key: 1, ...)
+  /// xx(key: [1,name],...)
+  /// support union primary key(s)
   int updateBy({required Object key, required List<ColumnValue> values, Returning? returning}) {
     return lite.update(tableName, values: values, where: _keyWhere(key), returning: returning);
   }
