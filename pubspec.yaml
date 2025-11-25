@@ -5,7 +5,8 @@ homepage: https://github.com/yangentao/litesql
 version: 3.0.3
 
 environment:
-  sdk: ^3.10.0
+  sdk: ^3.6.0
+resolution: workspace
 
 # Add regular dependencies here.
 dependencies:

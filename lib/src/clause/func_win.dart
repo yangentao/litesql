@@ -37,9 +37,9 @@ Express NTH_VALUE(Object express, int n) {
 }
 
 Express LAG(Object express, [int? offset, Object? defaultValue]) {
-  return ExpressFunc("LAG", [express, ?offset, ?defaultValue]);
+  return ExpressFunc("LAG", [express, if (offset != null) offset, if (defaultValue != null) defaultValue]);
 }
 
 Express LEAD(Object express, [int? offset, Object? defaultValue]) {
-  return ExpressFunc("LEAD", [express, ?offset, ?defaultValue]);
+  return ExpressFunc("LEAD", [express, if (offset != null) offset, if (defaultValue != null) defaultValue]);
 }
