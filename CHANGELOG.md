@@ -76,3 +76,6 @@
 
 ## 3.0.3
 * fix multi query index info
+
+## 3.0.4
+* entao_dutil 2.2.0
