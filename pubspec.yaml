@@ -12,7 +12,7 @@ resolution: workspace
 dependencies:
   sqlite3: ^3.0.1
   println: ^1.0.4
-  entao_dutil: ^2.2.0
+  entao_dutil: ^2.2.1
   entao_log: ^1.2.8
   entao_lint: ^1.0.1
 
