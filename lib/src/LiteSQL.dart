@@ -3,6 +3,7 @@ part of 'sql.dart';
 class LiteSQL {
   final Database database;
   final ffi.Pointer<ffi.Opaque> _nativeDatabase;
+  late final Pragma PRAGMA = Pragma(this);
 
   LiteSQL({required this.database}) : _nativeDatabase = ffi.Pointer<ffi.Opaque>.fromAddress(database.handle.address);
 
@@ -32,6 +33,10 @@ class LiteSQL {
   int get lastInsertRowId => database.lastInsertRowId;
 
   set lastInsertRowId(int value) => xsql.sqlite3_set_last_insert_rowid(_nativeDatabase, value);
+
+  void vacuum() {
+    execute("VACUUM");
+  }
 
   void dumpTable(String table) {
     rawQuery("SELECT * FROM ${table.escapeSQL}").dump();

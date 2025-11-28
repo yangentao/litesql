@@ -82,3 +82,6 @@
 
 ## 3.0.5
 * LiteSQL.createTable
+
+## 3.0.6
+* fix Group by issue

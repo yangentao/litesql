@@ -2,7 +2,7 @@ name: litesql
 description: SQLite with ORM.
 repository: https://github.com/yangentao/litesql
 homepage: https://github.com/yangentao/litesql
-version: 3.0.5
+version: 3.0.6
 
 environment:
   sdk: ^3.6.0

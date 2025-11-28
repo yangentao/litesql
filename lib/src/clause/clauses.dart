@@ -80,7 +80,7 @@ extension ExpressExt on Express {
   }
 
   Express GROUP_BY(Object express) {
-    return this << "GROUP_BY" << express;
+    return this << "GROUP BY" << express;
   }
 
   Express HAVING(Object express) {

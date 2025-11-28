@@ -17,6 +17,7 @@ part 'SpaceBuffer.dart';
 part 'TableColumn.dart';
 part 'TableModel.dart';
 part 'TableOf.dart';
+part 'TableProto.dart';
 part 'clause/clauses.dart';
 part 'clause/express.dart';
 part 'clause/ext.dart';
@@ -25,8 +26,8 @@ part 'clause/func_win.dart';
 part 'clause/joins.dart';
 part 'clause/where.dart';
 part 'configs.dart';
+part 'pragma.dart';
 part 'sql_utils.dart';
-part 'TableProto.dart';
 
 TagLog logSQL = TagLog("SQL");
 
