@@ -5,10 +5,10 @@ mixin TableColumn<T extends Enum> on Enum {
   Type get tableType => T;
 
   String get tableName => exGetOrPut("tableName", () {
-    String a = "$T";
-    if (a == "Object") errorSQL("TableColumn MUST has a generic type parameter. forexample:  enum Person with TableColumn<Person> ");
-    return a;
-  });
+        String a = "$T";
+        if (a == "Object") errorSQL("TableColumn MUST has a generic type parameter. forexample:  enum Person with TableColumn<Person> ");
+        return a;
+      });
 
   List<T> get columns;
 
@@ -74,6 +74,9 @@ mixin TableColumn<T extends Enum> on Enum {
     if (proto.check != null && proto.check!.isNotEmpty) {
       ls << "CHECK (${proto.check})";
     }
+    if(proto.extras.notBlank){
+      ls << proto.extras!;
+    }
     return ls.join(" ");
   }
 }
@@ -93,6 +96,7 @@ class INTEGER extends ColumnProto {
     super.check,
     super.uniqueName,
     super.defaultValue,
+    super.extras
   });
 }
 
@@ -107,6 +111,7 @@ class REAL extends ColumnProto {
     super.check,
     super.uniqueName,
     super.defaultValue,
+    super.extras
   });
 }
 
@@ -121,6 +126,7 @@ class NUMERIC extends ColumnProto {
     super.check,
     super.uniqueName,
     super.defaultValue,
+    super.extras
   });
 }
 
@@ -135,6 +141,7 @@ class TEXT extends ColumnProto {
     super.check,
     super.uniqueName,
     super.defaultValue,
+    super.extras
   });
 }
 
@@ -149,6 +156,7 @@ class BLOB extends ColumnProto {
     super.check,
     super.uniqueName,
     super.defaultValue,
+    super.extras
   });
 }
 
@@ -163,6 +171,7 @@ class ColumnProto {
   final String? check;
   final String? uniqueName;
   final bool index;
+  final String? extras;
 
   const ColumnProto({
     required this.type,
@@ -175,5 +184,6 @@ class ColumnProto {
     this.check,
     this.uniqueName,
     this.defaultValue,
+    this.extras,
   });
 }

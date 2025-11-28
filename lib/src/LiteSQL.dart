@@ -132,62 +132,27 @@ class LiteSQL {
     execute(sql);
   }
 
-  void addColumn(String table, TableColumn field) {
-    String sql = "ALTER TABLE ${table.escapeSQL} ADD COLUMN ${field.defineField(false)}";
-    execute(sql);
-  }
-
   void createIndex(String table, List<String> fields) {
     String idxName = _makeIndexName(table, fields);
     String sql = "CREATE INDEX IF NOT EXISTS $idxName ON ${table.escapeSQL} (${fields.map((e) => e.escapeSQL).join(",")})";
     execute(sql);
   }
 
-  void createTable(String table, List<TableColumn> fields, {List<String>? constraints, List<String>? options, bool notExist = true}) {
-    ListString ls = [];
-    if (notExist) {
-      ls << "CREATE TABLE IF NOT EXISTS ${table.escapeSQL} (";
-    } else {
-      ls << "CREATE TABLE ${table.escapeSQL} (";
+  void createTable(String table, List<String> columns, {List<String> constraints = const [], List<String> options = const []}) {
+    SpaceBuffer buf = SpaceBuffer();
+    buf << "CREATE TABLE IF NOT EXISTS";
+    buf << table;
+    buf << "(";
+    buf << columns.join(", ");
+    if (constraints.isNotEmpty) {
+      buf << ", ";
+      buf << constraints.join(", ");
     }
-
-    ListString colList = [];
-
-    List<TableColumn> keyFields = fields.filter((e) => e.proto.primaryKey);
-    colList.addAll(fields.map((e) => e.defineField(keyFields.length > 1)));
-
-    if (keyFields.length > 1) {
-      colList << "PRIMARY KEY ( ${keyFields.map((e) => e.nameSQL).join(", ")})";
+    buf << ")";
+    if (options.isNotEmpty) {
+      buf << options.join(", ");
     }
-    List<TableColumn> uniqeList = fields.filter((e) => e.proto.uniqueName != null && e.proto.uniqueName!.isNotEmpty);
-    if (uniqeList.isNotEmpty) {
-      Map<String, List<TableColumn>> map = uniqeList.groupBy((e) => e.proto.uniqueName!);
-      for (var e in map.entries) {
-        colList << "UNIQUE (${e.value.map((f) => f.nameSQL).join(", ")})";
-      }
-    }
-
-    if (constraints != null && constraints.isNotEmpty) {
-      colList.addAll(constraints);
-    }
-    ls << colList.join(",\n");
-    if (options != null && options.isNotEmpty) {
-      ls << ") ${options.join(",")}";
-    } else {
-      ls << ")";
-    }
-
-    String sql = ls.join("\n");
-    execute(sql);
-
-    for (var f in fields) {
-      if (f.proto.primaryKey || f.proto.unique || notBlank(f.proto.uniqueName)) {
-        continue;
-      }
-      if (f.proto.index) {
-        createIndex(table, [f.columnName]);
-      }
-    }
+    execute(buf.toString());
   }
 }
 

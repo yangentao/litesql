@@ -79,3 +79,6 @@
 
 ## 3.0.4
 * entao_dutil 2.2.0
+
+## 3.0.5
+* LiteSQL.createTable
