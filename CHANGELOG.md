@@ -85,3 +85,6 @@
 
 ## 3.0.6
 * fix Group by issue
+
+## 3.0.7
+* fix query index issue.

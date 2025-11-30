@@ -112,10 +112,10 @@ class LiteSQL {
     return rs.mapList((e) => e['name']);
   }
 
-  List<_IndexName> _listIndex() {
+  List<IndexName> listIndex() {
     String sql = "SELECT tbl_name, name FROM sqlite_master WHERE type='index'";
     ResultSet rs = rawQuery(sql);
-    return rs.mapList((r) => _IndexName(table: r.columnAt(0), index: r.columnAt(1)));
+    return rs.mapList((r) => IndexName(table: r.columnAt(0), index: r.columnAt(1)));
   }
 
   List<String> _listTable() {
@@ -176,11 +176,11 @@ String _makeIndexName(String table, List<String> fields) {
   return "${table}_${ls.join("_")}";
 }
 
-class _IndexName {
+class IndexName {
   String table;
   String index;
 
-  _IndexName({required this.table, required this.index});
+  IndexName({required this.table, required this.index});
 
   @override
   String toString() {

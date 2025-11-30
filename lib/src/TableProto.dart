@@ -65,12 +65,10 @@ void _migrateTable(LiteSQL lite, String tableName, List<TableColumn> fields) {
     }
   }
   Set<String> idxSet = {};
-  List<_IndexName> indexList = Pooled.getSync("indexes", () => lite._listIndex(), life: Duration(seconds: 30));
-  for (var a in indexList) {
-    List<String> ls = Pooled.getSync(a.table + a.index, () => lite._indexInfo(a.index), life: Duration(seconds: 30));
-    if (ls.length == 1) {
-      idxSet.add(ls.first);
-    }
+  List<LiteIndexItem> idxList = lite.PRAGMA.index_list(tableName);
+  for (LiteIndexItem a in idxList) {
+    List<LiteIndexInfo> ls = lite.PRAGMA.index_info(a.name);
+    idxSet.addAll(ls.map((e) => e.name));
   }
   for (TableColumn f in fields) {
     if (f.proto.primaryKey || f.proto.unique || notBlank(f.proto.uniqueName)) continue;
