@@ -69,6 +69,16 @@ class LiteSQL {
     return database.select(sql, parameters ?? const []);
   }
 
+  StepCursor stepQuery(String sql, [List<Object?>? parameters]) {
+    logSQL.d(sql);
+    if (parameters != null && parameters.isNotEmpty) {
+      logSQL.d(parameters);
+    }
+    PreparedStatement ps = database.prepare(sql);
+    IteratingCursor cursor = ps.selectCursor(parameters ?? const []);
+    return StepCursor(cursor: cursor, statement: ps);
+  }
+
   PreparedStatement prepareSQL(String sql) {
     logSQL.d(sql);
     return database.prepare(sql);
@@ -192,4 +202,31 @@ class SqliteTableInfo extends MapModel {
   String? get dflt_value => get("dflt_value");
 
   bool get pk => get<int>("pk") == 1;
+}
+
+class StepCursor implements Iterator<Row> {
+  IteratingCursor cursor;
+  PreparedStatement statement;
+
+  StepCursor({required this.cursor, required this.statement});
+
+  List<String> get columnNames => cursor.columnNames;
+
+  List<String?> get tableNames => cursor.tableNames ?? [];
+
+  @override
+  Row get current => cursor.current;
+
+  @override
+  bool moveNext() {
+    bool ok = cursor.moveNext();
+    if (!ok) {
+      statement.close();
+    }
+    return ok;
+  }
+
+  void close() {
+    statement.close();
+  }
 }
