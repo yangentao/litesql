@@ -2,7 +2,7 @@ name: litesql
 description: SQLite with ORM.
 repository: https://github.com/yangentao/litesql
 homepage: https://github.com/yangentao/litesql
-version: 3.0.7
+version: 3.0.8
 
 environment:
   sdk: ^3.6.0
@@ -12,7 +12,7 @@ resolution: workspace
 dependencies:
   sqlite3: ^3.1.1
   println: ^1.0.4
-  entao_dutil: ^2.2.4
+  entao_dutil: ^2.3.0
   entao_log: ^1.2.8
   entao_lint: ^1.0.1
 

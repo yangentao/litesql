@@ -88,3 +88,6 @@
 
 ## 3.0.7
 * fix query index issue.
+
+## 3.0.8
+* update entao_dutil package
