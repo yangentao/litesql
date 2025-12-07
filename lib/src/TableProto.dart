@@ -84,14 +84,14 @@ void _addColumn(LiteSQL lite, String table, TableColumn field) {
 }
 
 void _createTable(LiteSQL lite, String table, List<TableColumn> fields, {List<String>? constraints, List<String>? options, bool notExist = true}) {
-  ListString ls = [];
+  List<String> ls = [];
   if (notExist) {
     ls << "CREATE TABLE IF NOT EXISTS ${table.escapeSQL} (";
   } else {
     ls << "CREATE TABLE ${table.escapeSQL} (";
   }
 
-  ListString colList = [];
+  List<String> colList = [];
 
   List<TableColumn> keyFields = fields.filter((e) => e.proto.primaryKey);
   colList.addAll(fields.map((e) => e.defineField(keyFields.length > 1)));

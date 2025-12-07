@@ -91,3 +91,5 @@
 
 ## 3.0.8
 * update entao_dutil package
+## 3.0.9
+* update entao_dutil package
