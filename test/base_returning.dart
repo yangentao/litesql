@@ -7,7 +7,7 @@ import '../example/model.dart';
 void main() async {
   test("base-returning", () {
     LiteSQL lite = LiteSQL.openMemory();
-    lite.migrate(Person.values);
+    lite.register(Person.values);
 
     Returning returning = Returning([Person.id]);
     lite.insert(Person, values: [Person.name >> "entao", Person.age >> 31], returning: returning);

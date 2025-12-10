@@ -1,6 +1,6 @@
 part of 'sql.dart';
 
-enum Configs with TableColumn<Configs> {
+enum Configs with TableColumn  {
   name(TEXT(primaryKey: true)),
   nValue(INTEGER()),
   fValue(REAL()),
@@ -11,8 +11,6 @@ enum Configs with TableColumn<Configs> {
   @override
   final ColumnProto proto;
 
-  @override
-  List<Configs> get columns => Configs.values;
 }
 
 class MConfigs extends TableModel<Configs> {

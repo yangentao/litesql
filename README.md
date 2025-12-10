@@ -4,10 +4,9 @@ platform support see  https://pub.dev/packages/sqlite3
 ## Usage
 more example see 'example/\*.dart' and 'test/\*.dart'
 
-* First. define a enum table.  
-mixin TableColumn<**Person**> with the enum type as generic parameter.  
+* First. define a enum table, mixin TableColumn.  
 ```dart
-enum Person with TableColumn<Person> {
+enum Person with TableColumn {
   id(INTEGER(primaryKey: true)),
   name(TEXT()),
   age(INTEGER());
@@ -16,8 +15,6 @@ enum Person with TableColumn<Person> {
   
   @override
   final ColumnProto proto;
-  @override
-  List<Person> get columns => Person.values;
 }
 ```
 

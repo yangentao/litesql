@@ -1,42 +1,34 @@
 part of '../sql.dart';
 
 /// don't use 'name', use 'columnName',  enum's name maybe renamed.
-mixin TableColumn<T extends Enum> on Enum {
-  Type get tableType => T;
-
-  String get tableName => exGetOrPut("tableName", () {
-        String a = "$T";
-        if (a == "Object") errorSQL("TableColumn MUST has a generic type parameter. forexample:  enum Person with TableColumn<Person> ");
-        return a;
-      });
-
-  List<T> get columns;
-
+mixin TableColumn on Enum {
   ColumnProto get proto;
 
-  String get columnName => exGetOrPut("nameColumn", () => (proto.rename ?? this.name));
+  String get tableName => tableProto.name;
 
-  String get nameSQL => exGetOrPut("nameSQL", () => columnName.escapeSQL);
+  String get columnName => proto.name ?? this.name;
 
-  String get fullname => exGetOrPut("fullname", () => "${tableName.escapeSQL}.$nameSQL");
-
-  TableProto get tableProto => exGet("tableProto");
-
-  set tableProto(TableProto p) {
-    exSet("tableProto", p);
+  String get nameSQL {
+    String? s = _getColumnProperty(this, "nameSQL");
+    if (s != null) return s;
+    String n = columnName.escapeSQL;
+    _setColumnProperty(this, "nameSQL", n);
+    return n;
   }
 
-  Map<String, dynamic> get _propMap => _columnPropMap.getOrPut(this, () => <String, dynamic>{});
-
-  V exGetOrPut<V>(String key, V Function() onMiss) {
-    return _propMap.getOrPut(key, onMiss);
+  String get fullname {
+    String? s = _getColumnProperty(this, "fullname");
+    if (s != null) return s;
+    String n = "${tableName.escapeSQL}.$nameSQL";
+    _setColumnProperty(this, "fullname", n);
+    return n;
   }
 
-  V? exGet<V>(String key) {
-    return _propMap[key];
-  }
+  TableProto get tableProto => _getColumnProperty(this, "tableProto");
 
-  void exSet(String key, dynamic value) => _propMap[key] = value;
+  set _tableProto(TableProto p) {
+    _setColumnProperty(this, "tableProto", p);
+  }
 
   V? get<V>(Object? container) {
     if (container == null) return null;
@@ -47,8 +39,8 @@ mixin TableColumn<T extends Enum> on Enum {
     _setModelValue(model, this.columnName, value);
   }
 
-  MapEntry<TableColumn<T>, dynamic> operator >>(dynamic value) {
-    return MapEntry<TableColumn<T>, dynamic>(this, value);
+  MapEntry<TableColumn, dynamic> operator >>(dynamic value) {
+    return MapEntry<TableColumn, dynamic>(this, proto.encode(value));
   }
 
   String defineField(bool multiKey) {
@@ -74,116 +66,30 @@ mixin TableColumn<T extends Enum> on Enum {
     if (proto.check != null && proto.check!.isNotEmpty) {
       ls << "CHECK (${proto.check})";
     }
-    if(proto.extras.notBlank){
+    if (proto.extras.notBlank) {
       ls << proto.extras!;
     }
     return ls.join(" ");
   }
 }
 
-final Map<Enum, Map<String, dynamic>> _columnPropMap = {};
+final Map<Enum, AnyMap> _columnPropMap = {};
 
-/// https://sqlite.org/datatype3.html
-class INTEGER extends ColumnProto {
-  const INTEGER({
-    super.rename,
-    super.type = "INTEGER",
-    super.primaryKey = false,
-    super.notNull = false,
-    super.autoInc = false,
-    super.unique = false,
-    super.index = false,
-    super.check,
-    super.uniqueName,
-    super.defaultValue,
-    super.extras
-  });
+V? _getColumnProperty<V>(TableColumn column, String key) {
+  return _columnPropMap[column]?[key];
 }
 
-class REAL extends ColumnProto {
-  const REAL({
-    super.rename,
-    super.type = "REAL",
-    super.primaryKey = false,
-    super.notNull = false,
-    super.unique = false,
-    super.index = false,
-    super.check,
-    super.uniqueName,
-    super.defaultValue,
-    super.extras
-  });
-}
-
-class NUMERIC extends ColumnProto {
-  const NUMERIC({
-    super.rename,
-    super.type = "NUMERIC",
-    super.primaryKey = false,
-    super.notNull = false,
-    super.unique = false,
-    super.index = false,
-    super.check,
-    super.uniqueName,
-    super.defaultValue,
-    super.extras
-  });
-}
-
-class TEXT extends ColumnProto {
-  const TEXT({
-    super.rename,
-    super.type = "TEXT",
-    super.primaryKey = false,
-    super.notNull = false,
-    super.unique = false,
-    super.index = false,
-    super.check,
-    super.uniqueName,
-    super.defaultValue,
-    super.extras
-  });
-}
-
-class BLOB extends ColumnProto {
-  const BLOB({
-    super.rename,
-    super.type = "BLOB",
-    super.primaryKey = false,
-    super.notNull = false,
-    super.unique = false,
-    super.index = false,
-    super.check,
-    super.uniqueName,
-    super.defaultValue,
-    super.extras
-  });
-}
-
-class ColumnProto {
-  final String type;
-  final String? rename;
-  final bool primaryKey;
-  final bool autoInc; //AUTOINCREMENT
-  final bool unique;
-  final bool notNull;
-  final String? defaultValue;
-  final String? check;
-  final String? uniqueName;
-  final bool index;
-  final String? extras;
-
-  const ColumnProto({
-    required this.type,
-    this.rename,
-    this.primaryKey = false,
-    this.notNull = false,
-    this.autoInc = false,
-    this.unique = false,
-    this.index = false,
-    this.check,
-    this.uniqueName,
-    this.defaultValue,
-    this.extras,
-  });
+void _setColumnProperty(TableColumn column, String key, dynamic value) {
+  AnyMap? map = _columnPropMap[column];
+  if (map != null) {
+    if (value == null) {
+      map.remove(key);
+    } else {
+      map[key] = value;
+    }
+  } else {
+    if (value != null) {
+      _columnPropMap[column] = {key: value};
+    }
+  }
 }

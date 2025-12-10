@@ -5,7 +5,8 @@ homepage: https://github.com/yangentao/litesql
 version: 3.0.9
 
 environment:
-  sdk: ^3.6.0
+  # Inference using bounds, generic used in TableOf class
+  sdk: ^3.7.0
 resolution: workspace
 
 # Add regular dependencies here.

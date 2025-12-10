@@ -7,7 +7,7 @@ import '../example/model.dart';
 void main() async {
   test("single-table", () {
     LiteSQL lite = LiteSQL.openMemory();
-    lite.migrate(Person.values);
+    lite.register(Person.values);
 
     var table = TableOf(MPerson.new);
     table.insert(values: [Person.name >> "entao", Person.age >> 11]);

@@ -1,25 +1,31 @@
 part of '../sql.dart';
 
-class TableProto<E extends TableColumn> {
+class TableProto {
+  final Type type;
   final String name;
-  final List<TableColumn<E>> columns;
+  final List<TableColumn> columns;
   final String nameSQL;
   final LiteSQL liteSQL;
-  late final List<TableColumn<E>> primaryKeys = columns.filter((e) => e.proto.primaryKey);
+  late final List<TableColumn> primaryKeys = columns.filter((e) => e.proto.primaryKey);
 
-  TableProto._(this.name, this.columns, {required this.liteSQL}) : nameSQL = name.escapeSQL {
+  TableProto._(this.name, this.columns, {required this.liteSQL})
+      : type = columns.first.runtimeType,
+        nameSQL = name.escapeSQL {
+    assert(columns.isNotEmpty);
     for (var e in columns) {
-      e.tableProto = this;
+      e._tableProto = this;
     }
-    _enumTypeMap[E] = this;
+    print("type: $type");
+    _enumTypeMap[type] = this;
   }
 
-  factory TableProto() {
-    TableProto? p = _enumTypeMap[E];
+  factory TableProto(Type type) {
+    print("check: $type  ");
+    TableProto? p = _enumTypeMap[type];
     if (p == null) {
-      errorSQL("NO table proto of '$E' found, migrate it first. for example: liteSQL.migrate(Person.values) ");
+      errorSQL("NO table proto of '$type ' found, migrate it first. for example: liteSQL.migrate(Person.values) ");
     }
-    return p as TableProto<E>;
+    return p;
   }
 
   TableColumn? find(String fieldName) {
@@ -35,21 +41,21 @@ class TableProto<E extends TableColumn> {
     return p;
   }
 
-  static bool isMigrated<T>() => _enumTypeMap.containsKey(T);
+  static bool isRegistered<T>() => _enumTypeMap.containsKey(T);
 
   static final Map<Type, TableProto> _enumTypeMap = {};
+
+  static void register<T extends TableColumn>(LiteSQL lite, List<T> fields, {String? tableName}) {
+    assert(fields.isNotEmpty);
+    if (TableProto.isRegistered<T>()) return;
+    TableProto tab = TableProto._(tableName ?? "$T", fields, liteSQL: lite);
+    _migrateTable(lite, tab.name, tab.columns);
+  }
 }
 
 TableProto $(Type type) => TableProto.of(type);
 
 TableProto PROTO(Type type) => TableProto.of(type);
-
-void _migrateEnumTable<T extends TableColumn<T>>(LiteSQL lite, List<T> fields) {
-  assert(fields.isNotEmpty);
-  if (TableProto.isMigrated<T>()) return;
-  TableProto<T> tab = TableProto<T>._(fields.first.tableName, fields, liteSQL: lite);
-  _migrateTable(lite, tab.name, tab.columns);
-}
 
 void _migrateTable(LiteSQL lite, String tableName, List<TableColumn> fields) {
   if (!lite.existTable(tableName)) {

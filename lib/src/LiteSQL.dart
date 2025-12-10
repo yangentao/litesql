@@ -96,8 +96,8 @@ class LiteSQL {
   }
 
   /// liteSQL.migrate(Person.values)
-  void migrate<T extends TableColumn<T>>(List<T> fields) {
-    _migrateEnumTable(this, fields);
+  void register<T extends TableColumn>(List<T> fields) {
+    TableProto.register(this, fields);
   }
 
   List<SqliteTableInfo> tableInfo(String tableName) {

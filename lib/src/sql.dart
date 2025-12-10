@@ -18,6 +18,7 @@ part 'proto/TableColumn.dart';
 part 'proto/TableModel.dart';
 part 'proto/TableOf.dart';
 part 'proto/TableProto.dart';
+part 'proto/types.dart';
 part 'clause/clauses.dart';
 part 'clause/express.dart';
 part 'clause/ext.dart';

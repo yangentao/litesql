@@ -6,7 +6,7 @@ import '../example/model.dart';
 void main() async {
   test("base-update", () {
     LiteSQL lite = LiteSQL.openMemory();
-    lite.migrate(Person.values);
+    lite.register(Person.values);
 
     // INSERT INTO Person ( name,age ) VALUES( ?,? )
     lite.insert(Person, values: [Person.name >> "Entao", Person.age >> 31]);

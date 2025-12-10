@@ -4,7 +4,7 @@ import 'package:test/test.dart';
 void main() async {
   test("base-upsert", () {
     LiteSQL lite = LiteSQL.openMemory();
-    lite.migrate(Per.values);
+    lite.register(Per.values);
 
     lite.insert(Per, values: [Per.id >> 1, Per.name >> "entao", Per.age >> 31]);
     lite.dump(Per);
@@ -14,7 +14,7 @@ void main() async {
   });
 }
 
-enum Per with TableColumn<Per> {
+enum Per with TableColumn {
   id(INTEGER(primaryKey: true)),
   name(TEXT(primaryKey: true)),
   age(INTEGER());

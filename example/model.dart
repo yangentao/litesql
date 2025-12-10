@@ -18,7 +18,7 @@ class MPerson extends TableModel<Person> {
   static final table = TableOf(MPerson.new);
 }
 
-enum Person with TableColumn<Person> {
+enum Person with TableColumn {
   id(INTEGER(primaryKey: true)),
   name(TEXT()),
   age(INTEGER());
@@ -27,9 +27,6 @@ enum Person with TableColumn<Person> {
 
   @override
   final ColumnProto proto;
-
-  @override
-  List<Person> get columns => Person.values;
 }
 
 class MSalary extends TableModel<Salary> {
@@ -44,7 +41,7 @@ class MSalary extends TableModel<Salary> {
   double get total => get(Salary.total);
 }
 
-enum Salary with TableColumn<Salary> {
+enum Salary with TableColumn {
   personId(INTEGER(primaryKey: true)),
   total(REAL()),
   base(REAL()),
@@ -54,7 +51,4 @@ enum Salary with TableColumn<Salary> {
 
   @override
   final ColumnProto proto;
-
-  @override
-  List<Salary> get columns => Salary.values;
 }

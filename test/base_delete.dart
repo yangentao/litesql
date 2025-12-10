@@ -6,7 +6,7 @@ import '../example/model.dart';
 void main() async {
   test("base-delete", () {
     LiteSQL lite = LiteSQL.openMemory();
-    lite.migrate(Person.values);
+    lite.register(Person.values);
 
     lite.insert(Person, values: [ColumnValue("name", "entao1"), Person.age >> 31]);
     lite.insertMap("Person", values: {"name": "entao2", "age": 21});

@@ -20,7 +20,7 @@ extension StringExpressExt on String {
   }
 }
 
-extension TableColumnExpresExt<T extends TableColumn<T>> on TableColumn<T> {
+extension TableColumnExpresExt on TableColumn {
   String AS(String alias) => "$fullname AS $alias";
 
   String get ASC => "$fullname ASC";

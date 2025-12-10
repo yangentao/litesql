@@ -8,8 +8,8 @@ import '../example/model.dart';
 void main() async {
   test("base-select", () {
     LiteSQL lite = LiteSQL.openMemory();
-    lite.migrate(Person.values);
-    lite.migrate(Salary.values);
+    lite.register(Person.values);
+    lite.register(Salary.values);
 
     lite.insertAllValues(
       Person,
@@ -59,7 +59,7 @@ void main() async {
 
   test("base-query", () {
     LiteSQL lite = LiteSQL.openMemory();
-    lite.migrate(Person.values);
+    lite.register(Person.values);
 
     lite.insertAllValues(
       Person,
