@@ -3,13 +3,19 @@ part of 'sql.dart';
 extension ResultSetExt on ResultSet {
   int get columnCount => columnNames.length;
 
+  int labelToIndex(String label) => this.columnNames.indexOf(label);
+
   Object? valueAt({required int row, required int col}) => this.rows[row][col];
 
   Object? valueNamed({required int row, required String col}) => this[row][col];
 
   dynamic firstValue() => this.firstOrNull?.columnAt(0);
 
-  List<T> listValues<T>({int col = 0}) => this.mapList((e) => e.columnAt(col));
+  List<T> listValues<T>([Object col = 0]) {
+    if (col case int n) return this.mapList((e) => e.columnAt(n));
+    int n = labelToIndex(col.toString());
+    return this.mapList((e) => e.columnAt(n));
+  }
 
   AnyMap rowAt({required int index}) => this[index].mapSQL;
 

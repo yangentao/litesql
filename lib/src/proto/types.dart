@@ -2,81 +2,86 @@ part of '../sql.dart';
 
 /// https://sqlite.org/datatype3.html
 class INTEGER extends ColumnProto {
-  const INTEGER(
-      {super.name,
-      super.type = "INTEGER",
-      super.primaryKey = false,
-      super.notNull = false,
-      super.autoInc = false,
-      super.unique = false,
-      super.index = false,
-      super.check,
-      super.uniqueName,
-      super.defaultValue,
-      super.extras});
+  const INTEGER({
+    super.name,
+    super.type = "INTEGER",
+    super.primaryKey = false,
+    super.notNull = false,
+    super.autoInc = 0,
+    super.unique = false,
+    super.index = false,
+    super.check,
+    super.uniqueName,
+    super.defaultValue,
+    super.extras,
+  });
 }
 
 class REAL extends ColumnProto {
-  const REAL(
-      {super.name,
-      super.type = "REAL",
-      super.primaryKey = false,
-      super.notNull = false,
-      super.unique = false,
-      super.index = false,
-      super.check,
-      super.uniqueName,
-      super.defaultValue,
-      super.extras});
+  const REAL({
+    super.name,
+    super.type = "REAL",
+    super.primaryKey = false,
+    super.notNull = false,
+    super.unique = false,
+    super.index = false,
+    super.check,
+    super.uniqueName,
+    super.defaultValue,
+    super.extras,
+  });
 }
 
 class NUMERIC extends ColumnProto {
-  const NUMERIC(
-      {super.name,
-      super.type = "NUMERIC",
-      super.primaryKey = false,
-      super.notNull = false,
-      super.unique = false,
-      super.index = false,
-      super.check,
-      super.uniqueName,
-      super.defaultValue,
-      super.extras});
+  const NUMERIC({
+    super.name,
+    super.type = "NUMERIC",
+    super.primaryKey = false,
+    super.notNull = false,
+    super.unique = false,
+    super.index = false,
+    super.check,
+    super.uniqueName,
+    super.defaultValue,
+    super.extras,
+  });
 }
 
 class TEXT extends ColumnProto {
-  const TEXT(
-      {super.name,
-      super.type = "TEXT",
-      super.primaryKey = false,
-      super.notNull = false,
-      super.unique = false,
-      super.index = false,
-      super.check,
-      super.uniqueName,
-      super.defaultValue,
-      super.extras});
+  const TEXT({
+    super.name,
+    super.type = "TEXT",
+    super.primaryKey = false,
+    super.notNull = false,
+    super.unique = false,
+    super.index = false,
+    super.check,
+    super.uniqueName,
+    super.defaultValue,
+    super.extras,
+  });
 }
 
 class BLOB extends ColumnProto {
-  const BLOB(
-      {super.name,
-      super.type = "BLOB",
-      super.primaryKey = false,
-      super.notNull = false,
-      super.unique = false,
-      super.index = false,
-      super.check,
-      super.uniqueName,
-      super.defaultValue,
-      super.extras});
+  const BLOB({
+    super.name,
+    super.type = "BLOB",
+    super.primaryKey = false,
+    super.notNull = false,
+    super.unique = false,
+    super.index = false,
+    super.check,
+    super.uniqueName,
+    super.defaultValue,
+    super.extras,
+  });
 }
 
 class ColumnProto {
   final String type;
   final String? name;
   final bool primaryKey;
-  final bool autoInc; //AUTOINCREMENT
+  final int autoInc; //AUTOINCREMENT
   final bool unique;
   final bool notNull;
   final String? defaultValue;
@@ -90,7 +95,7 @@ class ColumnProto {
     this.name,
     this.primaryKey = false,
     this.notNull = false,
-    this.autoInc = false,
+    this.autoInc = 0,
     this.unique = false,
     this.index = false,
     this.check,
