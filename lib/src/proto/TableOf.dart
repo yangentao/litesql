@@ -9,7 +9,7 @@ class TableOf<M extends TableModel<E>, E> {
   /// require dart 3.7
   TableOf(this.creator) : proto = TableProto.of(E);
 
-  LiteSQL get lite => proto.liteSQL;
+  LiteSQL get lite => proto.lite;
 
   String get tableName => proto.name;
 

@@ -3,13 +3,13 @@ part of '../sql.dart';
 class TableProto {
   final Type type;
   final String name;
-  final LiteSQL liteSQL;
+  final LiteSQL lite;
   final List<TableColumn> columns;
 
   late final String nameSQL = name.escapeSQL;
   late final List<TableColumn> primaryKeys = columns.filter((e) => e.proto.primaryKey);
 
-  TableProto._(this.name, this.columns, {required this.liteSQL}) : type = columns.first.runtimeType {
+  TableProto._(this.name, this.columns, {required this.lite}) : type = columns.first.runtimeType {
     assert(columns.isNotEmpty);
     for (var e in columns) {
       e._tableProto = this;
@@ -42,7 +42,7 @@ class TableProto {
   static void register<T extends TableColumn>(LiteSQL lite, List<T> fields, {String? tableName}) {
     assert(fields.isNotEmpty);
     if (TableProto.isRegistered<T>()) return;
-    TableProto tab = TableProto._(tableName ?? "$T", fields, liteSQL: lite);
+    TableProto tab = TableProto._(tableName ?? "$T", fields, lite: lite);
     _migrateTable(lite, tab.name, tab.columns);
   }
 }

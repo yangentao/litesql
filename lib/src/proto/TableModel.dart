@@ -8,7 +8,7 @@ class TableModel<E> {
 
   TableModel(this.model);
 
-  LiteSQL get _lite => _proto.liteSQL;
+  LiteSQL get _lite => _proto.lite;
 
   String get _tableName => _proto.name;
 
