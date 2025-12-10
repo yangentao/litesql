@@ -3,19 +3,17 @@ part of '../sql.dart';
 class TableProto {
   final Type type;
   final String name;
-  final List<TableColumn> columns;
-  final String nameSQL;
   final LiteSQL liteSQL;
+  final List<TableColumn> columns;
+
+  late final String nameSQL = name.escapeSQL;
   late final List<TableColumn> primaryKeys = columns.filter((e) => e.proto.primaryKey);
 
-  TableProto._(this.name, this.columns, {required this.liteSQL})
-      : type = columns.first.runtimeType,
-        nameSQL = name.escapeSQL {
+  TableProto._(this.name, this.columns, {required this.liteSQL}) : type = columns.first.runtimeType {
     assert(columns.isNotEmpty);
     for (var e in columns) {
       e._tableProto = this;
     }
-    print("type: $type");
     _enumTypeMap[type] = this;
   }
 
@@ -34,11 +32,7 @@ class TableProto {
 
   // after migrate
   static TableProto of(Type type) {
-    TableProto? p = _enumTypeMap[type];
-    if (p == null) {
-      errorSQL("NO table proto of $type  found, migrate it first. ");
-    }
-    return p;
+    return TableProto(type);
   }
 
   static bool isRegistered<T>() => _enumTypeMap.containsKey(T);

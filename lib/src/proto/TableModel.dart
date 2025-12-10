@@ -4,7 +4,7 @@ class TableModel<E> {
   AnyMap model;
   final Type _tableType = E;
   final Set<String> _modifiedKeys = {};
-  late final TableProto _proto = TableProto.of(E);
+  final TableProto _proto = TableProto.of(E);
 
   TableModel(this.model);
 
