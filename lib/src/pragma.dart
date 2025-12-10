@@ -236,10 +236,10 @@ class Pragma {
 
   QueryResult query(String name, {List<Object> args = const []}) {
     if (args.isEmpty) {
-      return lite.rawQuery("PRAGMA $name");
+      return lite.execute("PRAGMA $name");
     } else {
       String s = args.map((e) => e is String ? e.singleQuoted : e.toString()).join(", ");
-      return lite.rawQuery("PRAGMA $name($s)");
+      return lite.execute("PRAGMA $name($s)");
     }
   }
 
@@ -260,7 +260,7 @@ class Pragma {
   }
 
   int getInt(String name) {
-    return lite.rawQuery("PRAGMA $name").firstValue() ?? 0;
+    return lite.execute("PRAGMA $name").firstValue() ?? 0;
   }
 
   void setInt(String name, int value, {bool func = false}) {
@@ -272,7 +272,7 @@ class Pragma {
   }
 
   String getString(String name) {
-    return lite.rawQuery("PRAGMA $name").firstValue() ?? "";
+    return lite.execute("PRAGMA $name").firstValue() ?? "";
   }
 
   void setString(String name, String value) {

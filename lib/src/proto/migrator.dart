@@ -5,7 +5,9 @@ class BasicMigrator {
   final String? schema;
   late final String schemaTable = tableProto.nameSQL._schema(schema);
 
-  BasicMigrator(this.tableProto, {this.schema});
+  BasicMigrator(this.tableProto, {this.schema}) {
+    migrate();
+  }
 
   List<TableColumn> get fields => tableProto.columns;
 
@@ -18,7 +20,7 @@ class BasicMigrator {
   }
 
   QueryResult execute(String sql, [AnyList? args]) {
-    return lite.rawQuery(sql, args);
+    return lite.execute(sql, args);
   }
 
   Future<void> autoIncChangeBase(TableColumn field, int base) async {

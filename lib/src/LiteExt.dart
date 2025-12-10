@@ -52,7 +52,7 @@ extension LiteSqlInsertExt on LiteSQL {
     this.lastInsertRowId = 0;
     if (LiteSQL._supportReturning && returning != null) {
       buf << returning.clause;
-      QueryResult rs = this.rawQuery(buf.toString(), values.toList());
+      QueryResult rs = this.execute(buf.toString(), values.toList());
       returning.returnRows.addAll(rs.listMaps());
     } else {
       this.execute(buf.toString(), values.toList());
@@ -131,7 +131,7 @@ extension LiteSqlInsertExt on LiteSQL {
     lastInsertRowId = 0;
     if (LiteSQL._supportReturning && returning != null) {
       buf << returning.clause;
-      QueryResult rs = rawQuery(buf.toString(), argList);
+      QueryResult rs = execute(buf.toString(), argList);
       returning.returnRows.addAll(rs.listMaps());
     } else {
       execute(buf.toString(), argList);
@@ -207,7 +207,7 @@ extension LiteSqlInsertExt on LiteSQL {
     buf << where.sql;
     if (LiteSQL._supportReturning && returning != null) {
       buf << returning.clause;
-      QueryResult rs = rawQuery(buf.toString(), where.args);
+      QueryResult rs = execute(buf.toString(), where.args);
       returning.returnRows.addAll(rs.listMaps());
     } else {
       execute(buf.toString(), where.args);
@@ -235,7 +235,7 @@ extension LiteSqlInsertExt on LiteSQL {
     var argList = <dynamic>[...values, ...(where.args)];
     if (LiteSQL._supportReturning && returning != null) {
       buf << returning.clause;
-      QueryResult rs = rawQuery(buf.toString(), argList);
+      QueryResult rs = execute(buf.toString(), argList);
       returning.returnRows.addAll(rs.listMaps());
     } else {
       execute(buf.toString(), argList);

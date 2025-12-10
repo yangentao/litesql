@@ -39,29 +39,10 @@ class LiteSQL {
   }
 
   void dumpTable(String table) {
-    rawQuery("SELECT * FROM ${table.escapeSQL}").dump();
+    execute("SELECT * FROM ${table.escapeSQL}").dump();
   }
 
   QueryResult execute(String sql, [List<Object?>? parameters]) {
-    logSQL.d(sql);
-    if (parameters != null && parameters.isNotEmpty) {
-      logSQL.d(parameters);
-    }
-    return database.select(sql, parameters ?? const []).queryResult;
-  }
-
-  int rawUpdate(String sql, [List<Object?>? parameters]) {
-    execute(sql, parameters);
-    return updatedRows;
-  }
-
-  int rawInsert(String sql, [List<Object?>? parameters]) {
-    lastInsertRowId = 0;
-    execute(sql, parameters);
-    return lastInsertRowId;
-  }
-
-  QueryResult rawQuery(String sql, [List<Object?>? parameters]) {
     logSQL.d(sql);
     if (parameters != null && parameters.isNotEmpty) {
       logSQL.d(parameters);
@@ -84,11 +65,12 @@ class LiteSQL {
     return database.prepare(sql);
   }
 
-  void transaction(void Function() callback) {
+  R transaction<R>(R Function() callback) {
     execute("BEGIN");
     try {
-      callback();
+      R r = callback();
       execute("COMMIT");
+      return r;
     } catch (e) {
       execute("ROLLBACK");
       rethrow;
@@ -108,31 +90,31 @@ class LiteSQL {
 
   List<String> _indexInfo(String indexName) {
     String sql = "PRAGMA index_info(${indexName.escapeSQL})";
-    QueryResult rs = rawQuery(sql);
+    QueryResult rs = execute(sql);
     return rs.listValues("name");
   }
 
   List<IndexName> listIndex() {
     String sql = "SELECT tbl_name, name FROM sqlite_master WHERE type='index'";
-    QueryResult rs = rawQuery(sql);
+    QueryResult rs = execute(sql);
     return rs.mapList((r) => IndexName(table: r[0] as String, index: r[1] as String));
   }
 
   List<String> _listTable() {
     String sql = "SELECT name FROM sqlite_master WHERE type = 'table'";
-    QueryResult rs = rawQuery(sql);
+    QueryResult rs = execute(sql);
     return rs.listValues();
   }
 
   bool existTable(String table) {
     String sql = "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?";
-    QueryResult rs = rawQuery(sql, [table]);
+    QueryResult rs = execute(sql, [table]);
     return rs.isNotEmpty;
   }
 
   int countTable(String table) {
     String sql = "SELECT count(*) FROM ${table.escapeSQL}";
-    QueryResult rs = rawQuery(sql);
+    QueryResult rs = execute(sql);
     return rs.firstValue() ?? 0;
   }
 
