@@ -38,10 +38,10 @@ table name can be string value 'Person' or type Person.
 column name can be string value like 'name' or enum value like Person.name.  
 'ColumnValue' is defined as `MapEntry<Object, dynamic>`  
 operator `>>`  return a `ColumnValue`    
-the `migrate` method register table and create it when need, also add column/index when need if table is exist, but never delete them.  
+the `register` method register table and create it when need, also add column/index when need if table is exist, but never delete them.  
 ```dart  
 LiteSQL lite = LiteSQL.openMemory();
-lite.migrate(Person.values);
+lite.register(Person.values);
 
 lite.insert(Person, values: [Person.name >> "entao1", Person.age >> 31 ]);
 
@@ -131,7 +131,7 @@ println(ids);
 List<AnyMap> ls = lite.query([Person.id, Person.name, Salary.total],
     from: $(Person).JOIN(Salary).ON(Person.id.EQ(Salary.personId)),
     where: Salary.total.GE(500),
-).listRows();
+).listMaps();
 for (var r in ls) {
   println(r);
 }
