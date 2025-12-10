@@ -8,6 +8,8 @@ class LiteSQL {
   LiteSQL({required this.database}) : _nativeDatabase = ffi.Pointer<ffi.Opaque>.fromAddress(database.handle.address);
 
   static Version version = sqlite3.version;
+
+  // ignore: unused_field
   static final bool _supportReturning = version.versionNumber >= 3035000;
 
   static LiteSQL open(String path, {String? vfs, OpenMode mode = OpenMode.readWriteCreate, bool uri = false, bool? mutex}) {
@@ -37,8 +39,6 @@ class LiteSQL {
   void vacuum() {
     execute("VACUUM");
   }
-
-
 
   QueryResult execute(String sql, [List<Object?>? parameters]) {
     logSQL.d(sql);
