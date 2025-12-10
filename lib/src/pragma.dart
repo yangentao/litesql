@@ -68,7 +68,7 @@ class Pragma {
   set defer_foreign_keys(bool value) => setBool("defer_foreign_keys", value);
 
   List<({String name, String file})> get database_list {
-    return mapRow("database_list", (e) => (name: e["name"], file: e["file"]));
+    return mapRow("database_list", (e) => (name: e.get("name"), file: e.get("file")));
   }
 
   String get encoding => getString("encoding");
@@ -90,7 +90,10 @@ class Pragma {
   set fullfsync(bool value) => setBool("fullfsync", value);
 
   List<({String name, int builtin, String type, String enc, int narg, int flags})> get function_list {
-    return mapRow("function_list", (e) => (name: e["name"], builtin: e["builtin"], type: e["type"], enc: e["enc"], narg: e["narg"], flags: e["flags"]));
+    return mapRow(
+      "function_list",
+      (e) => (name: e.get("name"), builtin: e.get("builtin"), type: e.get("type"), enc: e.get("enc"), narg: e.get("narg"), flags: e.get("flags")),
+    );
   }
 
   int get hard_heap_limit => getInt("hard_heap_limit");
@@ -106,17 +109,21 @@ class Pragma {
   set incremental_vacuum(int value) => setInt("incremental_vacuum", value, func: true);
 
   List<LiteIndexItem> index_list(String table, {String? schema}) {
-    return query("index_list"._schema(schema), args: [table])
-        .mapList((e) => (seq: e["seq"], name: e["name"], unique: e["unique"], origin: e["origin"], partial: e["partial"]));
+    return query(
+      "index_list"._schema(schema),
+      args: [table],
+    ).mapRow((e) => (seq: e.get("seq"), name: e.get("name"), unique: e.get("unique"), origin: e.get("origin"), partial: e.get("partial")));
   }
 
   List<LiteIndexInfo> index_info(String indexName, {String? schema}) {
-    return query("index_info"._schema(schema), args: [indexName]).mapList((e) => (seqno: e["seqno"], name: e["name"], cid: e["cid"]));
+    return query("index_info"._schema(schema), args: [indexName]).mapRow((e) => (seqno: e.get("seqno"), name: e.get("name"), cid: e.get("cid")));
   }
 
   List<LiteIndexInfoX> index_xinfo(String indexName, {String? schema}) {
-    return query("index_xinfo"._schema(schema), args: [indexName])
-        .mapList((e) => (seqno: e["seqno"], name: e["name"], cid: e["cid"], desc: e["desc"], coll: e["coll"], key: e["key"]));
+    return query(
+      "index_xinfo"._schema(schema),
+      args: [indexName],
+    ).mapRow((e) => (seqno: e.get("seqno"), name: e.get("name"), cid: e.get("cid"), desc: e.get("desc"), coll: e.get("coll"), key: e.get("key")));
   }
 
   List<LiteTableItem> table_list({String? table, String? schema}) {
@@ -125,17 +132,30 @@ class Pragma {
     if (table.notEmpty) {
       buf.write("(${table!.singleQuoted})");
     }
-    return query(buf.toString()).mapList((e) => (schema: e["schema"], name: e["name"], type: e["type"], ncol: e["ncol"], wr: e["wr"], strict: e["strict"]));
+    return query(
+      buf.toString(),
+    ).mapRow((e) => (schema: e.get("schema"), name: e.get("name"), type: e.get("type"), ncol: e.get("ncol"), wr: e.get("wr"), strict: e.get("strict")));
   }
 
   List<LiteTableInfo> table_info(String table, {String? schema}) {
-    return query("table_info"._schema(schema), args: [table])
-        .mapList((e) => (name: e["name"], cid: e["cid"], type: e["type"] ?? "TEXT", notnull: e["notnull"], dflt_value: e["dflt_value"], pk: e["pk"]));
+    return query(
+      "table_info"._schema(schema),
+      args: [table],
+    ).mapRow((e) => (name: e.get("name"), cid: e.get("cid"), type: e.get("type") ?? "TEXT", notnull: e.get("notnull"), dflt_value: e.get("dflt_value"), pk: e.get("pk")));
   }
 
   List<LiteTableInfoX> table_xinfo(String table, {String? schema}) {
-    return query("table_xinfo"._schema(schema), args: [table]).mapList(
-        (e) => (name: e["name"], cid: e["cid"], type: e["type"] ?? "TEXT", notnull: e["notnull"], dflt_value: e["dflt_value"], pk: e["pk"], hidden: e["hidden"]));
+    return query("table_xinfo"._schema(schema), args: [table]).mapRow(
+      (e) => (
+        name: e.get("name"),
+        cid: e.get("cid"),
+        type: e.get("type") ?? "TEXT",
+        notnull: e.get("notnull"),
+        dflt_value: e.get("dflt_value"),
+        pk: e.get("pk"),
+        hidden: e.get("hidden"),
+      ),
+    );
   }
 
   /// NORMAL | EXCLUSIVE
@@ -209,12 +229,12 @@ class Pragma {
 
   set user_version(int value) => setInt("user_version", value);
 
-  List<R> mapRow<R>(String name, R Function(Row) block) {
+  List<R> mapRow<R>(String name, R Function(RowData) block) {
     final rs = query(name);
-    return rs.mapList((e) => block(e));
+    return rs.mapList((e) => block(RowData(e, meta: rs.meta)));
   }
 
-  ResultSet query(String name, {List<Object> args = const []}) {
+  QueryResult query(String name, {List<Object> args = const []}) {
     if (args.isEmpty) {
       return lite.rawQuery("PRAGMA $name");
     } else {
@@ -224,11 +244,11 @@ class Pragma {
   }
 
   List<int> listInt(String name, {Object key = 0}) {
-    return query(name).mapList((e) => e[key] as int);
+    return query(name).listValues(key);
   }
 
   List<String> listString(String name, {Object key = 0}) {
-    return query(name).mapList((e) => e[key] as String);
+    return query(name).listValues(key);
   }
 
   bool getBool(String name) {

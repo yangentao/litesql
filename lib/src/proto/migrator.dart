@@ -17,7 +17,7 @@ class BasicMigrator {
     return "$type AUTOINCREMENT";
   }
 
-  ResultSet execute(String sql, [AnyList? args]) {
+  QueryResult execute(String sql, [AnyList? args]) {
     return lite.rawQuery(sql, args);
   }
 
@@ -34,22 +34,22 @@ class BasicMigrator {
 
   bool tableExists() {
     String sql = "SELECT 1 FROM ${"sqlite_schema"._schema(schema)} WHERE type = 'table' AND name = ?";
-    ResultSet rs = execute(sql, [tableName]);
+    QueryResult rs = execute(sql, [tableName]);
     return rs.isNotEmpty;
   }
 
   Set<String> tableFields() {
-    ResultSet r = execute("PRAGMA ${"table_info"._schema(schema)}($tableName)");
+    QueryResult r = execute("PRAGMA ${"table_info"._schema(schema)}($tableName)");
     return r.listValues<String>("name").toSet();
   }
 
   Set<String> listIndex() {
-    ResultSet r = execute("PRAGMA ${"index_list"._schema(schema)}($tableName)");
+    QueryResult r = execute("PRAGMA ${"index_list"._schema(schema)}($tableName)");
     return r.listValues<String>("name").toSet();
   }
 
   Set<String> indexFields(String indexName) {
-    ResultSet r = execute("PRAGMA ${"index_info"._schema(schema)}($indexName)");
+    QueryResult r = execute("PRAGMA ${"index_info"._schema(schema)}($indexName)");
     return r.listValues<String>("name").toSet();
   }
 

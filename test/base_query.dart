@@ -31,20 +31,16 @@ void main() async {
       ],
     );
     // SELECT Person.id, Person.name, Person.age FROM Person WHERE Person.age >= 40
-    List<MPerson> ps = SELECT([Person.id, Person.name, Person.age]).FROM(Person)
-        .WHERE(Person.age.GE(40))
-        .query(lite).listModels(MPerson.new );
-    for(var p in ps ){
+    List<MPerson> ps = SELECT([Person.id, Person.name, Person.age]).FROM(Person).WHERE(Person.age.GE(40)).query(lite).listModels(MPerson.new);
+    for (var p in ps) {
       println(p);
     }
     // {"id":3,"name":"name3","age":40}
     // {"id":4,"name":"name4","age":50}
 
     // SELECT Person.id, Person.name, Salary.total FROM Person JOIN Salary ON Person.id = Salary.personId WHERE Salary.total >= 500
-    List<AnyMap> ls = lite.query([Person.id, Person.name, Salary.total],
-        from: $(Person).JOIN(Salary).ON(Person.id.EQ(Salary.personId)  ),
-        where: Salary.total.GE(500),
-    ).listRows();
+    List<AnyMap> ls =
+        lite.query([Person.id, Person.name, Salary.total], from: $(Person).JOIN(Salary).ON(Person.id.EQ(Salary.personId)), where: Salary.total.GE(500)).listMaps();
 
     for (var r in ls) {
       println(r);

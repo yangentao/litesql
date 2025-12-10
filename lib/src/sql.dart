@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:convert';
 import 'dart:core';
 import 'dart:ffi' as ffi;
@@ -12,14 +13,9 @@ import 'sqlite3_ffi.dart' as xsql;
 
 part 'LiteExt.dart';
 part 'LiteSQL.dart';
+part 'QueryResult.dart';
 part 'ResultSetEx.dart';
 part 'SpaceBuffer.dart';
-part 'proto/TableColumn.dart';
-part 'proto/TableModel.dart';
-part 'proto/TableOf.dart';
-part 'proto/TableProto.dart';
-part 'proto/types.dart';
-part 'proto/migrator.dart';
 part 'clause/clauses.dart';
 part 'clause/express.dart';
 part 'clause/ext.dart';
@@ -29,6 +25,12 @@ part 'clause/joins.dart';
 part 'clause/where.dart';
 part 'configs.dart';
 part 'pragma.dart';
+part 'proto/TableColumn.dart';
+part 'proto/TableModel.dart';
+part 'proto/TableOf.dart';
+part 'proto/TableProto.dart';
+part 'proto/migrator.dart';
+part 'proto/types.dart';
 part 'sql_utils.dart';
 
 TagLog logSQL = TagLog("SQL");
@@ -104,4 +106,9 @@ void _setModelValue(Object model, String key, dynamic value) {
   } else {
     errorSQL("set value failed, unknown container:$model, tableColumn:$key.");
   }
+}
+
+String _makeIndexName(String table, List<String> fields) {
+  var ls = fields.sorted(null);
+  return "${table}_${ls.join("_")}";
 }

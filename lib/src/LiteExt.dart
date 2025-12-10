@@ -11,7 +11,7 @@ extension LiteSqlInsertExt on LiteSQL {
   /// query([], from:Person)
   /// query(["*"], from:Person)
   /// query([Person.values], from:Person)
-  ResultSet query(
+  QueryResult query(
     List<Object> columns, {
     required Object from,
     Object? where,
@@ -52,8 +52,8 @@ extension LiteSqlInsertExt on LiteSQL {
     this.lastInsertRowId = 0;
     if (LiteSQL._supportReturning && returning != null) {
       buf << returning.clause;
-      ResultSet rs = this.rawQuery(buf.toString(), values.toList());
-      returning.returnRows.addAll(rs.listRows());
+      QueryResult rs = this.rawQuery(buf.toString(), values.toList());
+      returning.returnRows.addAll(rs.listMaps());
     } else {
       this.execute(buf.toString(), values.toList());
     }
@@ -62,26 +62,14 @@ extension LiteSqlInsertExt on LiteSQL {
 
   List<int> insertAll(Object table, {required Iterable<Iterable<ColumnValue>> rows, InsertOption? conflict, Returning? returning}) {
     assert(rows.isNotEmpty);
-    return insertAllValues(
-      table,
-      columns: rows.first.map((e) => e.key),
-      rows: rows.map((row) => row.map((e) => e.value)),
-      conflict: conflict,
-      returning: returning,
-    );
+    return insertAllValues(table, columns: rows.first.map((e) => e.key), rows: rows.map((row) => row.map((e) => e.value)), conflict: conflict, returning: returning);
   }
 
   List<int> insertAllMap(Object table, {required Iterable<Map<Object, dynamic>> rows, InsertOption? conflict, Returning? returning}) {
     return insertAll(table, rows: rows.map((e) => e.entries), conflict: conflict, returning: returning);
   }
 
-  List<int> insertAllValues(
-    Object table, {
-    required Iterable<Object> columns,
-    required Iterable<Iterable<dynamic>> rows,
-    InsertOption? conflict,
-    Returning? returning,
-  }) {
+  List<int> insertAllValues(Object table, {required Iterable<Object> columns, required Iterable<Iterable<dynamic>> rows, InsertOption? conflict, Returning? returning}) {
     assert(columns.isNotEmpty && rows.isNotEmpty);
     SpaceBuffer buf = _insertBuffer(table, columns);
     bool needReturn = LiteSQL._supportReturning && returning != null;
@@ -143,8 +131,8 @@ extension LiteSqlInsertExt on LiteSQL {
     lastInsertRowId = 0;
     if (LiteSQL._supportReturning && returning != null) {
       buf << returning.clause;
-      ResultSet rs = rawQuery(buf.toString(), argList);
-      returning.returnRows.addAll(rs.listRows());
+      QueryResult rs = rawQuery(buf.toString(), argList);
+      returning.returnRows.addAll(rs.listMaps());
     } else {
       execute(buf.toString(), argList);
     }
@@ -219,8 +207,8 @@ extension LiteSqlInsertExt on LiteSQL {
     buf << where.sql;
     if (LiteSQL._supportReturning && returning != null) {
       buf << returning.clause;
-      ResultSet rs = rawQuery(buf.toString(), where.args);
-      returning.returnRows.addAll(rs.listRows());
+      QueryResult rs = rawQuery(buf.toString(), where.args);
+      returning.returnRows.addAll(rs.listMaps());
     } else {
       execute(buf.toString(), where.args);
     }
@@ -247,8 +235,8 @@ extension LiteSqlInsertExt on LiteSQL {
     var argList = <dynamic>[...values, ...(where.args)];
     if (LiteSQL._supportReturning && returning != null) {
       buf << returning.clause;
-      ResultSet rs = rawQuery(buf.toString(), argList);
-      returning.returnRows.addAll(rs.listRows());
+      QueryResult rs = rawQuery(buf.toString(), argList);
+      returning.returnRows.addAll(rs.listMaps());
     } else {
       execute(buf.toString(), argList);
     }

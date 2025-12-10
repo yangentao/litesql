@@ -42,12 +42,12 @@ class LiteSQL {
     rawQuery("SELECT * FROM ${table.escapeSQL}").dump();
   }
 
-  void execute(String sql, [List<Object?>? parameters]) {
+  QueryResult execute(String sql, [List<Object?>? parameters]) {
     logSQL.d(sql);
     if (parameters != null && parameters.isNotEmpty) {
       logSQL.d(parameters);
     }
-    database.execute(sql, parameters ?? const []);
+    return database.select(sql, parameters ?? const []).queryResult;
   }
 
   int rawUpdate(String sql, [List<Object?>? parameters]) {
@@ -61,12 +61,12 @@ class LiteSQL {
     return lastInsertRowId;
   }
 
-  ResultSet rawQuery(String sql, [List<Object?>? parameters]) {
+  QueryResult rawQuery(String sql, [List<Object?>? parameters]) {
     logSQL.d(sql);
     if (parameters != null && parameters.isNotEmpty) {
       logSQL.d(parameters);
     }
-    return database.select(sql, parameters ?? const []);
+    return database.select(sql, parameters ?? const []).queryResult;
   }
 
   StepCursor stepQuery(String sql, [List<Object?>? parameters]) {
@@ -95,9 +95,9 @@ class LiteSQL {
     }
   }
 
-  /// liteSQL.migrate(Person.values)
-  void register<T extends TableColumn>(List<T> fields) {
-    TableProto.register(this, fields);
+  /// liteSQL.register(Person.values)
+  void register<T extends TableColumn>(List<T> fields, {String? tableName, void Function(TableProto)? migrator, bool useBasicMigrator = true}) {
+    TableProto.register(this, fields, tableName: tableName, migrator: migrator, useBasicMigrator: useBasicMigrator);
   }
 
   List<SqliteTableInfo> tableInfo(String tableName) {
@@ -108,32 +108,32 @@ class LiteSQL {
 
   List<String> _indexInfo(String indexName) {
     String sql = "PRAGMA index_info(${indexName.escapeSQL})";
-    ResultSet rs = rawQuery(sql);
-    return rs.mapList((e) => e['name']);
+    QueryResult rs = rawQuery(sql);
+    return rs.listValues("name");
   }
 
   List<IndexName> listIndex() {
     String sql = "SELECT tbl_name, name FROM sqlite_master WHERE type='index'";
-    ResultSet rs = rawQuery(sql);
-    return rs.mapList((r) => IndexName(table: r.columnAt(0), index: r.columnAt(1)));
+    QueryResult rs = rawQuery(sql);
+    return rs.mapList((r) => IndexName(table: r[0] as String, index: r[1] as String));
   }
 
   List<String> _listTable() {
     String sql = "SELECT name FROM sqlite_master WHERE type = 'table'";
-    ResultSet rs = rawQuery(sql);
-    return rs.mapList((r) => r.columnAt(0));
+    QueryResult rs = rawQuery(sql);
+    return rs.listValues();
   }
 
   bool existTable(String table) {
     String sql = "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?";
-    ResultSet rs = rawQuery(sql, [table]);
+    QueryResult rs = rawQuery(sql, [table]);
     return rs.isNotEmpty;
   }
 
   int countTable(String table) {
     String sql = "SELECT count(*) FROM ${table.escapeSQL}";
-    ResultSet rs = rawQuery(sql);
-    return rs.firstOrNull?.columnAt(0) ?? 0;
+    QueryResult rs = rawQuery(sql);
+    return rs.firstValue() ?? 0;
   }
 
   void dropTable(String table) {
@@ -171,11 +171,6 @@ class LiteSQL {
   }
 }
 
-String _makeIndexName(String table, List<String> fields) {
-  var ls = fields.sorted(null);
-  return "${table}_${ls.join("_")}";
-}
-
 class IndexName {
   String table;
   String index;
@@ -202,31 +197,4 @@ class SqliteTableInfo extends MapModel {
   String? get dflt_value => get("dflt_value");
 
   bool get pk => get<int>("pk") == 1;
-}
-
-class StepCursor implements Iterator<Row> {
-  IteratingCursor cursor;
-  PreparedStatement statement;
-
-  StepCursor({required this.cursor, required this.statement});
-
-  List<String> get columnNames => cursor.columnNames;
-
-  List<String?> get tableNames => cursor.tableNames ?? [];
-
-  @override
-  Row get current => cursor.current;
-
-  @override
-  bool moveNext() {
-    bool ok = cursor.moveNext();
-    if (!ok) {
-      statement.close();
-    }
-    return ok;
-  }
-
-  void close() {
-    statement.close();
-  }
 }
