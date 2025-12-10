@@ -81,8 +81,8 @@ extension LiteSqlInsertExt on LiteSQL {
     for (Iterable<dynamic> values in rows) {
       this.lastInsertRowId = 0;
       if (needReturn) {
-        ResultSet rs = ps.select(values.toList());
-        returning.returnRows.addAll(rs.listRows());
+        QueryResult rs = ps.select(values.toList()).queryResult;
+        returning.returnRows.addAll(rs.listMaps());
       } else {
         ps.execute(values.toList());
       }
@@ -188,8 +188,8 @@ extension LiteSqlInsertExt on LiteSQL {
       var argList = [...row, ...otherNames.mapList((e) => row[columnNames.indexOf(e)])];
       lastInsertRowId = 0;
       if (needRet) {
-        ResultSet rs = ps.select(argList);
-        returning.returnRows.addAll(rs.listRows());
+        QueryResult rs = ps.select(argList).queryResult;
+        returning.returnRows.addAll(rs.listMaps());
       } else {
         ps.execute(argList);
       }

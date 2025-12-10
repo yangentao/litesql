@@ -13,8 +13,7 @@ import 'sqlite3_ffi.dart' as xsql;
 
 part 'LiteExt.dart';
 part 'LiteSQL.dart';
-part 'QueryResult.dart';
-part 'ResultSetEx.dart';
+part 'result.dart';
 part 'SpaceBuffer.dart';
 part 'clause/clauses.dart';
 part 'clause/express.dart';

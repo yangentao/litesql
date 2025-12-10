@@ -1,6 +1,6 @@
 part of 'sql.dart';
 
-extension on ResultSet {
+extension ResultSetToQueryResultExt on ResultSet {
   QueryResult get queryResult {
     ResultMeta meta = ResultMeta(columnNames.mapList((e) => ColumnMeta(label: e)));
     return QueryResult(rows, meta: meta, rawResult: this);
@@ -133,7 +133,7 @@ extension QueryResultExt on QueryResult {
 
   List<RowData> listRows() => this.mapList((e) => RowData(e, meta: meta));
 
-  List<R> mapRow<R>(R Function(RowData) callback) => listRows().mapList(callback);
+  List<R> mapRow<R>(R Function(RowData) callback) => this.mapList((e) => callback(RowData(e, meta: meta)));
 
   void dump() {
     if (this.isEmpty) {
