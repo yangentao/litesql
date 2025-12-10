@@ -1,4 +1,4 @@
-part of 'sql.dart';
+part of '../sql.dart';
 
 /// don't use 'name', use 'columnName',  enum's name maybe renamed.
 mixin TableColumn<T extends Enum> on Enum {

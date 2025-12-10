@@ -1,4 +1,4 @@
-part of 'sql.dart';
+part of '../sql.dart';
 
 class TableProto<E extends TableColumn> {
   final String name;

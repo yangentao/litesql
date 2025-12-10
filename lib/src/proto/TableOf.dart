@@ -1,4 +1,4 @@
-part of 'sql.dart';
+part of '../sql.dart';
 
 // 顺序必须M在前, 这样可以推导出E的类型
 class TableOf<M extends TableModel<E>, E extends TableColumn> {
