@@ -32,58 +32,55 @@ class TableModel<E> {
     return wherePks.and();
   }
 
-  int delete() {
+  QueryResult delete() {
     return _lite.delete(_tableName, where: _keyWhere);
   }
 
   /// update modified fields within callback by key(s),
-  int update(VoidCallback callback) {
+  QueryResult update(VoidCallback callback, {List<Object>? returning}) {
     _modifiedKeys.clear();
     callback();
-    if (_modifiedKeys.isEmpty) return 0;
+    if (_modifiedKeys.isEmpty) return emptyResult;
     _modifiedKeys.clear();
     var ls = _modifiedKeys.toList();
-    return updateByKey(columns: ls);
+    return updateByKey(columns: ls, returning: returning);
   }
 
-  int updateByKey({List<Object>? columns, List<Object>? excludes}) {
+  QueryResult updateByKey({List<Object>? columns, List<Object>? excludes, List<Object>? returning}) {
     List<MapEntry<TableColumn, dynamic>> values = _fieldValues(columns: columns, excludes: excludes);
     values.removeWhere((e) => e.key.proto.primaryKey);
     values.retainWhere((e) => e.value != null || true == columns?.contains(e.key.columnName));
-    if (values.isEmpty) return 0;
-    Returning ret = Returning.ALL;
-    int n = _lite.update(_tableName, values: values, where: _keyWhere, returning: ret);
-    if (n > 0) {
-      this.model.addAll(ret.firstRow);
+    if (values.isEmpty) return emptyResult;
+    QueryResult r = _lite.update(_tableName, values: values, where: _keyWhere, returning: returning);
+    if (r.isNotEmpty) {
+      this.model.addAll(r.firstMap()!);
     }
-    return n;
+    return r;
   }
 
   // only nonull field will be insert, or 'columns' contains it
-  int insert({List<Object>? columns, List<Object>? excludes, InsertOption? conflict}) {
+  QueryResult insert({List<Object>? columns, List<Object>? excludes, InsertOption? conflict, List<Object>? returning}) {
     List<MapEntry<TableColumn, dynamic>> ls = _fieldValues(columns: columns, excludes: excludes);
     ls.retainWhere((e) => e.value != null || true == columns?.contains(e.key.columnName));
-    if (ls.isEmpty) return 0;
-    Returning ret = Returning.ALL;
-    int id = _lite.insert(_tableName, values: ls, conflict: conflict, returning: ret);
-    if (ret.hasReturn) {
-      this.model.addAll(ret.firstRow);
+    if (ls.isEmpty) return emptyResult;
+    QueryResult r = _lite.insert(_tableName, values: ls, conflict: conflict, returning: returning);
+    if (r.isNotEmpty) {
+      this.model.addAll(r.firstMap()!);
     }
-    return id;
+    return r;
   }
 
   // only nonull field will be insert, or 'columns' contains it
-  int upsert({List<Object>? columns, List<Object>? excludes, InsertOption? conflict}) {
+  QueryResult upsert({List<Object>? columns, List<Object>? excludes, InsertOption? conflict, List<Object>? returning}) {
     List<MapEntry<TableColumn, dynamic>> ls = _fieldValues(columns: columns, excludes: excludes);
     ls.retainWhere((e) => e.value != null || true == columns?.contains(e.key.columnName));
-    if (ls.isEmpty) return 0;
-    Returning ret = Returning.ALL;
-    int id = _lite.upsert(_tableName, values: ls, constraints: _proto.primaryKeys, returning: ret);
-    if (ret.hasReturn) {
-      this.model.addAll(ret.firstRow);
+    if (ls.isEmpty) return emptyResult;
+    QueryResult r = _lite.upsert(_tableName, values: ls, constraints: _proto.primaryKeys, returning: returning);
+    if (r.isNotEmpty) {
+      this.model.addAll(r.firstMap()!);
     }
     _modifiedKeys.clear();
-    return id;
+    return r;
   }
 
   List<MapEntry<TableColumn, dynamic>> _fieldValues({List<Object>? columns, List<Object>? excludes}) {

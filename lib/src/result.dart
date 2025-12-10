@@ -7,6 +7,8 @@ extension ResultSetToQueryResultExt on ResultSet {
   }
 }
 
+final QueryResult emptyResult = QueryResult([], meta: ResultMeta([]));
+
 class QueryResult extends UnmodifiableListView<List<Object?>> {
   // ignore: unused_field
   final int _affectedRows;
@@ -27,6 +29,11 @@ class ResultMeta {
   int get length => columns.length;
 
   int labelToIndex(String label) => labelIndexMap[label] ?? errorSQL("NO label found");
+
+  @override
+  String toString() {
+    return columns.map((e) => e.label).toString();
+  }
 }
 
 class ColumnMeta {
@@ -36,6 +43,11 @@ class ColumnMeta {
   final int _typeId;
 
   ColumnMeta({required this.label, int typeId = 0}) : _typeId = typeId;
+
+  @override
+  String toString() {
+    return label;
+  }
 }
 
 //------------------

@@ -9,15 +9,17 @@ void main() async {
     LiteSQL lite = LiteSQL.openMemory();
     lite.register(Person.values);
 
-    Returning returning = Returning([Person.id]);
-    lite.insert(Person, values: [Person.name >> "entao", Person.age >> 31], returning: returning);
-    println(returning.firstRow);
-    // {id: 1}
+    QueryResult r = lite.insert(Person, values: [Person.name >> "entao", Person.age >> 31], returning: [Person.id]);
+    println(r.firstValue());
+    expect(r.firstValue(), 1);
 
-    Returning r2 = Returning(Person.values);
-    lite.upsert(Person, values: [Person.id >> 1, Person.name >> "Tom", Person.age >> 22], constraints: [], returning: r2);
-    println(r2.firstRow);
+    QueryResult r2 = lite.upsert(Person, values: [Person.id >> 1, Person.name >> "Tom", Person.age >> 22], constraints: [], returning: Person.values);
+    RowData row = r2.firstRow()!;
+    println(row.toMap());
     // {id: 1, name: Tom, age: 22}
+    expect(row.get("id"), 1);
+    expect(row.get("name"), "Tom");
+    expect(row.get("age"), 22);
     lite.close();
   });
 }

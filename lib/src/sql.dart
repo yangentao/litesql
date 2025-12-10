@@ -13,7 +13,6 @@ import 'sqlite3_ffi.dart' as xsql;
 
 part 'LiteExt.dart';
 part 'LiteSQL.dart';
-part 'result.dart';
 part 'SpaceBuffer.dart';
 part 'clause/clauses.dart';
 part 'clause/express.dart';
@@ -30,30 +29,21 @@ part 'proto/TableOf.dart';
 part 'proto/TableProto.dart';
 part 'proto/migrator.dart';
 part 'proto/types.dart';
+part 'result.dart';
 part 'sql_utils.dart';
 
 TagLog logSQL = TagLog("SQL");
+
+const List<String> ALL_COLUMNS = ["*"];
 
 typedef BlobSQL = Uint8List;
 
 typedef ModelCreator<T> = T Function(AnyMap);
 typedef ColumnValue<T extends Object> = MapEntry<T, dynamic>;
 
-final class Returning {
-  final List<String> columns;
-  List<AnyMap> returnRows = [];
-
-  Returning(Iterable<Object> columns) : columns = columns.mapList((e) => _columnNameOf(e)) {
-    assert(columns.isNotEmpty);
-  }
-
-  bool get hasReturn => returnRows.isNotEmpty;
-
-  AnyMap get firstRow => returnRows.first;
-
-  String get clause => " RETURNING ${columns.join(", ")}";
-
-  static Returning get ALL => Returning(const ["*"]);
+String _returningClause(List<Object>? columns) {
+  if (columns == null || columns.isEmpty) return "";
+  return " RETURNING ${columns.join(", ")}";
 }
 
 enum InsertOption {

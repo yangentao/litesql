@@ -23,7 +23,4 @@ enum Per with TableColumn {
 
   @override
   final ColumnProto proto;
-
-  @override
-  List<Per> get columns => Per.values;
 }

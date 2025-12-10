@@ -40,59 +40,54 @@ class TableOf<M extends TableModel<E>, E> {
     return lite.query(columns ?? [], from: tableName, where: where, groupBy: groupBy, having: having, window: window, orderBy: orderBy, limit: limit, offset: offset);
   }
 
-  int delete({required Where where, Returning? returning}) {
+  QueryResult delete({required Where where, List<Object>? returning}) {
     return lite.delete(tableName, where: where, returning: returning);
   }
 
   /// xx(key: 1, ...)
   /// xx(key: [1,name],...)
   /// support union primary key(s)
-  int deleteBy({required Object key, Returning? returning}) {
+  QueryResult deleteBy({required Object key, List<Object>? returning}) {
     return delete(where: _keyWhere(key), returning: returning);
   }
 
-  int update({required List<ColumnValue> values, required Where where, Returning? returning}) {
+  QueryResult update({required List<ColumnValue> values, required Where where, List<Object>? returning}) {
     return lite.update(tableName, values: values, where: where, returning: returning);
   }
 
   /// xx(key: 1, ...)
   /// xx(key: [1,name],...)
   /// support union primary key(s)
-  int updateBy({required Object key, required List<ColumnValue> values, Returning? returning}) {
+  QueryResult updateBy({required Object key, required List<ColumnValue> values, List<Object>? returning}) {
     return lite.update(tableName, values: values, where: _keyWhere(key), returning: returning);
   }
 
-  int upsert({required List<ColumnValue> values, Returning? returning}) {
+  QueryResult upsert({required List<ColumnValue> values, List<Object>? returning}) {
     return lite.upsert(tableName, values: values, constraints: primaryKeys, returning: returning);
   }
 
-  int insert({required List<ColumnValue> values, InsertOption? conflict, Returning? returning}) {
-    if (values.isEmpty) return 0;
+  QueryResult insert({required List<ColumnValue> values, InsertOption? conflict, List<Object>? returning}) {
+    if (values.isEmpty) return emptyResult;
     return lite.insert(tableName, values: values, conflict: conflict, returning: returning);
   }
 
-  List<int> insertAll({required List<List<ColumnValue>> rows, InsertOption? conflict, Returning? returning}) {
+  List<QueryResult> insertAll({required List<List<ColumnValue>> rows, InsertOption? conflict, List<Object>? returning}) {
     if (rows.isEmpty) return [];
     return lite.insertAll(tableName, rows: rows, conflict: conflict, returning: returning);
   }
 
-  int save(M? item, {bool returning = true}) {
-    if (item == null) return 0;
-    if (returning) {
-      Returning r = Returning.ALL;
-      int n = upsert(values: proto.columns.mapList((e) => e >> e.get(item)), returning: r);
-      if (r.hasReturn) {
-        item.model.addAll(r.firstRow);
-      }
-      return n;
-    } else {
-      return upsert(values: proto.columns.mapList((e) => e >> e.get(item)));
+  QueryResult save(M? item, {List<Object>? returning = ALL_COLUMNS}) {
+    if (item == null) return emptyResult;
+    QueryResult r = upsert(values: proto.columns.mapList((e) => e >> e.get(item)), returning: returning);
+    if (r.isNotEmpty) {
+      item.model.addAll(r.firstMap()!);
     }
+    return r;
   }
 
-  List<int> saveAll(List<M> items, {bool returning = true}) {
+  List<QueryResult> saveAll(List<M> items, {List<Object>? returning = ALL_COLUMNS}) {
     if (items.isEmpty) return [];
-    List<int> idList = [];
+    List<QueryResult> idList = [];
     for (M item in items) {
       idList << save(item, returning: returning);
     }

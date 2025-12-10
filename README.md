@@ -70,13 +70,13 @@ when parameter 'constraints' is empty, it will auto search from 'values', which 
 * Returning  
 insert/upsert/delete/update can return the effect row data, part or whole.  
 ```dart  
-Returning returning = Returning([Person.id]);
-lite.insert(Person, values: [Person.name >> "entao", Person.age >> 31], returning: returning);
-println(returning.firstRow);
+QueryResult r = lite.insert(Person, values: [Person.name >> "entao", Person.age >> 31], returning: [Person.id]);
+println(r.firstValue());
+expect(r.firstValue(), 1);
 // {id: 1}
-Returning r2 = Returning(Person.values);
-lite.upsert(Person, values: [Person.id >> 1, Person.name >> "Tom", Person.age >> 22], constraints: [], returning: r2);
-println(r2.firstRow);
+QueryResult r2 = lite.upsert(Person, values: [Person.id >> 1, Person.name >> "Tom", Person.age >> 22], constraints: [], returning: Person.values);// or ALL_COLUMNS
+RowData row = r2.firstRow()!;
+println(row.toMap());
 // {id: 1, name: Tom, age: 22}
 ```
 

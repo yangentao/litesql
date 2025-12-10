@@ -38,9 +38,7 @@ class LiteSQL {
     execute("VACUUM");
   }
 
-  void dumpTable(String table) {
-    execute("SELECT * FROM ${table.escapeSQL}").dump();
-  }
+
 
   QueryResult execute(String sql, [List<Object?>? parameters]) {
     logSQL.d(sql);
