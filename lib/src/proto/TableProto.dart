@@ -9,7 +9,7 @@ class TableProto {
   late final String nameSQL = name.escapeSQL;
   late final List<TableColumn> primaryKeys = columns.filter((e) => e.proto.primaryKey);
 
-  TableProto._(this.name, this.columns, {required this.lite}) : type = columns.first.runtimeType {
+  TableProto._(this.columns, {required this.lite, required this.type, String? tableName}) : name = tableName ?? "$type" {
     assert(columns.isNotEmpty);
     for (var e in columns) {
       e._tableProto = this;
@@ -39,93 +39,18 @@ class TableProto {
 
   static final Map<Type, TableProto> _enumTypeMap = {};
 
-  static void register<T extends TableColumn>(LiteSQL lite, List<T> fields, {String? tableName}) {
+  static void register<T extends TableColumn>(LiteSQL lite, List<T> fields, {String? tableName, void Function(TableProto)? migrator, bool useBasicMigrator = true}) {
     assert(fields.isNotEmpty);
     if (TableProto.isRegistered<T>()) return;
-    TableProto tab = TableProto._(tableName ?? "$T", fields, lite: lite);
-    _migrateTable(lite, tab.name, tab.columns);
+    TableProto tab = TableProto._(tableName: tableName, type: T, fields, lite: lite);
+    if (migrator != null) {
+      migrator(tab);
+    } else if (useBasicMigrator) {
+      BasicMigrator(tab);
+    }
   }
 }
 
 TableProto $(Type type) => TableProto.of(type);
 
 TableProto PROTO(Type type) => TableProto.of(type);
-
-void _migrateTable(LiteSQL lite, String tableName, List<TableColumn> fields) {
-  if (!lite.existTable(tableName)) {
-    _createTable(lite, tableName, fields);
-    return;
-  }
-
-  List<SqliteTableInfo> cols = lite.tableInfo(tableName);
-  Set<String> colSet = cols.map((e) => e.name).toSet();
-  for (TableColumn f in fields) {
-    if (!colSet.contains(f.columnName)) {
-      _addColumn(lite, tableName, f);
-    }
-  }
-  Set<String> idxSet = {};
-  List<LiteIndexItem> idxList = lite.PRAGMA.index_list(tableName);
-  for (LiteIndexItem a in idxList) {
-    List<LiteIndexInfo> ls = lite.PRAGMA.index_info(a.name);
-    idxSet.addAll(ls.map((e) => e.name));
-  }
-  for (TableColumn f in fields) {
-    if (f.proto.primaryKey || f.proto.unique || notBlank(f.proto.uniqueName)) continue;
-    if (f.proto.index && !idxSet.contains(f.columnName)) {
-      lite.createIndex(tableName, [f.columnName]);
-    }
-  }
-}
-
-void _addColumn(LiteSQL lite, String table, TableColumn field) {
-  String sql = "ALTER TABLE ${table.escapeSQL} ADD COLUMN ${field.defineField(false)}";
-  lite.execute(sql);
-}
-
-void _createTable(LiteSQL lite, String table, List<TableColumn> fields, {List<String>? constraints, List<String>? options, bool notExist = true}) {
-  List<String> ls = [];
-  if (notExist) {
-    ls << "CREATE TABLE IF NOT EXISTS ${table.escapeSQL} (";
-  } else {
-    ls << "CREATE TABLE ${table.escapeSQL} (";
-  }
-
-  List<String> colList = [];
-
-  List<TableColumn> keyFields = fields.filter((e) => e.proto.primaryKey);
-  colList.addAll(fields.map((e) => e.defineField(keyFields.length > 1)));
-
-  if (keyFields.length > 1) {
-    colList << "PRIMARY KEY ( ${keyFields.map((e) => e.nameSQL).join(", ")})";
-  }
-  List<TableColumn> uniqeList = fields.filter((e) => e.proto.uniqueName != null && e.proto.uniqueName!.isNotEmpty);
-  if (uniqeList.isNotEmpty) {
-    Map<String, List<TableColumn>> map = uniqeList.groupBy((e) => e.proto.uniqueName!);
-    for (var e in map.entries) {
-      colList << "UNIQUE (${e.value.map((f) => f.nameSQL).join(", ")})";
-    }
-  }
-
-  if (constraints != null && constraints.isNotEmpty) {
-    colList.addAll(constraints);
-  }
-  ls << colList.join(",\n");
-  if (options != null && options.isNotEmpty) {
-    ls << ") ${options.join(",")}";
-  } else {
-    ls << ")";
-  }
-
-  String sql = ls.join("\n");
-  lite.execute(sql);
-
-  for (var f in fields) {
-    if (f.proto.primaryKey || f.proto.unique || notBlank(f.proto.uniqueName)) {
-      continue;
-    }
-    if (f.proto.index) {
-      lite.createIndex(table, [f.columnName]);
-    }
-  }
-}
