@@ -79,21 +79,28 @@ bool _canSave(dynamic item) {
 }
 
 T? _getModelValue<T>(Object model, String name) {
-  if (model is TableModel) return model[name];
-  if (model is Map<String, dynamic>) return _checkNum(model[name]);
-  if (model is MapModel) return _checkNum(model[name].value);
-  errorSQL(" get model value failed, unknown container: $model, column: $name.");
+  switch (model) {
+    case TableModel m:
+      return m[name];
+    case MapModel m:
+      return m[name];
+    case AnyMap m:
+      return _checkNum(m[name]);
+    default:
+      errorSQL(" get model value failed, unknown container: $model, column: $name.");
+  }
 }
 
 void _setModelValue(Object model, String key, dynamic value) {
-  if (model is TableModel) {
-    model[key] = value;
-  } else if (model is Map<String, dynamic>) {
-    model[key] = value;
-  } else if (model is MapModel) {
-    model[key] = value;
-  } else {
-    errorSQL("set value failed, unknown container:$model, tableColumn:$key.");
+  switch (model) {
+    case TableModel m:
+      m[key] = value;
+    case MapModel m:
+      m[key] = value;
+    case AnyMap m:
+      m[key] = value;
+    default:
+      errorSQL("set value failed, unknown container:$model, tableColumn:$key.");
   }
 }
 
