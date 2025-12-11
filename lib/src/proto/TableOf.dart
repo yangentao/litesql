@@ -13,6 +13,10 @@ class TableOf<M extends TableModel<E>, E> {
 
   String get tableName => proto.name;
 
+  int get lastInsertRowId => lite.lastInsertRowId;
+
+  int get updatedRows => lite.updatedRows;
+
   V? oneValue<V>({required Object column, Where? where, Object? groupBy, Object? having, Object? window, Object? orderBy}) {
     return this.query(columns: [column], where: where, groupBy: groupBy, having: having, window: window, orderBy: orderBy, limit: 1).firstValue();
   }

@@ -18,7 +18,6 @@ class TableProto {
   }
 
   factory TableProto(Type type) {
-    print("check: $type  ");
     TableProto? p = _enumTypeMap[type];
     if (p == null) {
       errorSQL("NO table proto of '$type ' found, migrate it first. for example: liteSQL.migrate(Person.values) ");

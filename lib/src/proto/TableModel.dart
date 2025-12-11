@@ -4,16 +4,16 @@ class TableModel<E> {
   AnyMap model;
   final Type _tableType = E;
   final Set<String> _modifiedKeys = {};
-  final TableProto _proto = TableProto.of(E);
+  final TableProto tableProto = TableProto.of(E);
 
   TableModel(this.model);
 
-  LiteSQL get _lite => _proto.lite;
+  LiteSQL get liteSQL => tableProto.lite;
 
-  String get _tableName => _proto.name;
+  String get _tableName => tableProto.name;
 
   void dumpTable() {
-    _lite.dump(_tableType);
+    liteSQL.dump(_tableType);
   }
 
   void clearModifyFlag() {
@@ -21,7 +21,7 @@ class TableModel<E> {
   }
 
   Where get _keyWhere {
-    List<TableColumn> pks = _proto.primaryKeys;
+    List<TableColumn> pks = tableProto.primaryKeys;
     if (pks.isEmpty) errorSQL("No primary key defined");
     List<Where> wherePks = [];
     for (TableColumn f in pks) {
@@ -33,7 +33,7 @@ class TableModel<E> {
   }
 
   QueryResult delete() {
-    return _lite.delete(_tableName, where: _keyWhere);
+    return liteSQL.delete(_tableName, where: _keyWhere);
   }
 
   /// update modified fields within callback by key(s),
@@ -54,7 +54,7 @@ class TableModel<E> {
       values.retainWhere((e) => columns.contains(e.key.columnName));
     }
     if (values.isEmpty) return emptyResult;
-    QueryResult r = _lite.update(_tableName, values: values, where: _keyWhere, returning: returning);
+    QueryResult r = liteSQL.update(_tableName, values: values, where: _keyWhere, returning: returning);
     if (r.isNotEmpty) {
       this.model.addAll(r.firstMap()!);
     }
@@ -70,7 +70,7 @@ class TableModel<E> {
       ls.retainWhere((e) => columns.contains(e.key.columnName));
     }
     if (ls.isEmpty) return emptyResult;
-    QueryResult r = _lite.insert(_tableName, values: ls, conflict: conflict, returning: returning);
+    QueryResult r = liteSQL.insert(_tableName, values: ls, conflict: conflict, returning: returning);
     if (r.isNotEmpty) {
       this.model.addAll(r.firstMap()!);
     }
@@ -85,7 +85,7 @@ class TableModel<E> {
       ls.retainWhere((e) => columns.contains(e.key.columnName));
     }
     if (ls.isEmpty) return emptyResult;
-    QueryResult r = _lite.upsert(_tableName, values: ls, constraints: _proto.primaryKeys, returning: returning);
+    QueryResult r = liteSQL.upsert(_tableName, values: ls, constraints: tableProto.primaryKeys, returning: returning);
     if (r.isNotEmpty) {
       this.model.addAll(r.firstMap()!);
     }
@@ -101,11 +101,11 @@ class TableModel<E> {
     if (names != null && names.isNotEmpty) {
       for (String f in names) {
         if (!excludeNames.contains(f)) {
-          ls.add(_proto.find(f)! >> get(f));
+          ls.add(tableProto.find(f)! >> get(f));
         }
       }
     } else {
-      for (TableColumn f in _proto.columns) {
+      for (TableColumn f in tableProto.columns) {
         if (!excludeNames.contains(f.columnName)) {
           ls.add(f >> get(f));
         }
