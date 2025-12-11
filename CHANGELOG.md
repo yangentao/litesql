@@ -93,3 +93,6 @@
 * update entao_dutil package
 ## 3.0.9
 * update entao_dutil package
+
+## 3.1.0
+* break change.
