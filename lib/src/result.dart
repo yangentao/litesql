@@ -73,29 +73,38 @@ class RowData extends UnmodifiableListView<Object?> {
   }
 }
 
-class StepCursor implements Iterator<RowData> {
-  IteratingCursor cursor;
-  PreparedStatement statement;
-  ResultMeta meta;
+class StepCursor extends Iterable<RowData> {
+  final IteratingCursor _cursor;
+  final PreparedStatement _statement;
+  final ResultMeta meta;
 
-  StepCursor({required this.cursor, required this.statement}) : meta = ResultMeta(cursor.columnNames.mapList((e) => ColumnMeta(label: e)));
+  StepCursor(this._statement, this._cursor) : meta = ResultMeta(_cursor.columnNames.mapList((e) => ColumnMeta(label: e)));
 
-  List<String?> get tableNames => cursor.tableNames ?? [];
+  List<String?> get tableNames => _cursor.tableNames ?? [];
+
+  void close() {
+    _statement.close();
+  }
 
   @override
-  RowData get current => RowData(cursor.current.values, meta: meta);
+  Iterator<RowData> get iterator => _StepIterator(this);
+}
+
+class _StepIterator implements Iterator<RowData> {
+  final StepCursor step;
+
+  _StepIterator(this.step);
+
+  @override
+  RowData get current => RowData(step._cursor.current.values, meta: step.meta);
 
   @override
   bool moveNext() {
-    bool ok = cursor.moveNext();
+    bool ok = step._cursor.moveNext();
     if (!ok) {
-      statement.close();
+      step.close();
     }
     return ok;
-  }
-
-  void close() {
-    statement.close();
   }
 }
 

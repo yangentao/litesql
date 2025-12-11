@@ -55,7 +55,7 @@ class LiteSQL {
     }
     PreparedStatement ps = database.prepare(sql);
     IteratingCursor cursor = ps.selectCursor(parameters ?? const []);
-    return StepCursor(cursor: cursor, statement: ps);
+    return StepCursor(ps, cursor);
   }
 
   List<QueryResult> multiQuery(String sql, Iterable<AnyList> allParameters) {
