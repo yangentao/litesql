@@ -49,7 +49,10 @@ class TableModel<E> {
   QueryResult updateByKey({List<Object>? columns, List<Object>? excludes, List<Object>? returning}) {
     List<MapEntry<TableColumn, dynamic>> values = _fieldValues(columns: columns, excludes: excludes);
     values.removeWhere((e) => e.key.proto.primaryKey);
-    values.retainWhere((e) => e.value != null || true == columns?.contains(e.key.columnName));
+    values.retainWhere((e) => e.value != null);
+    if (columns != null && columns.isNotEmpty) {
+      values.retainWhere((e) => columns.contains(e.key.columnName));
+    }
     if (values.isEmpty) return emptyResult;
     QueryResult r = _lite.update(_tableName, values: values, where: _keyWhere, returning: returning);
     if (r.isNotEmpty) {
@@ -59,9 +62,13 @@ class TableModel<E> {
   }
 
   // only nonull field will be insert, or 'columns' contains it
-  QueryResult insert({List<Object>? columns, List<Object>? excludes, InsertOption? conflict, List<Object>? returning}) {
+  QueryResult insert({List<Object>? columns, List<Object>? excludes, InsertOption? conflict, List<Object>? returning = ALL_COLUMNS}) {
     List<MapEntry<TableColumn, dynamic>> ls = _fieldValues(columns: columns, excludes: excludes);
-    ls.retainWhere((e) => e.value != null || true == columns?.contains(e.key.columnName));
+
+    ls.retainWhere((e) => e.value != null);
+    if (columns != null && columns.isNotEmpty) {
+      ls.retainWhere((e) => columns.contains(e.key.columnName));
+    }
     if (ls.isEmpty) return emptyResult;
     QueryResult r = _lite.insert(_tableName, values: ls, conflict: conflict, returning: returning);
     if (r.isNotEmpty) {
@@ -73,7 +80,10 @@ class TableModel<E> {
   // only nonull field will be insert, or 'columns' contains it
   QueryResult upsert({List<Object>? columns, List<Object>? excludes, InsertOption? conflict, List<Object>? returning}) {
     List<MapEntry<TableColumn, dynamic>> ls = _fieldValues(columns: columns, excludes: excludes);
-    ls.retainWhere((e) => e.value != null || true == columns?.contains(e.key.columnName));
+    ls.retainWhere((e) => e.value != null);
+    if (columns != null && columns.isNotEmpty) {
+      ls.retainWhere((e) => columns.contains(e.key.columnName));
+    }
     if (ls.isEmpty) return emptyResult;
     QueryResult r = _lite.upsert(_tableName, values: ls, constraints: _proto.primaryKeys, returning: returning);
     if (r.isNotEmpty) {
