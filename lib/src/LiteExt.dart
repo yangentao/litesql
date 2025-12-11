@@ -73,14 +73,7 @@ extension LiteSqlInsertExt on LiteSQL {
     assert(columns.isNotEmpty && rows.isNotEmpty);
     SpaceBuffer buf = _insertBuffer(table, columns);
     buf << _returningClause(returning);
-    PreparedStatement ps = prepareSQL(buf.toString());
-    List<QueryResult> idList = [];
-    for (Iterable<dynamic> values in rows) {
-      QueryResult rs = ps.select(values.toList()).queryResult;
-      idList.add(rs);
-    }
-    ps.close();
-    return idList;
+    return multiQuery(buf.toString(), rows.map((e) => e.toList()));
   }
 
   QueryResult upsert(Object table, {required Iterable<ColumnValue> values, required Iterable<Object> constraints, InsertOption? conflict, List<Object>? returning}) {

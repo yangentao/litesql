@@ -58,6 +58,17 @@ class LiteSQL {
     return StepCursor(cursor: cursor, statement: ps);
   }
 
+  List<QueryResult> multiQuery(String sql, Iterable<AnyList> allParameters) {
+    assert(allParameters.isNotEmpty);
+    List<QueryResult> rs = [];
+    PreparedStatement ps = prepareSQL(sql);
+    for (AnyList ls in allParameters) {
+      rs << ps.select(ls).queryResult;
+    }
+    ps.close();
+    return rs;
+  }
+
   PreparedStatement prepareSQL(String sql) {
     logSQL.d(sql);
     return database.prepare(sql);
