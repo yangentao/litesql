@@ -96,3 +96,5 @@
 
 ## 3.1.0
 * break change.
+## 3.1.1
+* default migrator

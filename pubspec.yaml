@@ -2,7 +2,7 @@ name: litesql
 description: SQLite with ORM.
 repository: https://github.com/yangentao/litesql
 homepage: https://github.com/yangentao/litesql
-version: 3.1.0
+version: 3.1.1
 
 environment:
   # Inference using bounds, generic used in TableOf class

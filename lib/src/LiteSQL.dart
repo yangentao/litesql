@@ -87,8 +87,8 @@ class LiteSQL {
   }
 
   /// liteSQL.register(Person.values)
-  void register<T extends TableColumn>(List<T> fields, {String? tableName, void Function(TableProto)? migrator, bool useBasicMigrator = true}) {
-    TableProto.register(this, fields, tableName: tableName, migrator: migrator, useBasicMigrator: useBasicMigrator);
+  void register<T extends TableColumn>(List<T> fields, {String? tableName, dynamic Function(TableProto)? migrator = BasicMigrator.new}) {
+    TableProto.register(this, fields, tableName: tableName, migrator: migrator);
   }
 
   List<SqliteTableInfo> tableInfo(String tableName) {

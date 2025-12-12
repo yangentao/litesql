@@ -38,14 +38,12 @@ class TableProto {
 
   static final Map<Type, TableProto> _enumTypeMap = {};
 
-  static void register<T extends TableColumn>(LiteSQL lite, List<T> fields, {String? tableName, void Function(TableProto)? migrator, bool useBasicMigrator = true}) {
+  static void register<T extends TableColumn>(LiteSQL lite, List<T> fields, {String? tableName, dynamic Function(TableProto)? migrator = BasicMigrator.new}) {
     assert(fields.isNotEmpty);
     if (TableProto.isRegistered<T>()) return;
     TableProto tab = TableProto._(tableName: tableName, type: T, fields, lite: lite);
     if (migrator != null) {
       migrator(tab);
-    } else if (useBasicMigrator) {
-      BasicMigrator(tab);
     }
   }
 }
