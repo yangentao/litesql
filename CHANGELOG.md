@@ -98,3 +98,6 @@
 * break change.
 ## 3.1.1
 * default migrator
+
+## 3.1.2
+* update entao_log package.

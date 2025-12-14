@@ -2,7 +2,7 @@ name: litesql
 description: SQLite with ORM.
 repository: https://github.com/yangentao/litesql
 homepage: https://github.com/yangentao/litesql
-version: 3.1.1
+version: 3.1.2
 
 environment:
   # Inference using bounds, generic used in TableOf class
@@ -13,8 +13,8 @@ resolution: workspace
 dependencies:
   sqlite3: ^3.1.1
   println: ^1.0.4
-  entao_dutil: ^2.3.2
-  entao_log: ^1.2.8
+  entao_dutil: ^2.3.4
+  entao_log: ^2.0.0
   entao_lint: ^1.0.1
 
 dev_dependencies:

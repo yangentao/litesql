@@ -1,3 +1,4 @@
+import 'package:entao_log/entao_log.dart';
 import 'package:litesql/litesql.dart';
 import 'package:test/test.dart';
 
@@ -5,6 +6,7 @@ import '../example/model.dart';
 
 void main() async {
   test("base-delete", () {
+    xlog.pipe(ConsolePrinter());
     LiteSQL lite = LiteSQL.openMemory();
     lite.register(Person.values);
 
